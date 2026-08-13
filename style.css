@@ -445,6 +445,11 @@ h2 em, h3 em { color: var(--svpr-accent); font-style: normal; font-weight: 300; 
 .sound-control.playing .sound-bars i:nth-child(4) { animation:bar .9s -.3s ease-in-out infinite; }
 @keyframes bar { 0%,100%{height:4px}50%{height:14px} }
 .sound-label { font-size:.46rem; letter-spacing:.14em; }
+.sound-credit { position:fixed; right:1.25rem; bottom:4.3rem; z-index:109; padding:.55rem .78rem; border:1px solid rgba(148,177,255,.14); border-radius:999px; background:rgba(7,2,15,.78); color:rgba(255,255,255,.74); backdrop-filter:blur(14px); font-size:.46rem; letter-spacing:.14em; text-decoration:none; opacity:0; transform:translateY(8px); pointer-events:none; transition:opacity .25s ease,transform .25s ease,border-color .25s ease,color .25s ease,background .25s ease; }
+.sound-credit strong { font-weight:700; color:var(--star-100); }
+.sound-control:hover + .sound-credit,
+.sound-credit:hover { opacity:1; transform:translateY(0); pointer-events:auto; }
+.sound-credit:hover { color:white; border-color:rgba(148,177,255,.35); background:rgba(15,5,32,.9); }
 
 /* Reveals */
 .reveal { opacity:0; transform:translateY(34px); transition:opacity .9s var(--ease-out),transform .9s var(--ease-out); }
@@ -510,6 +515,7 @@ h2 em, h3 em { color: var(--svpr-accent); font-style: normal; font-weight: 300; 
   .final-cta { min-height:650px; padding-block:8rem; }
   .cta-actions, .hero-actions { flex-direction:column; align-items:stretch; width:min(100%,340px); margin-inline:auto; }
   .sound-control { right:.75rem; bottom:.75rem; }
+  .sound-credit { right:.75rem; bottom:3.85rem; max-width:210px; white-space:normal; text-align:center; }
   .sound-label { display:none; }
   .sound-control { width:40px; height:40px; justify-content:center; padding:0; }
   .footer-brand { align-items:flex-start; }
@@ -535,10 +541,12 @@ h2 em, h3 em { color: var(--svpr-accent); font-style: normal; font-weight: 300; 
 /* ==========================================================================\n   V1.1 — ignition intro + deeper cosmic parallax\n   ========================================================================== */
 body.prelaunch { overflow:hidden; }
 body.prelaunch .site-header,
-body.prelaunch .sound-control { opacity:0; pointer-events:none; }
+body.prelaunch .sound-control,
+body.prelaunch .sound-credit { opacity:0; pointer-events:none; }
 body.site-launched .site-header,
-body.site-launched .sound-control { opacity:1; }
-.site-header, .sound-control { transition:opacity .8s ease, background .35s ease, border-color .35s ease, box-shadow .35s ease; }
+body.site-launched .sound-control,
+body.site-launched .sound-credit { opacity:1; }
+.site-header, .sound-control, .sound-credit { transition:opacity .8s ease, background .35s ease, border-color .35s ease, box-shadow .35s ease; }
 
 /* Ignition screen */
 .stellar-intro {
@@ -796,9 +804,10 @@ body.site-launched .hero-title-lockup {
     drop-shadow(0 0 245px rgba(90,10,134,.66));
 }
 
-/* Larger flare, tilted 15deg clockwise. Its brightness pulse shares the same
+/* Larger flare in its normal orientation. Its brightness pulse shares the same
    timing as the logo's unstable stellar flicker. */
 .hero-lens-flare {
+  transform: none;
   transform-origin: center;
   animation: heroLensFlicker .23s steps(2,end) infinite alternate;
   will-change: opacity, filter;

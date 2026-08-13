@@ -250,8 +250,8 @@ const prismState = {
   boost: 0,
   active: false,
   burstStart: -10000,
-  incomingDuration: 760,
-  outgoingDuration: 980,
+  incomingDuration: 255,
+  outgoingDuration: 330,
   nextBurst: 2400,
   incomingStart: null,
   rays: [],
@@ -348,11 +348,12 @@ const drawSpectrum = (time = 0) => {
   const inIncoming = prismState.active && elapsed >= 0 && elapsed < prismState.incomingDuration;
   const inOutgoing = prismState.active && elapsed >= outgoingStart && elapsed < outgoingEnd;
   const prismEnergy = inIncoming
-    ? clamp(elapsed / prismState.incomingDuration, 0, 1)
+    ? clamp(elapsed / prismState.incomingDuration, 0, 1) * .35
     : inOutgoing
-      ? 1 - (elapsed - outgoingStart) / prismState.outgoingDuration * .2
+      ? 1 - (elapsed - outgoingStart) / prismState.outgoingDuration * .12
       : 0;
-  prismState.boost += ((inIncoming || inOutgoing ? 1 : 0) - prismState.boost) * 0.09;
+  const boostTarget = inOutgoing ? 1 : 0;
+  prismState.boost += (boostTarget - prismState.boost) * 0.18;
 
   if (!reduceMotion) {
     prismState.rotX += prismState.speedX * (1 + prismState.boost * 3.2);
@@ -398,19 +399,16 @@ const drawSpectrum = (time = 0) => {
         });
       }
 
-      if (bestBeam && bestDistance < Math.min(spectrumW, spectrumH) * .18) {
-        const influence = 1 - bestDistance / (Math.min(spectrumW, spectrumH) * .18);
-        targetX += (bestBeam.closest.x / spectrumW - node.x) * (0.11 * influence);
-        targetY += (bestBeam.closest.y / spectrumH - node.y) * (0.11 * influence);
+      if (bestBeam) {
+        const influence = clamp(1 - bestDistance / (Math.min(spectrumW, spectrumH) * .58), .28, 1);
+        targetX += (bestBeam.closest.x / spectrumW - node.x) * (0.26 * influence);
+        targetY += (bestBeam.closest.y / spectrumH - node.y) * (0.26 * influence);
         node.tintColor = bestBeam.ray.color;
-        node.tintStrength += (Math.max(.15, influence) - node.tintStrength) * .18;
-      } else {
-        node.tintStrength += (0 - node.tintStrength) * .06;
-        node.tintColor = palette[node.group];
+        node.tintStrength = 1;
       }
 
-      node.x += (targetX - node.x) * (inOutgoing ? .08 : .045);
-      node.y += (targetY - node.y) * (inOutgoing ? .08 : .045);
+      node.x += (targetX - node.x) * (inOutgoing ? .24 : .065);
+      node.y += (targetY - node.y) * (inOutgoing ? .24 : .065);
       node.x = clamp(node.x, .06, .94);
       node.y = clamp(node.y, .06, .94);
     }
@@ -454,13 +452,14 @@ const drawSpectrum = (time = 0) => {
     depth: indices.reduce((sum, idx) => sum + projected[idx].z, 0) / 3,
   })).sort((a, b) => a.depth - b.depth);
 
-  if (inIncoming && prismState.incomingStart) {
-    const beamProgress = clamp(elapsed / prismState.incomingDuration, 0, 1);
+  if ((inIncoming || inOutgoing) && prismState.incomingStart) {
+    const beamProgress = inIncoming ? clamp(elapsed / prismState.incomingDuration, 0, 1) : 1;
     spectrumCtx.save();
-    spectrumCtx.strokeStyle = `rgba(255,255,255,${.35 + beamProgress * .65})`;
-    spectrumCtx.lineWidth = 2.2;
-    spectrumCtx.shadowBlur = 24;
-    spectrumCtx.shadowColor = 'rgba(255,255,255,.9)';
+    spectrumCtx.strokeStyle = `rgba(255,255,255,${inOutgoing ? .92 : (.5 + beamProgress * .5)})`;
+    spectrumCtx.lineWidth = 6.6;
+    spectrumCtx.lineCap = 'round';
+    spectrumCtx.shadowBlur = 34;
+    spectrumCtx.shadowColor = 'rgba(255,255,255,1)';
     spectrumCtx.beginPath();
     spectrumCtx.moveTo(prismState.incomingStart.x, prismState.incomingStart.y);
     spectrumCtx.lineTo(
@@ -478,9 +477,10 @@ const drawSpectrum = (time = 0) => {
       const endY = center.y + Math.sin(ray.angle) * ray.length * burstProgress;
       spectrumCtx.save();
       spectrumCtx.strokeStyle = ray.color;
-      spectrumCtx.lineWidth = 2.8;
-      spectrumCtx.globalAlpha = 1 - burstProgress * .6;
-      spectrumCtx.shadowBlur = 26;
+      spectrumCtx.lineWidth = 28;
+      spectrumCtx.lineCap = 'round';
+      spectrumCtx.globalAlpha = 1 - burstProgress * .42;
+      spectrumCtx.shadowBlur = 34;
       spectrumCtx.shadowColor = ray.color;
       spectrumCtx.beginPath();
       spectrumCtx.moveTo(center.x, center.y);
