@@ -1,4 +1,7 @@
 (() => {
+  if ('scrollRestoration' in history) history.scrollRestoration = 'manual';
+  window.scrollTo(0, 0);
+
   const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
   const clamp = (value, min, max) => Math.min(max, Math.max(min, value));
 
@@ -59,12 +62,17 @@
   let dpr = 1;
   const pointer = { x: 0, y: 0, tx: 0, ty: 0 };
   let starTime = 0;
+  const intro = document.getElementById('stellar-intro');
+  const introStar = document.getElementById('intro-star');
+  const heroMark = document.getElementById('hero-mark-wrap');
+  const heroContent = document.getElementById('hero-content');
+  let constellationMotion = null;
 
   const randomStar = () => ({
     x: Math.random(),
     y: Math.random(),
-    depth: 0.18 + Math.random() * 0.82,
-    radius: 0.35 + Math.random() * 1.25,
+    depth: 0.12 + Math.random() * 0.88,
+    radius: 0.18 + Math.random() * 0.72,
     alpha: 0.22 + Math.random() * 0.78,
     phase: Math.random() * Math.PI * 2,
     warmth: Math.random() < 0.045,
@@ -80,7 +88,7 @@
     spaceCanvas.style.width = `${spaceWidth}px`;
     spaceCanvas.style.height = `${spaceHeight}px`;
     spaceCtx.setTransform(dpr, 0, 0, dpr, 0, 0);
-    const count = Math.round(clamp((spaceWidth * spaceHeight) / 5200, 135, 310));
+    const count = Math.round(clamp((spaceWidth * spaceHeight) / 4300, 165, 390));
     stars = Array.from({ length: count }, randomStar);
   };
 
@@ -88,8 +96,8 @@
     if (!spaceCtx) return;
     const delta = Math.min(32, time - starTime || 16);
     starTime = time;
-    pointer.x += (pointer.tx - pointer.x) * (reduceMotion ? 1 : 0.035 * delta / 16);
-    pointer.y += (pointer.ty - pointer.y) * (reduceMotion ? 1 : 0.035 * delta / 16);
+    pointer.x += (pointer.tx - pointer.x) * (reduceMotion ? 1 : 0.052 * delta / 16);
+    pointer.y += (pointer.ty - pointer.y) * (reduceMotion ? 1 : 0.052 * delta / 16);
 
     spaceCtx.clearRect(0, 0, spaceWidth, spaceHeight);
     spaceCtx.fillStyle = '#000';
@@ -97,8 +105,8 @@
 
     const scrollDrift = reduceMotion ? 0 : (window.scrollY * 0.012) % spaceHeight;
     stars.forEach((star) => {
-      const depthShiftX = pointer.x * 24 * star.depth;
-      const depthShiftY = pointer.y * 17 * star.depth;
+      const depthShiftX = pointer.x * 76 * star.depth;
+      const depthShiftY = pointer.y * 54 * star.depth;
       let x = star.x * spaceWidth + depthShiftX;
       let y = star.y * spaceHeight + depthShiftY + scrollDrift * star.depth;
       x = ((x % spaceWidth) + spaceWidth) % spaceWidth;
@@ -106,11 +114,11 @@
 
       const twinkle = reduceMotion ? 1 : 0.82 + Math.sin(time * 0.0012 + star.phase) * 0.18;
       const alpha = star.alpha * twinkle;
-      const radius = star.radius * (0.65 + star.depth * 0.65);
+      const radius = star.radius * (0.58 + star.depth * 0.62);
       const color = star.warmth ? `rgba(255,235,124,${alpha})` : `rgba(255,255,255,${alpha})`;
 
-      if (radius > 1.15) {
-        spaceCtx.shadowBlur = 7 * star.depth;
+      if (radius > 0.72) {
+        spaceCtx.shadowBlur = 5 * star.depth;
         spaceCtx.shadowColor = star.warmth ? 'rgba(255,201,1,.45)' : 'rgba(148,177,255,.55)';
       } else {
         spaceCtx.shadowBlur = 0;
@@ -121,6 +129,31 @@
       spaceCtx.fill();
     });
     spaceCtx.shadowBlur = 0;
+
+    if (!reduceMotion) {
+      // The intro star is deliberately distant: it participates in the field,
+      // but moves much less than the foreground layers.
+      if (introStar && !intro?.classList.contains('is-igniting')) {
+        introStar.style.setProperty('--intro-px', `${pointer.x * 13}px`);
+        introStar.style.setProperty('--intro-py', `${pointer.y * 9}px`);
+      }
+
+      // The resolved hero sits closer to the viewer than the starfield itself.
+      if (document.body.classList.contains('site-launched')) {
+        if (heroMark) {
+          heroMark.style.setProperty('--parallax-x', `${pointer.x * 66}px`);
+          heroMark.style.setProperty('--parallax-y', `${pointer.y * 46}px`);
+        }
+        if (heroContent) {
+          heroContent.style.setProperty('--parallax-x', `${pointer.x * 48}px`);
+          heroContent.style.setProperty('--parallax-y', `${pointer.y * 34}px`);
+        }
+      }
+
+      // Constellation points live deeper in space. Each gets a distinct small
+      // displacement; connection endpoints follow the points precisely.
+      if (constellationMotion) constellationMotion(pointer.x, pointer.y);
+    }
 
     if (!reduceMotion) requestAnimationFrame(drawSpace);
   };
@@ -136,13 +169,14 @@
     else requestAnimationFrame(drawSpace);
   }
 
-  // Hero mark gets a tiny extra parallax offset so it feels nested inside the field.
-  const heroMark = document.getElementById('hero-mark-wrap');
+  // Pointer movement also modulates the resolved stellar flare.
   if (heroMark && !reduceMotion) {
-    window.addEventListener('pointermove', (event) => {
-      const x = (event.clientX / window.innerWidth - 0.5) * 9;
-      const y = (event.clientY / window.innerHeight - 0.5) * 7;
-      heroMark.style.transform = `translate3d(${x}px, ${y}px, 0)`;
+    let flareTimer = null;
+    window.addEventListener('pointermove', () => {
+      if (!document.body.classList.contains('site-launched')) return;
+      heroMark.classList.add('pointer-active');
+      window.clearTimeout(flareTimer);
+      flareTimer = window.setTimeout(() => heroMark.classList.remove('pointer-active'), 95);
     }, { passive: true });
   }
 
@@ -257,37 +291,40 @@
   }
 
   // ---------------------------------------------------------------------------
-  // Constellation topology
+  // Constellation topology + distant depth parallax
   // ---------------------------------------------------------------------------
   const constellationMap = document.getElementById('constellation-map');
   const constellationSvg = document.getElementById('constellation-lines');
   if (constellationMap && constellationSvg) {
-    const core = { x: 50, y: 48 };
+    const coreEl = constellationMap.querySelector('.constellation-core');
     const nodes = [...constellationMap.querySelectorAll('.constellation-node')];
+    const points = [coreEl, ...nodes].filter(Boolean);
+    const pointData = new Map(points.map((el) => [el, {
+      x: Number(el.dataset.x),
+      y: Number(el.dataset.y),
+      depth: Number(el.dataset.depth || .18),
+      ox: 0,
+      oy: 0,
+    }]));
+
+    const core = pointData.get(coreEl);
     const links = nodes.map((node, index) => ({
-      from: core,
-      to: { x: Number(node.dataset.x), y: Number(node.dataset.y) },
-      node,
+      fromEl: coreEl,
+      toEl: node,
       delay: index * .12,
+      node,
     }));
 
-    // A few secondary relationships make the system feel like a network instead
-    // of a hub-and-spoke diagram.
-    const secondary = [
-      [0, 3], [0, 5], [1, 2], [2, 4], [3, 4], [1, 5]
-    ].map(([a, b], index) => ({
-      from: { x: Number(nodes[a].dataset.x), y: Number(nodes[a].dataset.y) },
-      to: { x: Number(nodes[b].dataset.x), y: Number(nodes[b].dataset.y) },
+    const secondaryPairs = [[0,3],[0,5],[1,2],[2,4],[3,4],[1,5]];
+    secondaryPairs.forEach(([a,b], index) => links.push({
+      fromEl: nodes[a],
+      toEl: nodes[b],
       delay: .5 + index * .09,
       secondary: true,
     }));
 
-    [...links, ...secondary].forEach((link) => {
+    links.forEach((link) => {
       const line = document.createElementNS('http://www.w3.org/2000/svg', 'line');
-      line.setAttribute('x1', String(link.from.x * 10));
-      line.setAttribute('y1', String(link.from.y * 6.8));
-      line.setAttribute('x2', String(link.to.x * 10));
-      line.setAttribute('y2', String(link.to.y * 6.8));
       line.style.setProperty('--delay', `${link.delay}s`);
       if (link.secondary) line.style.opacity = '.42';
       if (link.node) {
@@ -298,8 +335,36 @@
         link.node.addEventListener('focus', () => line.classList.add('active'));
         link.node.addEventListener('blur', () => line.classList.remove('active'));
       }
+      link.line = line;
       constellationSvg.appendChild(line);
     });
+
+    constellationMotion = (px, py) => {
+      const rect = constellationMap.getBoundingClientRect();
+      if (!rect.width || !rect.height) return;
+      pointData.forEach((data, el) => {
+        // Even the closest constellation point is much farther away than the
+        // hero: max displacement stays in the low teens of pixels.
+        data.ox = px * 34 * data.depth;
+        data.oy = py * 24 * data.depth;
+        el.style.setProperty('--node-px', `${data.ox}px`);
+        el.style.setProperty('--node-py', `${data.oy}px`);
+      });
+
+      const vx = 1000 / rect.width;
+      const vy = 680 / rect.height;
+      links.forEach((link) => {
+        const a = pointData.get(link.fromEl);
+        const b = pointData.get(link.toEl);
+        link.line.setAttribute('x1', String(a.x * 10 + a.ox * vx));
+        link.line.setAttribute('y1', String(a.y * 6.8 + a.oy * vy));
+        link.line.setAttribute('x2', String(b.x * 10 + b.ox * vx));
+        link.line.setAttribute('y2', String(b.y * 6.8 + b.oy * vy));
+      });
+    };
+
+    constellationMotion(0, 0);
+    window.addEventListener('resize', () => constellationMotion?.(pointer.x, pointer.y), { passive: true });
   }
 
   // ---------------------------------------------------------------------------
@@ -366,18 +431,110 @@
     }
   });
 
-  const firstGesture = async (event) => {
-    if (event.target.closest?.('#sound-control')) return;
-    if (audio?.paused && !userPaused) await playScore();
-    document.removeEventListener('pointerdown', firstGesture);
-    document.removeEventListener('keydown', firstGesture);
-  };
-  document.addEventListener('pointerdown', firstGesture, { passive: true });
-  document.addEventListener('keydown', firstGesture);
+  // ---------------------------------------------------------------------------
+  // Ignition: click the distant star, synthesize a deep-space impact, resolve
+  // the star into the hero mark, and start the supplied SVPRNOVA score.
+  // ---------------------------------------------------------------------------
+  const deepSpaceBoom = () => {
+    const AudioContextClass = window.AudioContext || window.webkitAudioContext;
+    if (!AudioContextClass) return;
+    const ctx = new AudioContextClass();
+    const now = ctx.currentTime;
+    const master = ctx.createGain();
+    const compressor = ctx.createDynamicsCompressor();
+    compressor.threshold.value = -15;
+    compressor.knee.value = 18;
+    compressor.ratio.value = 10;
+    compressor.attack.value = .002;
+    compressor.release.value = .5;
+    master.gain.setValueAtTime(.0001, now);
+    master.gain.exponentialRampToValueAtTime(.92, now + .012);
+    master.gain.exponentialRampToValueAtTime(.0001, now + 2.45);
+    master.connect(compressor);
+    compressor.connect(ctx.destination);
 
-  window.addEventListener('load', async () => {
-    if (!audio) return;
-    const played = await playScore();
-    if (!played) setSoundUI(false, true);
-  });
+    const sub = ctx.createOscillator();
+    const subGain = ctx.createGain();
+    sub.type = 'sine';
+    sub.frequency.setValueAtTime(74, now);
+    sub.frequency.exponentialRampToValueAtTime(24, now + 1.65);
+    subGain.gain.setValueAtTime(.95, now);
+    subGain.gain.exponentialRampToValueAtTime(.0001, now + 2.1);
+    sub.connect(subGain);
+    subGain.connect(master);
+    sub.start(now);
+    sub.stop(now + 2.2);
+
+    const body = ctx.createOscillator();
+    const bodyGain = ctx.createGain();
+    body.type = 'triangle';
+    body.frequency.setValueAtTime(132, now);
+    body.frequency.exponentialRampToValueAtTime(38, now + .85);
+    bodyGain.gain.setValueAtTime(.38, now);
+    bodyGain.gain.exponentialRampToValueAtTime(.0001, now + 1.25);
+    body.connect(bodyGain);
+    bodyGain.connect(master);
+    body.start(now);
+    body.stop(now + 1.35);
+
+    const length = Math.floor(ctx.sampleRate * 1.15);
+    const buffer = ctx.createBuffer(1, length, ctx.sampleRate);
+    const channel = buffer.getChannelData(0);
+    for (let i = 0; i < length; i++) {
+      const t = i / length;
+      channel[i] = (Math.random() * 2 - 1) * Math.pow(1 - t, 5);
+    }
+    const noise = ctx.createBufferSource();
+    const noiseFilter = ctx.createBiquadFilter();
+    const noiseGain = ctx.createGain();
+    noise.buffer = buffer;
+    noiseFilter.type = 'lowpass';
+    noiseFilter.frequency.setValueAtTime(720, now);
+    noiseFilter.frequency.exponentialRampToValueAtTime(90, now + .8);
+    noiseGain.gain.setValueAtTime(.34, now);
+    noiseGain.gain.exponentialRampToValueAtTime(.0001, now + 1.05);
+    noise.connect(noiseFilter);
+    noiseFilter.connect(noiseGain);
+    noiseGain.connect(master);
+    noise.start(now);
+    noise.stop(now + 1.1);
+
+    window.setTimeout(() => ctx.close().catch(() => {}), 2800);
+  };
+
+  let launched = false;
+  const launchSite = async () => {
+    if (launched || !introStar || !intro) return;
+    launched = true;
+
+    const target = heroMark?.getBoundingClientRect();
+    const source = introStar.getBoundingClientRect();
+    if (target) {
+      const tx = target.left + target.width / 2 - window.innerWidth / 2;
+      const ty = target.top + target.height / 2 - window.innerHeight / 2;
+      const scale = clamp(target.width / Math.max(1, source.width), .8, 1.8);
+      introStar.style.setProperty('--launch-x', `${tx}px`);
+      introStar.style.setProperty('--launch-y', `${ty}px`);
+      introStar.style.setProperty('--launch-scale', String(scale));
+    }
+
+    deepSpaceBoom();
+    userPaused = false;
+    await playScore();
+    intro.classList.add('is-igniting');
+
+    window.setTimeout(() => {
+      document.body.classList.remove('prelaunch');
+      document.body.classList.add('site-launched');
+      intro.classList.add('is-complete');
+    }, reduceMotion ? 80 : 1120);
+
+    window.setTimeout(() => intro.remove(), reduceMotion ? 180 : 2050);
+  };
+
+  introStar?.addEventListener('click', launchSite);
+
+  // If audio is manually toggled later, the control still behaves normally.
+  // We intentionally do not attempt audible autoplay before the ignition click.
+  setSoundUI(false);
 })();

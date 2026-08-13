@@ -1,20 +1,31 @@
-# SVPRNOVA Public Homepage
+# SVPRNOVA.org Homepage — V1.1
 
-A standalone front-end concept for `svprnova.org`, built around the visual system agreed for the public SVPRNOVA website.
+A standalone public-facing homepage concept for SVPRNOVA.org.
 
 ## Files
 
-- `index.html` — homepage markup
-- `style.css` — brand system, layouts, transitions, responsive behavior, animation styling
-- `script.js` — starfield, parallax, scroll reveals, Spectrum simulation, constellation topology, audio controls
-- `siteData.js` — centralized copy/data for future page expansion
-- `assets/svprnova-mark-light.svg` — transparent light-mark derivative used on dark surfaces
-- `assets/svprnova-logo-source.svg` — untouched source SVG supplied for the project
-- `assets/svprnova-score.mp3` — web-optimized conversion of the supplied SVPRNOVA music
+- `index.html` — homepage structure
+- `style.css` — visual system, responsive layout, ignition sequence, transitions, and motion
+- `script.js` — persistent starfield, parallax, ignition sound/sequence, Spectrum visualization, constellation topology, and background audio
+- `siteData.js` — centralized public-site content/data scaffold for future expansion
+- `assets/svprnova-logo-source.svg` — supplied source logo
+- `assets/svprnova-mark-light.svg` — transparent warm-white logo treatment for dark sections
+- `assets/svprnova-score.mp3` — web-optimized version of the supplied SVPRNOVA music
 
-## Preview
+## V1.1 interaction changes
 
-For the most accurate preview, serve the folder from a local web server instead of double-clicking `index.html`:
+- The site opens on a pure starfield with a distant, unstable ignition star.
+- Clicking the star triggers a synthesized sub-bass deep-space impact and supernova transition.
+- The ignition object resolves toward the final upper-left SVPRNOVA hero mark.
+- The hero mark has a stronger corona, flicker, lens flare, and close-layer mouse parallax.
+- Hero typography and controls move with the same environment at a slightly different depth.
+- Ambient stars are smaller and use much higher mouse-parallax sensitivity than V1.
+- Constellation stars now each have their own deliberately distant depth; their SVG connections follow their moving endpoints.
+- The supplied background score begins from the ignition click, which satisfies normal browser user-gesture requirements.
+
+## Local preview
+
+For best behavior, preview through a small local web server rather than opening the HTML directly from disk. For example, from this folder:
 
 ```bash
 python -m http.server 8080
@@ -22,29 +33,15 @@ python -m http.server 8080
 
 Then open `http://localhost:8080`.
 
-## Audio behavior
+## Current route placeholders
 
-Modern browsers generally block audible autoplay until the visitor interacts with the page. The homepage attempts playback on load; if the browser blocks it, the score begins on the first pointer/keyboard interaction. A persistent score toggle is always available in the lower-right corner.
+The public navigation is already pointed toward the intended V1 routes:
 
-## Future routes
+- `/research`
+- `/chapters`
+- `/about`
+- `/join`
 
-This package intentionally builds only the homepage. Links intended for `/research`, `/chapters`, `/about`, and `/join` can be pointed at those routes as those pages are created. The Portal link already points to `https://svprnova.com/login`.
+The Portal button points to `https://svprnova.com/login`.
 
-## Brand palette
-
-- Primary `#5267E8`
-- Secondary `#5A0A86`
-- Accent `#94B1FF`
-- Space 999 `#000000`
-- Space 900 `#0F0520`
-- Space 800 `#170033`
-- Fire 600 `#FF2D00`
-- Fire 250 `#FFC901`
-- Fire 100 `#FFEB7C`
-- Iron 900 `#1E1E20`
-- Iron 500 `#3B3B3E`
-- Iron 300 `#5C5E63`
-- Star 100 `#FFFAEC`
-- Star 000 `#FFFFFF`
-
-Display font: Kanit. Body: Space Grotesk. Mono: Space Mono.
+Only the homepage is implemented in this package, so the `.org` routes above should be added when those pages are built.

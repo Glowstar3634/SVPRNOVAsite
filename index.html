@@ -11,9 +11,23 @@
   <link href="https://fonts.googleapis.com/css2?family=Kanit:wght@300;400;500;600;700&family=Space+Grotesk:wght@300;400;500;600&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet" />
   <link rel="stylesheet" href="style.css" />
 </head>
-<body>
+<body class="prelaunch">
   <canvas id="space-canvas" aria-hidden="true"></canvas>
   <div class="page-noise" aria-hidden="true"></div>
+
+  <div class="stellar-intro" id="stellar-intro" aria-label="Enter SVPRNOVA">
+    <button class="intro-star" id="intro-star" type="button" aria-label="Ignite SVPRNOVA">
+      <span class="intro-star-aura intro-star-aura-a" aria-hidden="true"></span>
+      <span class="intro-star-aura intro-star-aura-b" aria-hidden="true"></span>
+      <span class="intro-star-core" aria-hidden="true"></span>
+      <span class="intro-star-spike intro-star-spike-x" aria-hidden="true"></span>
+      <span class="intro-star-spike intro-star-spike-y" aria-hidden="true"></span>
+      <img class="intro-logo" src="assets/svprnova-mark-light.svg" alt="" aria-hidden="true" />
+      <span class="intro-shockwave intro-shockwave-a" aria-hidden="true"></span>
+      <span class="intro-shockwave intro-shockwave-b" aria-hidden="true"></span>
+    </button>
+    <p class="intro-prompt mono" id="intro-prompt">IGNITE</p>
+  </div>
 
   <header class="site-header" id="site-header">
     <a class="brand-lockup" href="#top" aria-label="SVPRNOVA home">
@@ -37,10 +51,10 @@
   </header>
 
   <div class="mobile-menu" id="mobile-menu" aria-hidden="true">
-    <a href="/research">Research</a>
-    <a href="/chapters">Chapters</a>
-    <a href="/about">About</a>
-    <a href="/join">Join</a>
+    <a href="#research">Research</a>
+    <a href="#constellation">Chapters</a>
+    <a href="#mission">About</a>
+    <a href="#join">Join</a>
     <a href="https://svprnova.com/login">Portal ↗</a>
   </div>
 
@@ -50,19 +64,30 @@
       <div class="hero-orbit hero-orbit-a" aria-hidden="true"></div>
       <div class="hero-orbit hero-orbit-b" aria-hidden="true"></div>
 
-      <div class="hero-content reveal-on-load">
-        <div class="hero-mark-wrap" id="hero-mark-wrap" aria-hidden="true">
+      <div class="hero-stage">
+        <div class="hero-mark-wrap" id="hero-mark-wrap" data-parallax-depth="1.2" aria-hidden="true">
+          <div class="hero-lens-flare">
+            <span class="lens-beam lens-beam-x"></span>
+            <span class="lens-beam lens-beam-y"></span>
+            <span class="lens-orb lens-orb-1"></span>
+            <span class="lens-orb lens-orb-2"></span>
+            <span class="lens-orb lens-orb-3"></span>
+          </div>
           <div class="stellar-flare flare-a"></div>
           <div class="stellar-flare flare-b"></div>
+          <div class="stellar-flare flare-c"></div>
           <img class="hero-mark" src="assets/svprnova-mark-light.svg" alt="" />
         </div>
-        <p class="hero-kicker mono">ADVANCING A NEW GENERATION OF RESEARCH</p>
-        <h1>SVPRNOVA</h1>
-        <p class="hero-slogan">Sparking Vision into Progress through Research.</p>
-        <p class="hero-description">A student-driven research organization built for ambitious questions, interdisciplinary discovery, and ideas that move beyond the classroom.</p>
-        <div class="hero-actions">
-          <a class="button button-primary" href="#research">Explore our research <span>→</span></a>
-          <a class="button button-ghost" href="#join">Join the network <span>→</span></a>
+
+        <div class="hero-content reveal-on-load" id="hero-content" data-parallax-depth=".82">
+          <p class="hero-kicker mono">ADVANCING A NEW GENERATION OF RESEARCH</p>
+          <h1>SVPRNOVA</h1>
+          <p class="hero-slogan">Sparking Vision into Progress through Research.</p>
+          <p class="hero-description">A student-driven research organization built for ambitious questions, interdisciplinary discovery, and ideas that move beyond the classroom.</p>
+          <div class="hero-actions">
+            <a class="button button-primary" href="#research">Explore our research <span>→</span></a>
+            <a class="button button-ghost" href="#join">Join the network <span>→</span></a>
+          </div>
         </div>
       </div>
 
@@ -182,27 +207,27 @@
 
         <div class="constellation-map reveal" id="constellation-map" aria-label="SVPRNOVA constellation network visualization">
           <svg class="constellation-lines" id="constellation-lines" viewBox="0 0 1000 680" preserveAspectRatio="none" aria-hidden="true"></svg>
-          <div class="constellation-core" data-x="50" data-y="48">
+          <div class="constellation-core" data-x="50" data-y="48" data-depth="0.24">
             <div class="core-glow"></div>
             <img src="assets/svprnova-mark-light.svg" alt="SVPRNOVA" />
             <span class="mono">SVPRNOVA / CORE</span>
           </div>
-          <button class="constellation-node chapter-node" style="--x:19;--y:31" data-x="19" data-y="31" type="button">
+          <button class="constellation-node chapter-node" style="--x:19;--y:31" data-x="19" data-y="31" data-depth="0.31" type="button">
             <i></i><span class="mono">FOUNDING CHAPTER</span><strong>Northwestern University</strong>
           </button>
-          <button class="constellation-node concept-node" style="--x:79;--y:24" data-x="79" data-y="24" type="button">
+          <button class="constellation-node concept-node" style="--x:79;--y:24" data-x="79" data-y="24" data-depth="0.18" type="button">
             <i></i><span class="mono">NETWORK</span><strong>Shared Knowledge</strong>
           </button>
-          <button class="constellation-node concept-node" style="--x:83;--y:58" data-x="83" data-y="58" type="button">
+          <button class="constellation-node concept-node" style="--x:83;--y:58" data-x="83" data-y="58" data-depth="0.27" type="button">
             <i></i><span class="mono">NETWORK</span><strong>Collaboration</strong>
           </button>
-          <button class="constellation-node concept-node" style="--x:25;--y:72" data-x="25" data-y="72" type="button">
+          <button class="constellation-node concept-node" style="--x:25;--y:72" data-x="25" data-y="72" data-depth="0.15" type="button">
             <i></i><span class="mono">NETWORK</span><strong>Talent</strong>
           </button>
-          <button class="constellation-node concept-node" style="--x:61;--y:78" data-x="61" data-y="78" type="button">
+          <button class="constellation-node concept-node" style="--x:61;--y:78" data-x="61" data-y="78" data-depth="0.22" type="button">
             <i></i><span class="mono">NETWORK</span><strong>Infrastructure</strong>
           </button>
-          <button class="constellation-node concept-node" style="--x:47;--y:15" data-x="47" data-y="15" type="button">
+          <button class="constellation-node concept-node" style="--x:47;--y:15" data-x="47" data-y="15" data-depth="0.12" type="button">
             <i></i><span class="mono">NETWORK</span><strong>Opportunities</strong>
           </button>
         </div>
@@ -263,7 +288,7 @@
         <div><strong>SVPRNOVA</strong><span>Sparking Vision into Progress through Research.</span></div>
       </div>
       <div class="footer-links">
-        <a href="/research">Research</a><a href="/chapters">Chapters</a><a href="/about">About</a><a href="/join">Join</a><a href="https://svprnova.com/login">Portal ↗</a>
+        <a href="#research">Research</a><a href="#constellation">Chapters</a><a href="#mission">About</a><a href="#join">Join</a><a href="https://svprnova.com/login">Portal ↗</a>
       </div>
       <p class="footer-copy mono">© <span id="year"></span> SVPRNOVA</p>
     </div>
