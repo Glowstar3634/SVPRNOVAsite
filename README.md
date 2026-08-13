@@ -1,4 +1,4 @@
-# SVPRNOVA Public Homepage — V1.2
+# SVPRNOVA Public Homepage — V1.3
 
 Static front-facing homepage prototype for `svprnova.org`.
 
@@ -12,7 +12,7 @@ Static front-facing homepage prototype for `svprnova.org`.
 - `assets/svprnova-mark-light.svg` — light-on-dark treatment generated from the exact 3.1 logo geometry
 - `assets/svprnova-score.mp3` — web-optimized version of the supplied SVPRNOVA music
 
-## V1.2 changes
+## V1.3 changes
 
 - Replaced every logo instance with the supplied SVPRNOVA 3.1 mark.
 - Reversed mouse parallax direction throughout the cosmic environment.

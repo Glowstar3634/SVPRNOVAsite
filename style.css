@@ -648,22 +648,22 @@ body.site-launched .sound-control { opacity:1; }
   position:absolute;
   left:clamp(2rem,10vw,9rem);
   top:clamp(8rem,19vh,13.5rem);
-  width:clamp(112px,12vw,174px);
+  width:clamp(124px,13vw,188px);
   margin:0;
   opacity:0;
   transform:translate3d(var(--parallax-x),var(--parallax-y),0) scale(.92);
   transition:opacity .7s ease,filter .16s linear;
-  filter:drop-shadow(0 0 10px rgba(255,255,255,.92)) drop-shadow(0 0 38px rgba(148,177,255,.96)) drop-shadow(0 0 90px rgba(82,103,232,.74)) drop-shadow(0 0 150px rgba(90,10,134,.38));
+  filter:drop-shadow(0 0 14px rgba(255,255,255,1)) drop-shadow(0 0 52px rgba(148,177,255,1)) drop-shadow(0 0 120px rgba(82,103,232,.9)) drop-shadow(0 0 195px rgba(90,10,134,.5));
   will-change:transform,filter,opacity;
 }
 body.site-launched .hero-mark-wrap { opacity:1; }
 .hero-mark { animation:heroStarFlicker .23s steps(2,end) infinite alternate; }
-.hero-mark-wrap.pointer-active { filter:drop-shadow(0 0 13px white) drop-shadow(0 0 46px rgba(148,177,255,1)) drop-shadow(0 0 108px rgba(82,103,232,.9)) drop-shadow(0 0 170px rgba(90,10,134,.48)); }
+.hero-mark-wrap.pointer-active { filter:drop-shadow(0 0 18px white) drop-shadow(0 0 62px rgba(148,177,255,1)) drop-shadow(0 0 132px rgba(82,103,232,1)) drop-shadow(0 0 220px rgba(90,10,134,.58)); }
 .flare-c { width:195%; height:195%; border:1px solid rgba(255,255,255,.24); border-radius:50%; box-shadow:0 0 40px rgba(82,103,232,.18); animation:heroCorona 3.6s ease-in-out infinite; }
-.hero-lens-flare { position:absolute; left:50%; top:50%; width:1px; height:1px; z-index:1; pointer-events:none; }
+.hero-lens-flare { position:absolute; left:50%; top:50%; width:1px; height:1px; z-index:1; pointer-events:none; transform:translateZ(0); animation:heroFlareFlicker .23s steps(2,end) infinite alternate; }
 .lens-beam { position:absolute; left:0; top:0; transform:translate(-50%,-50%); }
-.lens-beam-x { width:min(72vw,960px); height:2px; background:linear-gradient(90deg,transparent,rgba(82,103,232,.08) 16%,rgba(148,177,255,.34) 39%,rgba(255,255,255,.96) 50%,rgba(148,177,255,.31) 61%,rgba(82,103,232,.06) 84%,transparent); box-shadow:0 0 12px rgba(148,177,255,.33); }
-.lens-beam-y { width:1px; height:min(42vh,420px); background:linear-gradient(180deg,transparent,rgba(148,177,255,.08),rgba(255,255,255,.72),rgba(148,177,255,.08),transparent); }
+.lens-beam-x { width:min(76vw,1020px); height:2px; background:linear-gradient(90deg,transparent,rgba(82,103,232,.08) 16%,rgba(148,177,255,.34) 39%,rgba(255,255,255,.96) 50%,rgba(148,177,255,.31) 61%,rgba(82,103,232,.06) 84%,transparent); box-shadow:0 0 14px rgba(148,177,255,.36); }
+.lens-beam-y { width:1px; height:min(44vh,460px); background:linear-gradient(180deg,transparent,rgba(148,177,255,.08),rgba(255,255,255,.72),rgba(148,177,255,.08),transparent); }
 .lens-orb { position:absolute; top:0; border-radius:50%; transform:translate(-50%,-50%); mix-blend-mode:screen; }
 .lens-orb-1 { left:clamp(120px,15vw,230px); width:34px; height:34px; border:1px solid rgba(148,177,255,.17); background:rgba(82,103,232,.04); }
 .lens-orb-2 { left:clamp(225px,28vw,430px); width:13px; height:13px; background:rgba(148,177,255,.13); box-shadow:0 0 15px rgba(148,177,255,.1); }
@@ -684,7 +684,7 @@ body.site-launched .hero-mark-wrap { opacity:1; }
   will-change:transform;
 }
 body.site-launched .hero-content { animation:heroContentIgnite 1.2s .42s var(--ease-out) forwards; }
-.hero h1 { font-size:clamp(4.8rem,11vw,10rem); line-height:.79; }
+.hero h1 { font-size:clamp(5.3rem,12vw,11.2rem); line-height:.76; }
 .hero-slogan, .hero-description { margin-left:0; margin-right:0; }
 .hero-description { max-width:640px; }
 .hero-actions { justify-content:flex-start; }
@@ -693,6 +693,7 @@ body.site-launched .hero-content { animation:heroContentIgnite 1.2s .42s var(--e
 @keyframes heroContentIgnite { from{opacity:0;transform:translate3d(var(--parallax-x),calc(var(--parallax-y) + 22px),0)} to{opacity:1;transform:translate3d(var(--parallax-x),var(--parallax-y),0)} }
 @keyframes heroStarFlicker { 0%{opacity:.92;transform:scale(.988)} 34%{opacity:1;transform:scale(1.015)} 67%{opacity:.82;transform:scale(.996)} 100%{opacity:1;transform:scale(1.008)} }
 @keyframes heroCorona { 0%,100%{opacity:.28;transform:translate(-50%,-50%) scale(.86)} 50%{opacity:.72;transform:translate(-50%,-50%) scale(1.13)} }
+@keyframes heroFlareFlicker { 0%{opacity:.86;filter:brightness(.94)} 36%{opacity:1;filter:brightness(1.08)} 69%{opacity:.78;filter:brightness(.86)} 100%{opacity:1;filter:brightness(1.02)} }
 
 /* Constellation nodes now live at independent distant depths in the cosmic field. */
 .constellation-map { --map-px:0px; --map-py:0px; }
@@ -713,8 +714,8 @@ body.site-launched .hero-content { animation:heroContentIgnite 1.2s .42s var(--e
 
 @media (max-width:760px) {
   .hero-stage { min-height:105svh; }
-  .hero-mark-wrap { left:1.25rem; top:7.8rem; width:94px; }
-  .hero-content { left:1rem; top:clamp(17rem,39vh,22rem); width:calc(100% - 2rem); }
+  .hero-mark-wrap { left:1.25rem; top:7.8rem; width:102px; }
+  .hero-content { left:1rem; top:clamp(28rem,62vh,34rem); width:calc(100% - 2rem); }
   .hero h1 { font-size:clamp(4rem,20vw,6rem); }
   .lens-beam-x { width:85vw; }
   .lens-orb-3 { display:none; }
@@ -746,8 +747,8 @@ main, .site-footer { transition:opacity .75s ease; }
   --parallax-x: 0px;
   --parallax-y: 0px;
   position: absolute;
-  left: 50%;
-  top: clamp(20rem,43vh,31rem);
+  left: 56%;
+  top: clamp(17rem,36vh,24rem);
   width: min(1180px, calc(100% - 2 * var(--side-pad)));
   margin: 0;
   padding: 0;
@@ -760,12 +761,12 @@ body.site-launched .hero-title-lockup {
   animation: heroTitleIgnite 1.2s .42s var(--ease-out) forwards;
 }
 .hero-title-lockup h1 { margin-bottom: 1.1rem; }
-.hero-title-lockup .hero-slogan { margin-inline: auto; }
+.hero-title-lockup .hero-slogan { margin-inline: auto; max-width: 980px; }
 
 /* Move only the copy block down by the amount previously occupied by the
    title/slogan, preserving its previous on-screen location. */
 .hero-content {
-  top: clamp(31rem,61vh,41rem);
+  top: clamp(35rem,69vh,48rem);
 }
 
 @keyframes heroTitleIgnite {
@@ -798,7 +799,6 @@ body.site-launched .hero-title-lockup {
 /* Larger flare, tilted 15deg clockwise. Its brightness pulse shares the same
    timing as the logo's unstable stellar flicker. */
 .hero-lens-flare {
-  transform: rotate(15deg);
   transform-origin: center;
   animation: heroLensFlicker .23s steps(2,end) infinite alternate;
   will-change: opacity, filter;
