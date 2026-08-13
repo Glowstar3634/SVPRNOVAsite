@@ -445,13 +445,83 @@ h2 em, h3 em { color: var(--svpr-accent); font-style: normal; font-weight: 300; 
 .sound-control.playing .sound-bars i:nth-child(4) { animation:bar .9s -.3s ease-in-out infinite; }
 @keyframes bar { 0%,100%{height:4px}50%{height:14px} }
 .sound-label { font-size:.46rem; letter-spacing:.14em; }
-.sound-credit { position:fixed; right:1.25rem; bottom:4.3rem; z-index:109; padding:.55rem .78rem; border:1px solid rgba(148,177,255,.14); border-radius:999px; background:rgba(7,2,15,.78); color:rgba(255,255,255,.74); backdrop-filter:blur(14px); font-size:.46rem; letter-spacing:.14em; text-decoration:none; opacity:0; transform:translateY(8px); pointer-events:none; transition:opacity .25s ease,transform .25s ease,border-color .25s ease,color .25s ease,background .25s ease; }
-.sound-credit strong { font-weight:700; color:var(--star-100); }
+.sound-credit {
+  position: fixed;
+  right: 1.25rem;
+  bottom: 4.55rem;
+  z-index: 109;
+  width: min(320px, calc(100vw - 2.5rem));
+  display: flex;
+  align-items: center;
+  gap: .82rem;
+  padding: .75rem .88rem;
+  border: 1px solid rgba(148,177,255,.18);
+  border-radius: 1.1rem;
+  background: rgba(7,2,15,.9);
+  color: rgba(255,255,255,.86);
+  backdrop-filter: blur(18px);
+  text-decoration: none;
+  opacity: 0;
+  transform: translateY(10px) scale(.985);
+  transform-origin: bottom right;
+  pointer-events: none;
+  box-shadow: 0 16px 44px rgba(0,0,0,.34), 0 0 0 1px rgba(148,177,255,.03) inset;
+  transition: opacity .24s ease, transform .24s ease, border-color .25s ease, color .25s ease, background .25s ease, box-shadow .25s ease;
+}
+.sound-credit-photo {
+  width: 58px;
+  height: 58px;
+  flex: 0 0 58px;
+  object-fit: cover;
+  object-position: center;
+  border-radius: 50%;
+  border: 1px solid rgba(255,255,255,.16);
+  box-shadow: 0 0 0 3px rgba(148,177,255,.06), 0 0 22px rgba(82,103,232,.16);
+}
+.sound-credit-copy {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  gap: .18rem;
+}
+.sound-credit-kicker,
+.sound-credit-link {
+  font-size: .46rem;
+  letter-spacing: .14em;
+}
+.sound-credit strong {
+  font-size: 1rem;
+  font-weight: 600;
+  color: var(--star-100);
+  line-height: 1.05;
+}
+.sound-credit-link { color: rgba(148,177,255,.85); }
 .sound-control:hover + .sound-credit,
-.sound-credit:hover { opacity:1; transform:translateY(0); pointer-events:auto; }
-.sound-credit:hover { color:white; border-color:rgba(148,177,255,.35); background:rgba(15,5,32,.9); }
+.sound-credit:hover,
+.sound-control:focus-visible + .sound-credit,
+.sound-credit:focus-visible {
+  opacity: 1;
+  transform: translateY(0) scale(1);
+  pointer-events: auto;
+}
+.sound-credit:hover,
+.sound-credit:focus-visible {
+  color: white;
+  border-color: rgba(148,177,255,.34);
+  background: rgba(15,5,32,.96);
+  box-shadow: 0 20px 50px rgba(0,0,0,.42), 0 0 0 1px rgba(148,177,255,.08) inset;
+}
+.sound-credit::after {
+  content:"";
+  position:absolute;
+  left:0;
+  right:0;
+  bottom:-1.3rem;
+  height:1.35rem;
+}
 
 /* Reveals */
+
 .reveal { opacity:0; transform:translateY(34px); transition:opacity .9s var(--ease-out),transform .9s var(--ease-out); }
 .reveal.is-visible { opacity:1; transform:translateY(0); }
 .reveal-on-load { opacity:0; transform:translateY(15px); animation:heroResolve 1.5s .2s var(--ease-out) forwards; }
@@ -515,7 +585,7 @@ h2 em, h3 em { color: var(--svpr-accent); font-style: normal; font-weight: 300; 
   .final-cta { min-height:650px; padding-block:8rem; }
   .cta-actions, .hero-actions { flex-direction:column; align-items:stretch; width:min(100%,340px); margin-inline:auto; }
   .sound-control { right:.75rem; bottom:.75rem; }
-  .sound-credit { right:.75rem; bottom:3.85rem; max-width:210px; white-space:normal; text-align:center; }
+  .sound-credit { right:.75rem; bottom:3.95rem; width:min(280px, calc(100vw - 1.5rem)); }
   .sound-label { display:none; }
   .sound-control { width:40px; height:40px; justify-content:center; padding:0; }
   .footer-brand { align-items:flex-start; }
@@ -544,9 +614,19 @@ body.prelaunch .site-header,
 body.prelaunch .sound-control,
 body.prelaunch .sound-credit { opacity:0; pointer-events:none; }
 body.site-launched .site-header,
-body.site-launched .sound-control,
-body.site-launched .sound-credit { opacity:1; }
-.site-header, .sound-control, .sound-credit { transition:opacity .8s ease, background .35s ease, border-color .35s ease, box-shadow .35s ease; }
+body.site-launched .sound-control { opacity:1; }
+/* The artist card remains hidden after launch and is revealed only by hovering
+   or keyboard-focusing the sound control/card itself. */
+body.site-launched .sound-credit { opacity:0; pointer-events:none; }
+body.site-launched .sound-control:hover + .sound-credit,
+body.site-launched .sound-control:focus-visible + .sound-credit,
+body.site-launched .sound-credit:hover,
+body.site-launched .sound-credit:focus-visible {
+  opacity:1;
+  transform:translateY(0) scale(1);
+  pointer-events:auto;
+}
+.site-header, .sound-control, .sound-credit { transition:opacity .8s ease, background .35s ease, border-color .35s ease, box-shadow .35s ease, transform .24s ease; }
 
 /* Ignition screen */
 .stellar-intro {

@@ -200,6 +200,7 @@ let spectrumNodes = [];
 let spectrumW = 0;
 let spectrumH = 0;
 let spectrumDpr = 1;
+let spectrumLastTime = 0;
 let spectrumPointer = { x: 0, y: 0, active: false };
 
 const palette = ['#5267E8', '#94B1FF', '#FFFAEC', '#5A0A86'];
@@ -332,6 +333,8 @@ const lineDistance = (px, py, ax, ay, bx, by) => {
 
 const drawSpectrum = (time = 0) => {
   if (!spectrumCtx) return;
+  const spectrumDt = clamp(time - spectrumLastTime || 16.67, 8, 34);
+  spectrumLastTime = time;
   spectrumCtx.clearRect(0, 0, spectrumW, spectrumH);
 
   if (!reduceMotion && time >= prismState.nextBurst && !prismState.active) triggerSpectrumBurst(time);
@@ -401,14 +404,41 @@ const drawSpectrum = (time = 0) => {
 
       if (bestBeam) {
         const influence = clamp(1 - bestDistance / (Math.min(spectrumW, spectrumH) * .58), .28, 1);
-        targetX += (bestBeam.closest.x / spectrumW - node.x) * (0.26 * influence);
-        targetY += (bestBeam.closest.y / spectrumH - node.y) * (0.26 * influence);
+        const beamTargetX = bestBeam.closest.x / spectrumW;
+        const beamTargetY = bestBeam.closest.y / spectrumH;
+
+        // Aim aggressively at the closest ray, but cap the actual displacement.
+        // This preserves the sense of a rush without allowing the population to
+        // fully collapse into a beam during the short burst.
+        targetX += (beamTargetX - node.x) * (0.34 * influence);
+        targetY += (beamTargetY - node.y) * (0.34 * influence);
+
+        // Persist some of the migration after the light disappears, but move the
+        // node's resting position much more slowly than before.
+        const homeDx = beamTargetX - node.homeX;
+        const homeDy = beamTargetY - node.homeY;
+        const homeDistance = Math.hypot(homeDx, homeDy) || 1;
+        const maxHomeStep = spectrumDt * 0.000045;
+        const homeStep = Math.min(homeDistance, maxHomeStep);
+        node.homeX += homeDx / homeDistance * homeStep;
+        node.homeY += homeDy / homeDistance * homeStep;
+
         node.tintColor = bestBeam.ray.color;
         node.tintStrength = 1;
       }
 
-      node.x += (targetX - node.x) * (inOutgoing ? .24 : .065);
-      node.y += (targetY - node.y) * (inOutgoing ? .24 : .065);
+      const desiredDx = targetX - node.x;
+      const desiredDy = targetY - node.y;
+      const desiredDistance = Math.hypot(desiredDx, desiredDy);
+      if (desiredDistance > 0.000001) {
+        // Maximum point speed. During a color burst this is intentionally low
+        // enough that even a point with a perfect path cannot reach and compact
+        // into the beam before that burst is over.
+        const maxStep = spectrumDt * (inOutgoing ? 0.00015 : 0.000055);
+        const step = Math.min(desiredDistance, maxStep);
+        node.x += desiredDx / desiredDistance * step;
+        node.y += desiredDy / desiredDistance * step;
+      }
       node.x = clamp(node.x, .06, .94);
       node.y = clamp(node.y, .06, .94);
     }
@@ -475,17 +505,24 @@ const drawSpectrum = (time = 0) => {
     prismState.rays.forEach((ray) => {
       const endX = center.x + Math.cos(ray.angle) * ray.length * burstProgress;
       const endY = center.y + Math.sin(ray.angle) * ray.length * burstProgress;
+      const nx = Math.cos(ray.angle + Math.PI / 2);
+      const ny = Math.sin(ray.angle + Math.PI / 2);
+      const baseHalf = (12 + 56 * burstProgress);
+      const baseX1 = endX + nx * baseHalf;
+      const baseY1 = endY + ny * baseHalf;
+      const baseX2 = endX - nx * baseHalf;
+      const baseY2 = endY - ny * baseHalf;
       spectrumCtx.save();
-      spectrumCtx.strokeStyle = ray.color;
-      spectrumCtx.lineWidth = 28;
-      spectrumCtx.lineCap = 'round';
-      spectrumCtx.globalAlpha = 1 - burstProgress * .42;
-      spectrumCtx.shadowBlur = 34;
+      spectrumCtx.fillStyle = ray.color;
+      spectrumCtx.globalAlpha = 0.92 - burstProgress * 0.34;
+      spectrumCtx.shadowBlur = 40;
       spectrumCtx.shadowColor = ray.color;
       spectrumCtx.beginPath();
       spectrumCtx.moveTo(center.x, center.y);
-      spectrumCtx.lineTo(endX, endY);
-      spectrumCtx.stroke();
+      spectrumCtx.lineTo(baseX1, baseY1);
+      spectrumCtx.lineTo(baseX2, baseY2);
+      spectrumCtx.closePath();
+      spectrumCtx.fill();
       spectrumCtx.restore();
     });
   }
@@ -504,7 +541,7 @@ const drawSpectrum = (time = 0) => {
     spectrumCtx.stroke();
   });
 
-  const prismGlow = .22 + prismEnergy * .95;
+  const prismGlow = inIncoming ? (.18 + Math.pow(clamp(elapsed / prismState.incomingDuration, 0, 1), 2.35) * 1.95) : 0;
   spectrumCtx.save();
   const glow = spectrumCtx.createRadialGradient(center.x, center.y, 0, center.x, center.y, prismScale * 2.4);
   glow.addColorStop(0, `rgba(255,255,255,${0.22 * prismGlow})`);
