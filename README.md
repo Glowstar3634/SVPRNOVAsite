@@ -1,47 +1,39 @@
-# SVPRNOVA.org Homepage — V1.1
+# SVPRNOVA Public Homepage — V1.2
 
-A standalone public-facing homepage concept for SVPRNOVA.org.
+Static front-facing homepage prototype for `svprnova.org`.
 
 ## Files
 
 - `index.html` — homepage structure
-- `style.css` — visual system, responsive layout, ignition sequence, transitions, and motion
-- `script.js` — persistent starfield, parallax, ignition sound/sequence, Spectrum visualization, constellation topology, and background audio
-- `siteData.js` — centralized public-site content/data scaffold for future expansion
-- `assets/svprnova-logo-source.svg` — supplied source logo
-- `assets/svprnova-mark-light.svg` — transparent warm-white logo treatment for dark sections
+- `style.css` — complete visual system, responsive layout, ignition/flare animations
+- `script.js` — starfield, reverse parallax, ignition/audio, Spectrum visualization, constellation geometry
+- `siteData.js` — content/data scaffold for future page expansion
+- `assets/svprnova-logo-source.svg` — exact supplied SVPRNOVA 3.1 source logo
+- `assets/svprnova-mark-light.svg` — light-on-dark treatment generated from the exact 3.1 logo geometry
 - `assets/svprnova-score.mp3` — web-optimized version of the supplied SVPRNOVA music
 
-## V1.1 interaction changes
+## V1.2 changes
 
-- The site opens on a pure starfield with a distant, unstable ignition star.
-- Clicking the star triggers a synthesized sub-bass deep-space impact and supernova transition.
-- The ignition object resolves toward the final upper-left SVPRNOVA hero mark.
-- The hero mark has a stronger corona, flicker, lens flare, and close-layer mouse parallax.
-- Hero typography and controls move with the same environment at a slightly different depth.
-- Ambient stars are smaller and use much higher mouse-parallax sensitivity than V1.
-- Constellation stars now each have their own deliberately distant depth; their SVG connections follow their moving endpoints.
-- The supplied background score begins from the ignition click, which satisfies normal browser user-gesture requirements.
+- Replaced every logo instance with the supplied SVPRNOVA 3.1 mark.
+- Reversed mouse parallax direction throughout the cosmic environment.
+- Removed the hero kicker and centered the `SVPRNOVA` title + slogan in their own parallax layer.
+- Preserved the hero description/actions in the left-side composition.
+- Increased the resolved logo glow substantially.
+- Enlarged the lens flare, rotated it 15 degrees clockwise, and synchronized its flicker timing with the logo star.
+- Reworked constellation nodes into true stellar point anchors embedded in the starfield.
+- Connection lines now recalculate from the rendered center of each star every frame, so they remain attached during depth parallax.
+- Reduced vertical padding between major homepage sections.
 
-## Local preview
+## Run locally
 
-For best behavior, preview through a small local web server rather than opening the HTML directly from disk. For example, from this folder:
+Open `index.html` directly for a quick preview, or serve the directory through a local static server for the most browser-consistent behavior.
+
+Example:
 
 ```bash
-python -m http.server 8080
+python -m http.server 8000
 ```
 
-Then open `http://localhost:8080`.
+Then open `http://localhost:8000`.
 
-## Current route placeholders
-
-The public navigation is already pointed toward the intended V1 routes:
-
-- `/research`
-- `/chapters`
-- `/about`
-- `/join`
-
-The Portal button points to `https://svprnova.com/login`.
-
-Only the homepage is implemented in this package, so the `.org` routes above should be added when those pages are built.
+The music begins from the ignition click, which satisfies normal browser user-interaction requirements for audible playback.

@@ -737,3 +737,176 @@ body.prelaunch .site-footer { opacity:0; pointer-events:none; }
 body.site-launched main,
 body.site-launched .site-footer { opacity:1; }
 main, .site-footer { transition:opacity .75s ease; }
+
+/* ==========================================================================\n   V1.2 — centered hero lockup, reverse cosmic parallax, embedded constellation\n   ========================================================================== */
+
+/* Hero: keep the explanatory copy in its left-side composition, while the
+   brand title/slogan become an independent, centered cosmic layer. */
+.hero-title-lockup {
+  --parallax-x: 0px;
+  --parallax-y: 0px;
+  position: absolute;
+  left: 50%;
+  top: clamp(20rem,43vh,31rem);
+  width: min(1180px, calc(100% - 2 * var(--side-pad)));
+  margin: 0;
+  padding: 0;
+  text-align: center;
+  opacity: 0;
+  transform: translate3d(calc(-50% + var(--parallax-x)), var(--parallax-y), 0);
+  will-change: transform, opacity;
+}
+body.site-launched .hero-title-lockup {
+  animation: heroTitleIgnite 1.2s .42s var(--ease-out) forwards;
+}
+.hero-title-lockup h1 { margin-bottom: 1.1rem; }
+.hero-title-lockup .hero-slogan { margin-inline: auto; }
+
+/* Move only the copy block down by the amount previously occupied by the
+   title/slogan, preserving its previous on-screen location. */
+.hero-content {
+  top: clamp(31rem,61vh,41rem);
+}
+
+@keyframes heroTitleIgnite {
+  from {
+    opacity: 0;
+    transform: translate3d(calc(-50% + var(--parallax-x)), calc(var(--parallax-y) + 22px), 0);
+  }
+  to {
+    opacity: 1;
+    transform: translate3d(calc(-50% + var(--parallax-x)), var(--parallax-y), 0);
+  }
+}
+
+/* More luminous resolved supernova. */
+.hero-mark-wrap {
+  filter:
+    drop-shadow(0 0 15px rgba(255,255,255,1))
+    drop-shadow(0 0 52px rgba(148,177,255,1))
+    drop-shadow(0 0 122px rgba(82,103,232,.94))
+    drop-shadow(0 0 205px rgba(90,10,134,.58));
+}
+.hero-mark-wrap.pointer-active {
+  filter:
+    drop-shadow(0 0 20px rgba(255,255,255,1))
+    drop-shadow(0 0 68px rgba(148,177,255,1))
+    drop-shadow(0 0 152px rgba(82,103,232,1))
+    drop-shadow(0 0 245px rgba(90,10,134,.66));
+}
+
+/* Larger flare, tilted 15deg clockwise. Its brightness pulse shares the same
+   timing as the logo's unstable stellar flicker. */
+.hero-lens-flare {
+  transform: rotate(15deg);
+  transform-origin: center;
+  animation: heroLensFlicker .23s steps(2,end) infinite alternate;
+  will-change: opacity, filter;
+}
+.lens-beam-x {
+  width: min(108vw, 1500px);
+  height: 2px;
+  box-shadow: 0 0 16px rgba(148,177,255,.45), 0 0 38px rgba(82,103,232,.15);
+}
+.lens-beam-y { height: min(66vh, 650px); }
+.lens-orb-1 { left: clamp(155px,19vw,310px); }
+.lens-orb-2 { left: clamp(295px,35vw,555px); }
+.lens-orb-3 { left: clamp(450px,53vw,820px); }
+@keyframes heroLensFlicker {
+  0%   { opacity: .72; filter: brightness(.92); }
+  34%  { opacity: 1;   filter: brightness(1.28); }
+  67%  { opacity: .58; filter: brightness(.88); }
+  100% { opacity: .96; filter: brightness(1.18); }
+}
+
+/* Constellation stars are true point anchors embedded in the field. The labels
+   are attached to the point but do not affect its geometric center. */
+.constellation-node {
+  width: 1px;
+  height: 1px;
+  overflow: visible;
+}
+.constellation-node i {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  margin: 0;
+  transform: translate(-50%,-50%);
+}
+.constellation-node span,
+.constellation-node strong {
+  position: absolute;
+  left: 50%;
+  width: 190px;
+  transform: translateX(-50%);
+  text-align: center;
+  pointer-events: none;
+}
+.constellation-node span { top: 15px; }
+.constellation-node strong { top: 31px; }
+.constellation-node:hover i {
+  transform: translate(-50%,-50%) scale(1.8);
+}
+.constellation-node:hover {
+  transform: translate(calc(-50% + var(--node-px)),calc(-50% + var(--node-py)));
+}
+.chapter-node i {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+}
+
+/* Tighten the homepage rhythm while keeping each section comfortably legible. */
+.mission { padding: clamp(6rem,10vw,9rem) 0 6.5rem; }
+.pillars { padding: 5.75rem 0 7.5rem; }
+.research { padding: 7rem 0 11rem; }
+.research-exhibit { margin-top: 4.5rem; }
+.structure-to-cosmos { height: 220px; }
+.constellation { min-height: 880px; padding: 5.75rem 0 7.5rem; }
+.constellation-shell { min-height: 670px; }
+.join-section { padding: 9rem 0 7.5rem; }
+.benefit-grid { margin-top: 4.5rem; }
+.final-cta { min-height: 560px; padding: 7rem 0 6rem; }
+
+@media (max-width: 1080px) {
+  .constellation-shell { min-height: 0; }
+  .constellation-node span,
+  .constellation-node strong { width: 150px; }
+}
+
+@media (max-width: 760px) {
+  .hero-title-lockup {
+    top: clamp(17rem,39vh,22rem);
+    width: calc(100% - 2rem);
+  }
+  .hero-content {
+    left: 1rem;
+    top: clamp(27rem,58vh,33rem);
+    width: calc(100% - 2rem);
+  }
+  .hero-title-lockup h1 { font-size: clamp(4rem,20vw,6rem); }
+  .hero-title-lockup .hero-slogan { max-width: 330px; }
+  .lens-beam-x { width: 115vw; }
+  .mission { padding-top: 5.5rem; padding-bottom: 5rem; }
+  .pillars { padding: 5rem 0 6rem; }
+  .research { padding: 5.5rem 0 8rem; }
+  .constellation { padding: 5.5rem 0 6rem; }
+  .join-section { padding: 7rem 0 6rem; }
+  .final-cta { min-height: 520px; padding-block: 6rem; }
+  .constellation-node span,
+  .constellation-node strong { width: 135px; }
+}
+
+@media (max-width: 480px) {
+  .constellation-node span,
+  .constellation-node strong { width: 115px; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .hero-lens-flare { animation: none !important; }
+  body.site-launched .hero-title-lockup {
+    opacity: 1;
+    transform: translateX(-50%);
+    animation: none !important;
+  }
+}

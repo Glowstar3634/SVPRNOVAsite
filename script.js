@@ -65,6 +65,7 @@
   const intro = document.getElementById('stellar-intro');
   const introStar = document.getElementById('intro-star');
   const heroMark = document.getElementById('hero-mark-wrap');
+  const heroTitle = document.getElementById('hero-title-lockup');
   const heroContent = document.getElementById('hero-content');
   let constellationMotion = null;
 
@@ -105,8 +106,10 @@
 
     const scrollDrift = reduceMotion ? 0 : (window.scrollY * 0.012) % spaceHeight;
     stars.forEach((star) => {
-      const depthShiftX = pointer.x * 76 * star.depth;
-      const depthShiftY = pointer.y * 54 * star.depth;
+      // Reverse parallax: the stellar field drifts opposite the pointer,
+      // reinforcing the feeling of looking into a deep scene rather than dragging it.
+      const depthShiftX = -pointer.x * 76 * star.depth;
+      const depthShiftY = -pointer.y * 54 * star.depth;
       let x = star.x * spaceWidth + depthShiftX;
       let y = star.y * spaceHeight + depthShiftY + scrollDrift * star.depth;
       x = ((x % spaceWidth) + spaceWidth) % spaceWidth;
@@ -134,19 +137,23 @@
       // The intro star is deliberately distant: it participates in the field,
       // but moves much less than the foreground layers.
       if (introStar && !intro?.classList.contains('is-igniting')) {
-        introStar.style.setProperty('--intro-px', `${pointer.x * 13}px`);
-        introStar.style.setProperty('--intro-py', `${pointer.y * 9}px`);
+        introStar.style.setProperty('--intro-px', `${-pointer.x * 13}px`);
+        introStar.style.setProperty('--intro-py', `${-pointer.y * 9}px`);
       }
 
       // The resolved hero sits closer to the viewer than the starfield itself.
       if (document.body.classList.contains('site-launched')) {
         if (heroMark) {
-          heroMark.style.setProperty('--parallax-x', `${pointer.x * 66}px`);
-          heroMark.style.setProperty('--parallax-y', `${pointer.y * 46}px`);
+          heroMark.style.setProperty('--parallax-x', `${-pointer.x * 66}px`);
+          heroMark.style.setProperty('--parallax-y', `${-pointer.y * 46}px`);
+        }
+        if (heroTitle) {
+          heroTitle.style.setProperty('--parallax-x', `${-pointer.x * 48}px`);
+          heroTitle.style.setProperty('--parallax-y', `${-pointer.y * 34}px`);
         }
         if (heroContent) {
-          heroContent.style.setProperty('--parallax-x', `${pointer.x * 48}px`);
-          heroContent.style.setProperty('--parallax-y', `${pointer.y * 34}px`);
+          heroContent.style.setProperty('--parallax-x', `${-pointer.x * 48}px`);
+          heroContent.style.setProperty('--parallax-y', `${-pointer.y * 34}px`);
         }
       }
 
@@ -292,6 +299,9 @@
 
   // ---------------------------------------------------------------------------
   // Constellation topology + distant depth parallax
+  // All stellar anchors share the global cosmic motion. Lines are recalculated
+  // from the rendered CENTER of each visible star so they never detach while
+  // parallax is moving the field.
   // ---------------------------------------------------------------------------
   const constellationMap = document.getElementById('constellation-map');
   const constellationSvg = document.getElementById('constellation-lines');
@@ -300,14 +310,11 @@
     const nodes = [...constellationMap.querySelectorAll('.constellation-node')];
     const points = [coreEl, ...nodes].filter(Boolean);
     const pointData = new Map(points.map((el) => [el, {
-      x: Number(el.dataset.x),
-      y: Number(el.dataset.y),
       depth: Number(el.dataset.depth || .18),
       ox: 0,
       oy: 0,
     }]));
 
-    const core = pointData.get(coreEl);
     const links = nodes.map((node, index) => ({
       fromEl: coreEl,
       toEl: node,
@@ -328,8 +335,9 @@
       line.style.setProperty('--delay', `${link.delay}s`);
       if (link.secondary) line.style.opacity = '.42';
       if (link.node) {
-        line.dataset.nodeIndex = String(nodes.indexOf(link.node));
-        link.node.style.setProperty('--node-delay', String(nodes.indexOf(link.node)));
+        const nodeIndex = nodes.indexOf(link.node);
+        line.dataset.nodeIndex = String(nodeIndex);
+        link.node.style.setProperty('--node-delay', String(nodeIndex));
         link.node.addEventListener('mouseenter', () => line.classList.add('active'));
         link.node.addEventListener('mouseleave', () => line.classList.remove('active'));
         link.node.addEventListener('focus', () => line.classList.add('active'));
@@ -339,32 +347,57 @@
       constellationSvg.appendChild(line);
     });
 
+    const stellarCenter = (el, mapRect) => {
+      // Concept/chapter stars use their <i> as the luminous anchor. The core uses
+      // the logo itself, whose center is the actual core-star center.
+      const anchor = el.classList.contains('constellation-core')
+        ? el.querySelector('img') || el
+        : el.querySelector('i') || el;
+      const rect = anchor.getBoundingClientRect();
+      return {
+        x: rect.left + rect.width / 2 - mapRect.left,
+        y: rect.top + rect.height / 2 - mapRect.top,
+      };
+    };
+
+    const updateConstellationLines = () => {
+      const mapRect = constellationMap.getBoundingClientRect();
+      if (!mapRect.width || !mapRect.height) return;
+      const viewBox = constellationSvg.viewBox.baseVal;
+      const sx = viewBox.width / mapRect.width;
+      const sy = viewBox.height / mapRect.height;
+
+      links.forEach((link) => {
+        const a = stellarCenter(link.fromEl, mapRect);
+        const b = stellarCenter(link.toEl, mapRect);
+        link.line.setAttribute('x1', String(a.x * sx));
+        link.line.setAttribute('y1', String(a.y * sy));
+        link.line.setAttribute('x2', String(b.x * sx));
+        link.line.setAttribute('y2', String(b.y * sy));
+      });
+    };
+
     constellationMotion = (px, py) => {
-      const rect = constellationMap.getBoundingClientRect();
-      if (!rect.width || !rect.height) return;
       pointData.forEach((data, el) => {
-        // Even the closest constellation point is much farther away than the
-        // hero: max displacement stays in the low teens of pixels.
-        data.ox = px * 34 * data.depth;
-        data.oy = py * 24 * data.depth;
+        // The constellation is embedded far behind the foreground. Each point
+        // has its own depth, but all travel opposite the pointer with the stars.
+        data.ox = -px * 34 * data.depth;
+        data.oy = -py * 24 * data.depth;
         el.style.setProperty('--node-px', `${data.ox}px`);
         el.style.setProperty('--node-py', `${data.oy}px`);
       });
 
-      const vx = 1000 / rect.width;
-      const vy = 680 / rect.height;
-      links.forEach((link) => {
-        const a = pointData.get(link.fromEl);
-        const b = pointData.get(link.toEl);
-        link.line.setAttribute('x1', String(a.x * 10 + a.ox * vx));
-        link.line.setAttribute('y1', String(a.y * 6.8 + a.oy * vy));
-        link.line.setAttribute('x2', String(b.x * 10 + b.ox * vx));
-        link.line.setAttribute('y2', String(b.y * 6.8 + b.oy * vy));
-      });
+      // Measure after transforms are applied. rAF guarantees layout has the new
+      // node positions before the line endpoints are read.
+      requestAnimationFrame(updateConstellationLines);
     };
 
     constellationMotion(0, 0);
-    window.addEventListener('resize', () => constellationMotion?.(pointer.x, pointer.y), { passive: true });
+    window.addEventListener('resize', () => {
+      constellationMotion?.(pointer.x, pointer.y);
+      requestAnimationFrame(updateConstellationLines);
+    }, { passive: true });
+    window.addEventListener('scroll', updateConstellationLines, { passive: true });
   }
 
   // ---------------------------------------------------------------------------
