@@ -59,25 +59,54 @@
   }
   setRoute(initial, { push: false, hash: window.location.hash });
 
-  // Knowledge-field parallax is deliberately subtle: these are distant stars.
+  // Research cosmic parallax: the same reverse-direction movement language as
+  // the homepage. The question constellation moves as one connected distant layer
+  // so its SVG lines remain attached to its stars.
   const field = document.getElementById('knowledge-field');
-  const knowledgePoints = field ? [...field.querySelectorAll('[data-depth]')] : [];
+  const modelDepthNodes = [...document.querySelectorAll('[data-model-depth]')];
+  const outcomeField = document.getElementById('outcome-field');
+  const outcomeNodes = outcomeField ? [...outcomeField.querySelectorAll('[data-orbit-speed]')] : [];
   let px = 0, py = 0, tx = 0, ty = 0;
   window.addEventListener('pointermove', (event) => {
     tx = (event.clientX / innerWidth - .5) * 2;
     ty = (event.clientY / innerHeight - .5) * 2;
   }, { passive: true });
-  const moveKnowledge = () => {
-    px += (tx - px) * .045;
-    py += (ty - py) * .045;
-    knowledgePoints.forEach((node) => {
-      const depth = Number(node.dataset.depth || .2);
-      node.style.setProperty('--kpx', `${-px * 34 * depth}px`);
-      node.style.setProperty('--kpy', `${-py * 23 * depth}px`);
+
+  const moveResearchCosmos = (time = 0) => {
+    px += (tx - px) * .052;
+    py += (ty - py) * .052;
+
+    if (field) {
+      field.style.setProperty('--field-px', `${-px * 42}px`);
+      field.style.setProperty('--field-py', `${-py * 30}px`);
+    }
+
+    modelDepthNodes.forEach((node) => {
+      const depth = Number(node.dataset.modelDepth || .2);
+      node.style.setProperty('--model-px', `${-px * 52 * depth}px`);
+      node.style.setProperty('--model-py', `${-py * 36 * depth}px`);
     });
-    requestAnimationFrame(moveKnowledge);
+
+    if (outcomeField && outcomeNodes.length && !outcomeField.hidden) {
+      const rect = outcomeField.getBoundingClientRect();
+      const usableX = Math.max(80, rect.width * .5 - 95);
+      const usableY = Math.max(70, rect.height * .5 - 55);
+      outcomeNodes.forEach((node) => {
+        const radiusX = usableX * Number(node.dataset.orbitRadius || .3);
+        const radiusY = usableY * Number(node.dataset.orbitY || .24);
+        const speed = Number(node.dataset.orbitSpeed || .00006);
+        const angle = Number(node.dataset.orbitAngle || 0) + time * speed;
+        const x = Math.cos(angle) * radiusX;
+        const y = Math.sin(angle) * radiusY;
+        node.style.transform = `translate(calc(-50% + ${x}px), calc(-50% + ${y}px))`;
+      });
+    }
+    requestAnimationFrame(moveResearchCosmos);
   };
-  if (!window.matchMedia('(prefers-reduced-motion: reduce)').matches) requestAnimationFrame(moveKnowledge);
+  if (!window.matchMedia('(prefers-reduced-motion: reduce)').matches) requestAnimationFrame(moveResearchCosmos);
+  else if (field) {
+    field.style.setProperty('--field-px','0px'); field.style.setProperty('--field-py','0px');
+  }
 
   // Pulse a route through the Spectrum architecture to make the research cycle feel live.
   const particleLayer = document.getElementById('architecture-particles');

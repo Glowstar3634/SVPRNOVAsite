@@ -1132,3 +1132,131 @@ body.site-launched .hero-title-lockup {
   .outcome-field { min-height:480px; }.outcome-field span { font-size:.42rem; }
   .research-cta { min-height:70svh; }
 }
+
+
+/* ==========================================================================\n   V2.2 — research spatial polish\n   ========================================================================== */
+
+/* Let the persistent homepage star canvas show through every cosmic research
+   environment. Technical sections remain opaque and preserve their contrast. */
+.research-page { background: transparent; }
+.research-page-hero { background: transparent; }
+.research-model {
+  background:
+    radial-gradient(circle at 18% 32%, rgba(82,103,232,.09), transparent 31%),
+    radial-gradient(circle at 81% 67%, rgba(90,10,134,.08), transparent 34%),
+    linear-gradient(180deg, rgba(15,5,32,.88) 0%, rgba(0,0,0,.30) 13%, rgba(0,0,0,.18) 88%, rgba(7,1,13,.92) 100%);
+}
+.model-starfield { display:none; }
+
+/* Research hero: smaller type and a cleaner left/right split with the question
+   constellation living in its own right-side volume. */
+.research-page-hero { min-height:108svh; padding-bottom:9rem; }
+.research-hero-copy { z-index:4; width:min(58%,790px); margin-left:0; }
+.research-hero-copy h1 {
+  max-width:790px;
+  font-size:clamp(4.15rem,8.15vw,8.65rem);
+  line-height:.82;
+}
+.research-hero-copy > p { width:min(590px,100%); }
+.knowledge-field {
+  --field-px:0px;
+  --field-py:0px;
+  right:clamp(1rem,3.2vw,4.5rem);
+  top:7.2rem;
+  width:min(47vw,690px);
+  height:61vh;
+  min-height:500px;
+  transform:translate3d(var(--field-px),var(--field-py),0);
+  will-change:transform;
+}
+/* Keep its SVG and stellar anchors in one coordinate layer so connections never
+   separate while the whole knowledge field parallax moves. */
+.knowledge-question,.knowledge-star { transform:translate(-50%,-50%); }
+
+/* Disciplines: pull the six bodies inward around the question. */
+.discipline-orbit { height:680px; }
+.discipline-center { width:118px; height:118px; }
+.dn-math { left:10%; top:15%; }
+.dn-cs { left:50%; top:5%; transform:translateX(-50%); }
+.dn-behavior { right:10%; top:15%; }
+.dn-engineering { right:10%; bottom:15%; }
+.dn-data { left:50%; bottom:5%; transform:translateX(-50%); }
+.dn-natural { left:10%; bottom:15%; }
+
+.discipline-node { overflow:visible; isolation:isolate; }
+.discipline-node > span:not(.discipline-icon),
+.discipline-node h3,
+.discipline-node p { position:relative; z-index:2; }
+.discipline-icons { position:absolute; inset:0; z-index:-1; pointer-events:none; }
+.discipline-icon {
+  position:absolute;
+  left:50%; top:50%;
+  width:42px; height:42px;
+  display:grid; place-items:center;
+  border-radius:50%;
+  color:rgba(255,250,236,.82);
+  background:radial-gradient(circle,rgba(148,177,255,.16),rgba(82,103,232,.05) 58%,transparent 72%);
+  opacity:0;
+  transform:translate(-50%,-50%) scale(.55);
+  filter:drop-shadow(0 0 12px rgba(148,177,255,.55));
+  transition:opacity .3s ease, transform .55s var(--ease-out);
+}
+.discipline-icon svg { width:28px; height:28px; fill:none; stroke:currentColor; stroke-width:1.35; stroke-linecap:round; stroke-linejoin:round; }
+.discipline-node:hover .di-1 { opacity:.74; transform:translate(calc(-50% - 92px),calc(-50% - 65px)) scale(1); animation:disciplineFloatA 3.2s ease-in-out infinite; }
+.discipline-node:hover .di-2 { opacity:.68; transform:translate(calc(-50% + 92px),calc(-50% - 52px)) scale(.92); animation:disciplineFloatB 3.8s -.7s ease-in-out infinite; }
+.discipline-node:hover .di-3 { opacity:.62; transform:translate(calc(-50% + 6px),calc(-50% + 93px)) scale(.88); animation:disciplineFloatC 4.2s -1.3s ease-in-out infinite; }
+@keyframes disciplineFloatA { 50% { margin-top:-10px; margin-left:5px; } }
+@keyframes disciplineFloatB { 50% { margin-top:8px; margin-left:-7px; } }
+@keyframes disciplineFloatC { 50% { margin-top:-7px; margin-left:-4px; } }
+
+/* Research model becomes a spatial constellation of content. Wider vertical
+   separation prevents the blocks colliding even while their depth parallax runs. */
+.research-model { padding-top:9rem; padding-bottom:10rem; }
+.model-heading { --model-px:0px; --model-py:0px; position:relative; z-index:4; }
+.model-heading.is-visible { transform:translate3d(var(--model-px),var(--model-py),0); }
+.model-journey { min-height:1420px; margin-top:4.5rem; }
+.model-step,
+.model-branch { --model-px:0px; --model-py:0px; will-change:transform; }
+.model-step { width:min(410px,37%); background:rgba(5,1,12,.57); border-color:rgba(148,177,255,.13); box-shadow:0 18px 55px rgba(0,0,0,.12); }
+.model-step.is-visible { transform:translate3d(var(--model-px),var(--model-py),0); }
+.model-branch { transform:translate3d(var(--model-px),var(--model-py),0); }
+.ms-question { left:3%; top:2%; }
+.ms-trace { left:auto; right:3%; top:23%; }
+.ms-connect { left:7%; right:auto; top:50%; }
+.ms-consequence { right:3%; bottom:1%; width:min(455px,40%); }
+.ms-question .model-star { right:-42px; left:auto; top:50%; }
+.ms-trace .model-star { left:-42px; top:50%; }
+.ms-connect .model-star { right:-42px; left:auto; top:50%; }
+.ms-consequence .model-star { left:-42px; top:45%; }
+.branch-insight { left:52%; top:11%; }
+.branch-question { left:55%; bottom:23%; }
+.branch-method { left:3%; right:auto; top:72%; }
+.model-path { opacity:.74; }
+
+/* Outcome boxes orbit continuously while staying upright. JS owns their x/y
+   positions; this CSS only supplies the visual surface. */
+.outcome-field { overflow:hidden; }
+.outcome-field > span {
+  left:50%; top:50%;
+  white-space:nowrap;
+  will-change:transform;
+  box-shadow:0 0 22px rgba(82,103,232,.05);
+}
+
+@media (max-width:1080px) {
+  .research-hero-copy { width:min(68%,720px); }
+  .knowledge-field { width:60vw; right:-10vw; opacity:.62; }
+  .discipline-icons { display:none; }
+  .model-heading.is-visible,
+  .model-step.is-visible,
+  .model-branch { transform:none !important; }
+}
+@media (max-width:760px) {
+  .research-hero-copy { width:100%; }
+  .research-hero-copy h1 { font-size:clamp(3.75rem,17vw,5.8rem); max-width:94%; }
+  .knowledge-field { width:95vw; right:-49vw; top:7.5rem; opacity:.36; }
+  .model-journey { min-height:0; }
+  .outcome-field > span { font-size:.4rem; }
+}
+
+.outcome-field > span { left:50% !important; right:auto !important; top:50% !important; bottom:auto !important; }
