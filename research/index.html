@@ -9,29 +9,16 @@
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Kanit:wght@300;400;500;600;700&family=Space+Grotesk:wght@300;400;500;600&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet" />
-  <link rel="stylesheet" href="style.css" />
+  <link rel="stylesheet" href="../style.css" />
 </head>
-<body class="prelaunch">
+<body class="site-launched route-research">
   <canvas id="space-canvas" aria-hidden="true"></canvas>
   <div class="page-noise" aria-hidden="true"></div>
 
-  <div class="stellar-intro" id="stellar-intro" aria-label="Enter SVPRNOVA">
-    <button class="intro-star" id="intro-star" type="button" aria-label="Ignite SVPRNOVA">
-      <span class="intro-star-aura intro-star-aura-a" aria-hidden="true"></span>
-      <span class="intro-star-aura intro-star-aura-b" aria-hidden="true"></span>
-      <span class="intro-star-core" aria-hidden="true"></span>
-      <span class="intro-star-spike intro-star-spike-x" aria-hidden="true"></span>
-      <span class="intro-star-spike intro-star-spike-y" aria-hidden="true"></span>
-      <img class="intro-logo" src="assets/svprnova-mark-light.svg" alt="" aria-hidden="true" />
-      <span class="intro-shockwave intro-shockwave-a" aria-hidden="true"></span>
-      <span class="intro-shockwave intro-shockwave-b" aria-hidden="true"></span>
-    </button>
-    <p class="intro-prompt mono" id="intro-prompt">IGNITE</p>
-  </div>
 
   <header class="site-header" id="site-header">
     <a class="brand-lockup" href="/" data-route-link="home" aria-label="SVPRNOVA home">
-      <img src="assets/svprnova-mark-light.svg" alt="" />
+      <img src="../assets/svprnova-mark-light.svg" alt="" />
       <span>SVPRNOVA</span>
     </a>
 
@@ -58,7 +45,7 @@
     <a href="https://svprnova.com/login">Portal ↗</a>
   </div>
 
-  <main id="home-view" class="route-view" data-route="home">
+  <main id="home-view" class="route-view" data-route="home" hidden>
     <section class="hero environment-cosmic" data-star-density="1">
       <div class="hero-nebula" aria-hidden="true"></div>
       <div class="hero-orbit hero-orbit-a" aria-hidden="true"></div>
@@ -76,7 +63,7 @@
           <div class="stellar-flare flare-a"></div>
           <div class="stellar-flare flare-b"></div>
           <div class="stellar-flare flare-c"></div>
-          <img class="hero-mark" src="assets/svprnova-mark-light.svg" alt="" />
+          <img class="hero-mark" src="../assets/svprnova-mark-light.svg" alt="" />
         </div>
 
         <div class="hero-title-lockup reveal-on-load" id="hero-title-lockup" data-parallax-depth=".82">
@@ -142,7 +129,7 @@
             <circle cx="500" cy="310" r="58" />
           </svg>
           <div class="system-core">
-            <img src="assets/svprnova-mark-light.svg" alt="" />
+            <img src="../assets/svprnova-mark-light.svg" alt="" />
             <span class="mono">SVPR</span>
           </div>
           <article class="system-node system-node-1">
@@ -211,7 +198,7 @@
           <svg class="constellation-lines" id="constellation-lines" viewBox="0 0 1000 680" preserveAspectRatio="none" aria-hidden="true"></svg>
           <div class="constellation-core" data-x="50" data-y="48" data-depth="0.24">
             <div class="core-glow"></div>
-            <img src="assets/svprnova-mark-light.svg" alt="SVPRNOVA" />
+            <img src="../assets/svprnova-mark-light.svg" alt="SVPRNOVA" />
             <span class="mono">SVPRNOVA / CORE</span>
           </div>
           <button class="constellation-node chapter-node" style="--x:19;--y:31" data-x="19" data-y="31" data-depth="0.31" type="button">
@@ -269,7 +256,7 @@
     <section class="final-cta" aria-labelledby="cta-title">
       <div class="cta-glow" aria-hidden="true"></div>
       <div class="section-shell cta-inner reveal">
-        <img src="assets/svprnova-mark-light.svg" alt="" />
+        <img src="../assets/svprnova-mark-light.svg" alt="" />
         <p class="eyebrow mono">THE NEXT QUESTION STARTS HERE</p>
         <h2 id="cta-title">Spark vision<br />into <em>progress.</em></h2>
         <p>Find your place in the constellation—or help build the next one.</p>
@@ -283,7 +270,7 @@
   </main>
 
 
-  <main id="research-view" class="route-view research-page" data-route="research" hidden>
+  <main id="research-view" class="route-view research-page" data-route="research">
     <section class="research-page-hero environment-cosmic" id="research-top">
       <div class="research-hero-nebula" aria-hidden="true"></div>
       <div class="knowledge-field" id="knowledge-field" aria-hidden="true">
@@ -478,7 +465,7 @@
     <div class="footer-line" aria-hidden="true"><i></i><i></i><i></i><i></i></div>
     <div class="section-shell footer-inner">
       <div class="footer-brand">
-        <img src="assets/svprnova-mark-light.svg" alt="" />
+        <img src="../assets/svprnova-mark-light.svg" alt="" />
         <div><strong>SVPRNOVA</strong><span>Sparking Vision into Progress through Research.</span></div>
       </div>
       <div class="footer-links">
@@ -493,7 +480,7 @@
     <span class="sound-label mono">PLAY SCORE</span>
   </button>
   <a class="sound-credit" id="sound-credit" href="https://open.spotify.com/artist/3JKtS3OZf6Wrio2MFBe2H6" target="_blank" rel="noopener noreferrer" aria-label="Music by Runox on Spotify">
-    <img class="sound-credit-photo" src="assets/runox-photo.png" alt="Runox artist photo" />
+    <img class="sound-credit-photo" src="../assets/runox-photo.png" alt="Runox artist photo" />
     <span class="sound-credit-copy">
       <span class="sound-credit-kicker mono">MUSIC BY</span>
       <strong>Runox</strong>
@@ -501,11 +488,11 @@
     </span>
   </a>
   <audio id="site-score" preload="auto" loop playsinline>
-    <source src="assets/svprnova-score.mp3" type="audio/mpeg" />
+    <source src="../assets/svprnova-score.mp3" type="audio/mpeg" />
   </audio>
 
-  <script src="siteData.js"></script>
-  <script src="script.js"></script>
-  <script src="research.js"></script>
+  <script src="../siteData.js"></script>
+  <script src="../script.js"></script>
+  <script src="../research.js"></script>
 </body>
 </html>
