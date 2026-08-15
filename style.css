@@ -1260,3 +1260,113 @@ body.site-launched .hero-title-lockup {
 }
 
 .outcome-field > span { left:50% !important; right:auto !important; top:50% !important; bottom:auto !important; }
+
+
+/* ==========================================================================\n   V2.3 — tighter disciplines, persistent Spectrum state, real orbital paths\n   ========================================================================== */
+
+/* Lock the research hero to the requested three-line cadence. */
+.research-hero-copy h1 { max-width: 820px; }
+.research-title-line { display:block; white-space:nowrap; }
+.research-title-muted { color:rgba(255,255,255,.42); font-weight:300; }
+.research-title-muted em { color:inherit; }
+
+/* The /research Spectrum case now uses the exact same live canvas language as
+   the homepage rather than a separate schematic. */
+.spectrum-case-live { display:block; }
+.spectrum-canvas-shared { position:absolute; inset:0; width:100%; height:100%; }
+.spectrum-case-live .spectrum-label { z-index:3; }
+.spectrum-case-live .spectrum-axis { z-index:2; pointer-events:none; }
+.spectrum-case-live .case-visual-caption { z-index:3; }
+
+/* Pull discipline cards close around the question. They retreat away from the
+   center on hover while knowledge fragments and icons emerge around them. */
+.discipline-orbit { height:680px; }
+.discipline-node {
+  --base-x: 0%;
+  --hover-x: 0px;
+  --hover-y: 0px;
+  width:238px;
+  min-height:86px;
+  padding:1.15rem 1.2rem;
+  transform:translateX(var(--base-x)) translate(var(--hover-x),var(--hover-y));
+  transition:border-color .32s ease, transform .52s var(--ease-out), background .32s ease, box-shadow .32s ease;
+}
+.discipline-node h3 { margin:0; font-size:1.48rem; }
+.discipline-node:hover,
+.discipline-node:focus {
+  border-color:rgba(148,177,255,.36);
+  background:rgba(23,0,51,.94);
+  box-shadow:0 15px 45px rgba(0,0,0,.24),0 0 32px rgba(82,103,232,.08);
+  outline:none;
+}
+.dn-math { left:20%; top:22%; --hover-x:-62px; --hover-y:-50px; }
+.dn-cs { left:50%; top:10%; --base-x:-50%; --hover-x:0px; --hover-y:-68px; }
+.dn-behavior { right:20%; top:22%; --hover-x:62px; --hover-y:-50px; }
+.dn-engineering { right:20%; bottom:22%; --hover-x:62px; --hover-y:50px; }
+.dn-data { left:50%; bottom:10%; --base-x:-50%; --hover-x:0px; --hover-y:68px; }
+.dn-natural { left:20%; bottom:22%; --hover-x:-62px; --hover-y:50px; }
+.discipline-node:hover,
+.discipline-node:focus { transform:translateX(var(--base-x)) translate(var(--hover-x),var(--hover-y)); }
+
+/* Twice-sized discipline icons. */
+.discipline-icons { position:absolute; inset:0; z-index:-1; pointer-events:none; }
+.discipline-icon {
+  width:84px;
+  height:84px;
+  background:radial-gradient(circle,rgba(148,177,255,.17),rgba(82,103,232,.04) 58%,transparent 72%);
+  filter:drop-shadow(0 0 19px rgba(148,177,255,.62));
+}
+.discipline-icon svg { width:56px; height:56px; stroke-width:1.15; }
+.discipline-node:hover .di-1,
+.discipline-node:focus .di-1 { opacity:.72; transform:translate(calc(-50% - 135px),calc(-50% - 112px)) scale(1); animation:disciplineFloatA 3.2s ease-in-out infinite; }
+.discipline-node:hover .di-2,
+.discipline-node:focus .di-2 { opacity:.66; transform:translate(calc(-50% + 138px),calc(-50% - 102px)) scale(.94); animation:disciplineFloatB 3.8s -.7s ease-in-out infinite; }
+.discipline-node:hover .di-3,
+.discipline-node:focus .di-3 { opacity:.60; transform:translate(calc(-50% + 18px),calc(-50% + 138px)) scale(.9); animation:disciplineFloatC 4.2s -1.3s ease-in-out infinite; }
+
+/* Subtopics are no longer visible inside the card. They emerge one by one as
+   independent pieces of knowledge and float around the hovered discipline. */
+.discipline-topics { position:absolute; inset:0; z-index:-1; pointer-events:none; }
+.discipline-topic {
+  position:absolute;
+  left:50%; top:50%;
+  padding:.42rem .62rem;
+  border:1px solid rgba(148,177,255,.18);
+  border-radius:999px;
+  background:rgba(8,3,17,.88);
+  color:rgba(255,255,255,.70);
+  font-family:var(--font-mono);
+  font-size:.46rem;
+  letter-spacing:.04em;
+  white-space:nowrap;
+  opacity:0;
+  transform:translate(-50%,-50%) scale(.75);
+  box-shadow:0 0 18px rgba(82,103,232,.08);
+  transition:opacity .28s ease,transform .55s var(--ease-out);
+}
+.discipline-node:hover .dt-1,.discipline-node:focus .dt-1 { opacity:.83; transform:translate(calc(-50% - 184px),calc(-50% + 4px)); animation:topicFloatA 4s ease-in-out infinite; }
+.discipline-node:hover .dt-2,.discipline-node:focus .dt-2 { opacity:.78; transform:translate(calc(-50% + 185px),calc(-50% + 8px)); animation:topicFloatB 4.6s -.8s ease-in-out infinite; }
+.discipline-node:hover .dt-3,.discipline-node:focus .dt-3 { opacity:.73; transform:translate(calc(-50% - 112px),calc(-50% + 118px)); animation:topicFloatC 4.3s -1.2s ease-in-out infinite; }
+.discipline-node:hover .dt-4,.discipline-node:focus .dt-4 { opacity:.76; transform:translate(calc(-50% + 124px),calc(-50% + 116px)); animation:topicFloatD 5s -1.7s ease-in-out infinite; }
+.discipline-node:hover .dt-5,.discipline-node:focus .dt-5 { opacity:.66; transform:translate(calc(-50% + 2px),calc(-50% - 146px)); animation:topicFloatE 4.8s -2.1s ease-in-out infinite; }
+@keyframes topicFloatA { 50% { margin-top:-8px; margin-left:7px; } }
+@keyframes topicFloatB { 50% { margin-top:9px; margin-left:-6px; } }
+@keyframes topicFloatC { 50% { margin-top:-7px; margin-left:-8px; } }
+@keyframes topicFloatD { 50% { margin-top:6px; margin-left:8px; } }
+@keyframes topicFloatE { 50% { margin-top:-9px; margin-left:3px; } }
+
+/* More spacious consequence universe; each label runs on its own radius,
+   eccentricity, direction, phase and rotated elliptical plane. */
+.outcome-field { min-height:650px; overflow:hidden; }
+.outcome-field::before { width:82%; aspect-ratio:1.45; }
+.outcome-field::after { width:38%; aspect-ratio:1.25; }
+.outcome-field > span { box-shadow:0 0 24px rgba(82,103,232,.08); }
+
+@media (max-width:1080px) {
+  .discipline-node { width:auto; min-height:0; --base-x:0%; --hover-x:0px; --hover-y:-4px; }
+  .discipline-topics,.discipline-icons { display:none; }
+}
+@media (max-width:760px) {
+  .research-title-line { white-space:normal; }
+  .outcome-field { min-height:520px; }
+}

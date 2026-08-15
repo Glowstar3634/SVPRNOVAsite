@@ -59,6 +59,9 @@
   }
   setRoute(initial, { push: false, hash: window.location.hash });
 
+  // Mount the same stateful Spectrum prism visualization used on the homepage.
+  window.SVPRSpectrum?.mount(document.getElementById('spectrum-canvas-research'));
+
   // Research cosmic parallax: the same reverse-direction movement language as
   // the homepage. The question constellation moves as one connected distant layer
   // so its SVG lines remain attached to its stars.
@@ -96,8 +99,11 @@
         const radiusY = usableY * Number(node.dataset.orbitY || .24);
         const speed = Number(node.dataset.orbitSpeed || .00006);
         const angle = Number(node.dataset.orbitAngle || 0) + time * speed;
-        const x = Math.cos(angle) * radiusX;
-        const y = Math.sin(angle) * radiusY;
+        const tilt = Number(node.dataset.orbitTilt || 0);
+        const ex = Math.cos(angle) * radiusX;
+        const ey = Math.sin(angle) * radiusY;
+        const x = ex * Math.cos(tilt) - ey * Math.sin(tilt);
+        const y = ex * Math.sin(tilt) + ey * Math.cos(tilt);
         node.style.transform = `translate(calc(-50% + ${x}px), calc(-50% + ${y}px))`;
       });
     }

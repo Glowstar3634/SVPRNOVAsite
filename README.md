@@ -1,4 +1,4 @@
-# SVPRNOVA Public Website — V2.2
+# SVPRNOVA Public Website — V2.3
 
 Static front-end package for `svprnova.org`.
 
