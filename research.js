@@ -119,16 +119,16 @@
   const disciplineNodes = [...document.querySelectorAll('.discipline-node')];
   const positionDisciplineFragments = () => {
     const iconSpecs = [
-      { radial: 150, tangent: -74, scale: 1 },
-      { radial: 188, tangent: 68, scale: .94 },
-      { radial: 218, tangent: -10, scale: .90 },
+      { radial: 102, tangent: -46, scale: 1 },
+      { radial: 122, tangent: 44, scale: .94 },
+      { radial: 142, tangent: -8, scale: .90 },
     ];
     const topicSpecs = [
-      { radial: 190, tangent: -126 },
-      { radial: 224, tangent: 112 },
-      { radial: 252, tangent: -62 },
-      { radial: 278, tangent: 58 },
-      { radial: 312, tangent: 4 },
+      { radial: 118, tangent: -72 },
+      { radial: 132, tangent: 70 },
+      { radial: 148, tangent: -42 },
+      { radial: 160, tangent: 40 },
+      { radial: 174, tangent: 2 },
     ];
     disciplineNodes.forEach((node) => {
       const styles = getComputedStyle(node);
@@ -158,7 +158,7 @@
 
   const disciplineOrbit = document.getElementById('discipline-orbit');
   const disciplineLines = disciplineOrbit?.querySelector('.discipline-lines');
-  const disciplineCenter = disciplineOrbit?.querySelector('.discipline-center');
+  const disciplineCenter = disciplineOrbit?.querySelector('.discipline-center-copy');
   const updateDisciplineLines = () => {
     if (!disciplineOrbit || !disciplineLines || !disciplineCenter || innerWidth <= 1080) return;
     const orbitRect = disciplineOrbit.getBoundingClientRect();

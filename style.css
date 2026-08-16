@@ -1524,3 +1524,160 @@ h1,h2,h3,.brand-lockup span,.footer-brand strong,.discipline-center strong { fon
   .outcome-field { min-height:540px; }
   .research-cta-logo { width:58px; }
 }
+
+
+/* ==========================================================================\n   V2.5 — centered discipline narrative, tighter section rhythm, heading fit\n   ========================================================================== */
+
+/* Homepage HOW WE MOVE and research-model second lines use the established
+   blue/light-weight display treatment. */
+.section-intro h2 em,
+.model-heading h2 em,
+.areas-heading h2 em {
+  color:var(--svpr-accent);
+  font-style:normal;
+  font-weight:300;
+}
+
+/* Keep the homepage Spectrum label comfortably inside its copy column. */
+.home-view .research-copy h3,
+#home-view .research-copy h3 {
+  font-size:clamp(2.8rem,4.4vw,5.1rem);
+  line-height:.9;
+}
+
+/* The long Spectrum case-study headline is deliberately two lines on desktop. */
+.spectrum-case-copy h3 {
+  font-size:clamp(2rem,3.25vw,3.65rem);
+  line-height:.98;
+  letter-spacing:-.035em;
+}
+
+/* Pull the adjacent research sections together without collapsing their own
+   internal breathing room. */
+.research-feature { padding-bottom:6rem; }
+.research-areas { padding-top:4.75rem; }
+.research-model { padding-bottom:6.5rem; }
+.research-consequences { padding-top:4.75rem; }
+
+/* DISCIPLINES ARE TOOLS: the narrative itself is now the center. */
+.discipline-orbit {
+  height:780px;
+  margin-top:0;
+  border-top:0;
+  overflow:visible;
+}
+.discipline-center { display:none !important; }
+.discipline-center-copy {
+  position:absolute;
+  z-index:4;
+  left:50%;
+  top:50%;
+  width:min(470px,40vw);
+  max-width:none;
+  transform:translate(-50%,-50%);
+  text-align:center;
+  padding:1.2rem 1.4rem;
+}
+.discipline-center-copy .eyebrow { margin-bottom:.85rem; }
+.discipline-center-copy h2 {
+  margin:0 auto 1.15rem;
+  font-size:clamp(3rem,5.1vw,5.7rem);
+  line-height:.88;
+}
+.discipline-center-copy > p:last-child {
+  max-width:460px;
+  margin:0 auto;
+  color:rgba(255,255,255,.52);
+  line-height:1.7;
+}
+
+/* Six fixed cards form a wide ring around the central statement. */
+.discipline-node {
+  --orbit-x:0px;
+  --orbit-y:0px;
+  --hover-x:0px;
+  --hover-y:0px;
+  left:50% !important;
+  right:auto !important;
+  top:50% !important;
+  bottom:auto !important;
+  width:230px;
+  min-height:86px;
+  transform:translate(-50%,-50%) translate(var(--orbit-x),var(--orbit-y)) !important;
+  transition:border-color .32s ease,background .32s ease,box-shadow .32s ease;
+}
+.discipline-node:hover,
+.discipline-node:focus {
+  transform:translate(-50%,-50%) translate(var(--orbit-x),var(--orbit-y)) !important;
+}
+.dn-math        { --orbit-x:-360px; --orbit-y:-205px; }
+.dn-cs          { --orbit-x:0px;    --orbit-y:-300px; }
+.dn-behavior    { --orbit-x:360px;  --orbit-y:-205px; }
+.dn-engineering { --orbit-x:360px;  --orbit-y:205px; }
+.dn-data        { --orbit-x:0px;    --orbit-y:300px; }
+.dn-natural     { --orbit-x:-360px; --orbit-y:205px; }
+
+/* 1.5x larger than V2.4, but the fragments travel much less distance. */
+.discipline-icon {
+  width:126px;
+  height:126px;
+  background:radial-gradient(circle,rgba(148,177,255,.15),rgba(82,103,232,.035) 58%,transparent 72%);
+}
+.discipline-icon svg { width:84px; height:84px; stroke-width:1.05; }
+.discipline-topic {
+  font-size:.69rem;
+  padding:.48rem .72rem;
+  letter-spacing:.035em;
+}
+
+/* The JS sets outward-biased --pop-x/--pop-y values; these hover rules only
+   reveal and float those closer targets. */
+.discipline-node:hover .discipline-icon,
+.discipline-node:focus .discipline-icon {
+  opacity:.68;
+  transform:translate(calc(-50% + var(--pop-x)),calc(-50% + var(--pop-y))) scale(var(--pop-scale,1));
+}
+.discipline-node:hover .discipline-topic,
+.discipline-node:focus .discipline-topic {
+  opacity:.82;
+  transform:translate(calc(-50% + var(--pop-x)),calc(-50% + var(--pop-y)));
+}
+
+@media (max-width:1080px) {
+  .discipline-orbit {
+    height:auto;
+    display:grid;
+    grid-template-columns:repeat(2,minmax(0,1fr));
+    gap:1rem;
+    padding:1rem 0 2rem;
+  }
+  .discipline-center-copy {
+    position:relative;
+    left:auto;
+    top:auto;
+    width:100%;
+    grid-column:1/-1;
+    transform:none;
+    padding:0 0 2rem;
+  }
+  .discipline-node {
+    position:relative;
+    left:auto !important;
+    top:auto !important;
+    width:auto;
+    transform:none !important;
+  }
+  .discipline-node:hover,.discipline-node:focus { transform:none !important; }
+  .discipline-lines { display:none; }
+  .discipline-icons,.discipline-topics { display:none; }
+  .research-feature { padding-bottom:5rem; }
+  .research-areas { padding-top:4rem; }
+  .research-model { padding-bottom:5.5rem; }
+  .research-consequences { padding-top:4rem; }
+}
+
+@media (max-width:760px) {
+  .discipline-orbit { grid-template-columns:1fr; }
+  .discipline-center-copy h2 { font-size:clamp(3rem,14vw,4.8rem); }
+  .spectrum-case-copy h3 { font-size:clamp(2.25rem,11vw,3.4rem); }
+}
