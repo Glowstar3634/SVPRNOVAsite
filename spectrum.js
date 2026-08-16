@@ -71,11 +71,15 @@
     const makeNode = (index) => {
       const angle = Math.random() * Math.PI * 2;
       const ring = 0.13 + Math.pow(Math.random(), .82) * .38;
+      const orbitDir = Math.random() < .5 ? -1 : 1;
+      const driftSpeed = .00030 + Math.random() * .00011;
       return {
         x: .5 + Math.cos(angle) * ring,
         y: .5 + Math.sin(angle) * ring,
-        vx: (Math.random() - .5) * .00017,
-        vy: (Math.random() - .5) * .00017,
+        vx: -Math.sin(angle) * driftSpeed * orbitDir,
+        vy: Math.cos(angle) * driftSpeed * orbitDir,
+        driftSpeed,
+        orbitDir,
         r: 1.35 + Math.random() * 2.5,
         group: index % palette.length,
         phase: Math.random() * Math.PI * 2,
@@ -166,16 +170,55 @@
       nodes.forEach((node) => {
         if (reduceMotion) return;
 
-        // Outside a burst, points simply drift from wherever the previous burst
-        // left them. There is deliberately NO stored home position to return to.
+        // Outside a burst, points keep drifting from wherever the previous burst
+        // left them. Their preferred motion is tangential to the prism center,
+        // while a local separation force breaks apart line-like clumps. There is
+        // deliberately NO stored home position to return to.
         if (!inOutgoing) {
           const frameScale = dt / 16.67;
-          node.x += node.vx * frameScale;
-          node.y += node.vy * frameScale;
-          if (node.x < .06 || node.x > .94) node.vx *= -1;
-          if (node.y < .06 || node.y > .94) node.vy *= -1;
-          node.x = clamp(node.x, .06, .94);
-          node.y = clamp(node.y, .06, .94);
+          const rx = node.x - .5;
+          const ry = node.y - .5;
+          const radial = Math.hypot(rx, ry) || 1;
+          const tangentX = (-ry / radial) * node.orbitDir;
+          const tangentY = (rx / radial) * node.orbitDir;
+
+          let repelX = 0;
+          let repelY = 0;
+          const separationRadius = .095;
+          nodes.forEach((other) => {
+            if (other === node) return;
+            const dx = node.x - other.x;
+            const dy = node.y - other.y;
+            const d = Math.hypot(dx, dy);
+            if (d <= .0001 || d >= separationRadius) return;
+            const force = Math.pow(1 - d / separationRadius, 1.35);
+            repelX += (dx / d) * force;
+            repelY += (dy / d) * force;
+          });
+
+          const repelLength = Math.hypot(repelX, repelY);
+          if (repelLength > 1) { repelX /= repelLength; repelY /= repelLength; }
+          const phaseWander = Math.sin(time * .00072 + node.phase) * .16;
+          const desiredVx = tangentX * node.driftSpeed + repelX * node.driftSpeed * 1.18 + (rx / radial) * node.driftSpeed * phaseWander;
+          const desiredVy = tangentY * node.driftSpeed + repelY * node.driftSpeed * 1.18 + (ry / radial) * node.driftSpeed * phaseWander;
+          node.vx += (desiredVx - node.vx) * .085;
+          node.vy += (desiredVy - node.vy) * .085;
+
+          const speed = Math.hypot(node.vx, node.vy) || 1;
+          const maxDrift = node.driftSpeed * 1.42;
+          if (speed > maxDrift) {
+            node.vx = node.vx / speed * maxDrift;
+            node.vy = node.vy / speed * maxDrift;
+          }
+
+          // Soft boundary steering keeps the field populated without retracing.
+          if (node.x < .075) node.vx += node.driftSpeed * .65;
+          if (node.x > .925) node.vx -= node.driftSpeed * .65;
+          if (node.y < .075) node.vy += node.driftSpeed * .65;
+          if (node.y > .925) node.vy -= node.driftSpeed * .65;
+
+          node.x = clamp(node.x + node.vx * frameScale, .06, .94);
+          node.y = clamp(node.y + node.vy * frameScale, .06, .94);
 
           if (pointer.active) {
             const px = pointer.x / width;

@@ -95,9 +95,9 @@
       const usableX = Math.max(80, rect.width * .5 - 95);
       const usableY = Math.max(70, rect.height * .5 - 55);
       outcomeNodes.forEach((node) => {
-        const radiusX = usableX * Number(node.dataset.orbitRadius || .3);
-        const radiusY = usableY * Number(node.dataset.orbitY || .24);
-        const speed = Number(node.dataset.orbitSpeed || .00006);
+        const radiusX = usableX * Number(node.dataset.orbitRadius || .3) * 1.3;
+        const radiusY = usableY * Number(node.dataset.orbitY || .24) * 1.3;
+        const speed = Number(node.dataset.orbitSpeed || .00006) * 3.5;
         const angle = Number(node.dataset.orbitAngle || 0) + time * speed;
         const tilt = Number(node.dataset.orbitTilt || 0);
         const ex = Math.cos(angle) * radiusX;
@@ -113,6 +113,82 @@
   else if (field) {
     field.style.setProperty('--field-px','0px'); field.style.setProperty('--field-py','0px');
   }
+
+  // Discipline knowledge fragments are biased outward from the central Question
+  // instead of appearing on a perfect ring around each card.
+  const disciplineNodes = [...document.querySelectorAll('.discipline-node')];
+  const positionDisciplineFragments = () => {
+    const iconSpecs = [
+      { radial: 150, tangent: -74, scale: 1 },
+      { radial: 188, tangent: 68, scale: .94 },
+      { radial: 218, tangent: -10, scale: .90 },
+    ];
+    const topicSpecs = [
+      { radial: 190, tangent: -126 },
+      { radial: 224, tangent: 112 },
+      { radial: 252, tangent: -62 },
+      { radial: 278, tangent: 58 },
+      { radial: 312, tangent: 4 },
+    ];
+    disciplineNodes.forEach((node) => {
+      const styles = getComputedStyle(node);
+      const ox = parseFloat(styles.getPropertyValue('--orbit-x')) || 0;
+      const oy = parseFloat(styles.getPropertyValue('--orbit-y')) || -1;
+      const length = Math.hypot(ox, oy) || 1;
+      const ux = ox / length;
+      const uy = oy / length;
+      const txv = -uy;
+      const tyv = ux;
+
+      [...node.querySelectorAll('.discipline-icon')].forEach((item, index) => {
+        const spec = iconSpecs[index % iconSpecs.length];
+        item.style.setProperty('--pop-x', `${ux * spec.radial + txv * spec.tangent}px`);
+        item.style.setProperty('--pop-y', `${uy * spec.radial + tyv * spec.tangent}px`);
+        item.style.setProperty('--pop-scale', String(spec.scale));
+      });
+      [...node.querySelectorAll('.discipline-topic')].forEach((item, index) => {
+        const spec = topicSpecs[index % topicSpecs.length];
+        item.style.setProperty('--pop-x', `${ux * spec.radial + txv * spec.tangent}px`);
+        item.style.setProperty('--pop-y', `${uy * spec.radial + tyv * spec.tangent}px`);
+      });
+    });
+  };
+  positionDisciplineFragments();
+  window.addEventListener('resize', positionDisciplineFragments, { passive: true });
+
+  const disciplineOrbit = document.getElementById('discipline-orbit');
+  const disciplineLines = disciplineOrbit?.querySelector('.discipline-lines');
+  const disciplineCenter = disciplineOrbit?.querySelector('.discipline-center');
+  const updateDisciplineLines = () => {
+    if (!disciplineOrbit || !disciplineLines || !disciplineCenter || innerWidth <= 1080) return;
+    const orbitRect = disciplineOrbit.getBoundingClientRect();
+    const centerRect = disciplineCenter.getBoundingClientRect();
+    const viewBox = disciplineLines.viewBox.baseVal;
+    const sx = viewBox.width / orbitRect.width;
+    const sy = viewBox.height / orbitRect.height;
+    const cx = (centerRect.left + centerRect.width / 2 - orbitRect.left) * sx;
+    const cy = (centerRect.top + centerRect.height / 2 - orbitRect.top) * sy;
+    const lines = [...disciplineLines.querySelectorAll('line')];
+    disciplineNodes.forEach((node, index) => {
+      const line = lines[index];
+      if (!line) return;
+      const rect = node.getBoundingClientRect();
+      const nx = (rect.left + rect.width / 2 - orbitRect.left) * sx;
+      const ny = (rect.top + rect.height / 2 - orbitRect.top) * sy;
+      line.setAttribute('x1', String(cx));
+      line.setAttribute('y1', String(cy));
+      line.setAttribute('x2', String(nx));
+      line.setAttribute('y2', String(ny));
+    });
+  };
+  requestAnimationFrame(updateDisciplineLines);
+  window.addEventListener('resize', () => requestAnimationFrame(updateDisciplineLines), { passive: true });
+  disciplineNodes.forEach((node) => {
+    node.addEventListener('mouseenter', () => requestAnimationFrame(updateDisciplineLines));
+    node.addEventListener('mouseleave', () => requestAnimationFrame(updateDisciplineLines));
+    node.addEventListener('focus', () => requestAnimationFrame(updateDisciplineLines));
+    node.addEventListener('blur', () => requestAnimationFrame(updateDisciplineLines));
+  });
 
   // Pulse a route through the Spectrum architecture to make the research cycle feel live.
   const particleLayer = document.getElementById('architecture-particles');
