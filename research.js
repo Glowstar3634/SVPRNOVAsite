@@ -114,42 +114,40 @@
     field.style.setProperty('--field-px','0px'); field.style.setProperty('--field-py','0px');
   }
 
-  // Discipline knowledge fragments are biased outward from the central Question
-  // instead of appearing on a perfect ring around each card.
+  // Discipline knowledge fragments fan into a 216-degree outward-facing arc.
+  // The arc is centered on the radial line from the section center through each
+  // discipline card, so the fragments bloom away from the central narrative.
   const disciplineNodes = [...document.querySelectorAll('.discipline-node')];
   const positionDisciplineFragments = () => {
-    const iconSpecs = [
-      { radial: 102, tangent: -46, scale: 1 },
-      { radial: 122, tangent: 44, scale: .94 },
-      { radial: 142, tangent: -8, scale: .90 },
-    ];
-    const topicSpecs = [
-      { radial: 118, tangent: -72 },
-      { radial: 132, tangent: 70 },
-      { radial: 148, tangent: -42 },
-      { radial: 160, tangent: 40 },
-      { radial: 174, tangent: 2 },
-    ];
+    const ARC_SPAN = 216 * Math.PI / 180;
     disciplineNodes.forEach((node) => {
       const styles = getComputedStyle(node);
       const ox = parseFloat(styles.getPropertyValue('--orbit-x')) || 0;
       const oy = parseFloat(styles.getPropertyValue('--orbit-y')) || -1;
-      const length = Math.hypot(ox, oy) || 1;
-      const ux = ox / length;
-      const uy = oy / length;
-      const txv = -uy;
-      const tyv = ux;
+      const outwardAngle = Math.atan2(oy, ox);
 
-      [...node.querySelectorAll('.discipline-icon')].forEach((item, index) => {
-        const spec = iconSpecs[index % iconSpecs.length];
-        item.style.setProperty('--pop-x', `${ux * spec.radial + txv * spec.tangent}px`);
-        item.style.setProperty('--pop-y', `${uy * spec.radial + tyv * spec.tangent}px`);
-        item.style.setProperty('--pop-scale', String(spec.scale));
-      });
-      [...node.querySelectorAll('.discipline-topic')].forEach((item, index) => {
-        const spec = topicSpecs[index % topicSpecs.length];
-        item.style.setProperty('--pop-x', `${ux * spec.radial + txv * spec.tangent}px`);
-        item.style.setProperty('--pop-y', `${uy * spec.radial + tyv * spec.tangent}px`);
+      const icons = [...node.querySelectorAll('.discipline-icon')];
+      const topics = [...node.querySelectorAll('.discipline-topic')];
+      const fragments = [];
+      const count = Math.max(icons.length, topics.length);
+      for (let i = 0; i < count; i++) {
+        if (topics[i]) fragments.push({ el: topics[i], type: 'topic' });
+        if (icons[i]) fragments.push({ el: icons[i], type: 'icon' });
+      }
+
+      const last = Math.max(1, fragments.length - 1);
+      fragments.forEach((fragment, index) => {
+        const fraction = index / last;
+        const angle = outwardAngle - ARC_SPAN / 2 + ARC_SPAN * fraction;
+        // Larger radius than V2.5 for cleaner separation, with a slight
+        // alternating offset so labels and icons do not stack on one curve.
+        const radius = (fragment.type === 'icon' ? 255 : 235) + (index % 2 ? 10 : -4);
+        const outwardBias = 26;
+        const x = Math.cos(angle) * radius + Math.cos(outwardAngle) * outwardBias;
+        const y = Math.sin(angle) * radius + Math.sin(outwardAngle) * outwardBias;
+        fragment.el.style.setProperty('--pop-x', `${x.toFixed(1)}px`);
+        fragment.el.style.setProperty('--pop-y', `${y.toFixed(1)}px`);
+        if (fragment.type === 'icon') fragment.el.style.setProperty('--pop-scale', '1');
       });
     });
   };

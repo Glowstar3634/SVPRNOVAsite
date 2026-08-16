@@ -1678,6 +1678,70 @@ h1,h2,h3,.brand-lockup span,.footer-brand strong,.discipline-center strong { fon
 
 @media (max-width:760px) {
   .discipline-orbit { grid-template-columns:1fr; }
-  .discipline-center-copy h2 { font-size:clamp(3rem,14vw,4.8rem); }
+  .discipline-center-copy h2 { font-size:clamp(2.8rem,14vw,4.8rem); }
   .spectrum-case-copy h3 { font-size:clamp(2.25rem,11vw,3.4rem); }
+}
+
+
+/* ==========================================================================
+   V2.6 — explicit two-line headings + 216deg discipline knowledge fans
+   ========================================================================== */
+
+/* Explicit line wrappers prevent the homepage heading's grid column from
+   reflowing "From question" onto an unintended extra line. */
+.question-consequence-heading > span,
+.question-consequence-heading > em {
+  display:block;
+  white-space:nowrap;
+}
+.home-view .section-intro .question-consequence-heading,
+#home-view .section-intro .question-consequence-heading {
+  font-size:clamp(3.25rem,5.55vw,6.15rem);
+  line-height:.9;
+}
+
+/* The complete research-area conclusion is one blue/light-weight line. */
+.areas-heading h2 em {
+  display:inline-block;
+  color:var(--svpr-accent);
+  font-style:normal;
+  font-weight:300;
+}
+
+/* 1.5x larger icons than V2.5 and 1.2x larger subtopic type. The JS now
+   distributes all fragments over a wide 216deg outward-facing arc. */
+.discipline-icon {
+  width:189px;
+  height:189px;
+}
+.discipline-icon svg {
+  width:126px;
+  height:126px;
+  stroke-width:.92;
+}
+.discipline-topic {
+  font-size:.83rem;
+  padding:.54rem .82rem;
+  letter-spacing:.035em;
+  white-space:nowrap;
+}
+.discipline-node:hover .discipline-icon,
+.discipline-node:focus .discipline-icon {
+  opacity:.7;
+  transform:translate(calc(-50% + var(--pop-x)),calc(-50% + var(--pop-y))) scale(var(--pop-scale,1));
+}
+.discipline-node:hover .discipline-topic,
+.discipline-node:focus .discipline-topic {
+  opacity:.86;
+  transform:translate(calc(-50% + var(--pop-x)),calc(-50% + var(--pop-y)));
+}
+
+/* The explanatory "Beyond the map" row is intentionally removed in V2.6. */
+.beyond-map { display:none !important; }
+
+@media (max-width:760px) {
+  .home-view .section-intro .question-consequence-heading,
+  #home-view .section-intro .question-consequence-heading {
+    font-size:clamp(3rem,14vw,4.8rem);
+  }
 }
