@@ -2,11 +2,17 @@
 (() => {
   const homeView = document.getElementById('home-view');
   const researchView = document.getElementById('research-view');
+  const chaptersView = document.getElementById('chapters-view');
   const header = document.getElementById('site-header');
   const navResearch = header?.querySelector('a[href="/research"]');
-  const routeViews = { home: homeView, research: researchView };
+  const navChapters = header?.querySelector('a[href="/chapters"]');
+  const routeViews = { home: homeView, research: researchView, chapters: chaptersView };
 
-  const pathRoute = () => /\/research(?:\/|$)/.test(window.location.pathname) ? 'research' : 'home';
+  const pathRoute = () => {
+    if (/\/chapters(?:\/|$)/.test(window.location.pathname)) return 'chapters';
+    if (/\/research(?:\/|$)/.test(window.location.pathname)) return 'research';
+    return 'home';
+  };
 
   const setRoute = (route, { push = false, hash = '' } = {}) => {
     Object.entries(routeViews).forEach(([name, el]) => {
@@ -16,8 +22,13 @@
       el.setAttribute('aria-hidden', String(!active));
     });
     document.body.classList.toggle('route-research', route === 'research');
+    document.body.classList.toggle('route-chapters', route === 'chapters');
     navResearch?.classList.toggle('route-active', route === 'research');
-    if (push && window.location.protocol !== 'file:') history.pushState({ route }, '', route === 'research' ? `/research${hash || ''}` : `/${hash || ''}`);
+    navChapters?.classList.toggle('route-active', route === 'chapters');
+    if (push && window.location.protocol !== 'file:') {
+      const path = route === 'research' ? '/research' : route === 'chapters' ? '/chapters' : '/';
+      history.pushState({ route }, '', `${path}${hash || ''}`);
+    }
     requestAnimationFrame(() => {
       if (hash) {
         const target = document.querySelector(hash);
@@ -36,12 +47,17 @@
     const url = new URL(link.href, window.location.href);
     if (url.origin !== window.location.origin) return;
 
-    if (/\/research\/?$/.test(url.pathname)) {
+    if (researchView && /\/research\/?$/.test(url.pathname)) {
       event.preventDefault();
       setRoute('research', { push: true, hash: url.hash });
       return;
     }
-    if ((url.pathname === '/' || url.pathname.endsWith('/index.html')) && link.dataset.routeLink === 'home') {
+    if (chaptersView && /\/chapters\/?$/.test(url.pathname)) {
+      event.preventDefault();
+      setRoute('chapters', { push: true, hash: url.hash });
+      return;
+    }
+    if (homeView && (url.pathname === '/' || url.pathname.endsWith('/index.html')) && link.dataset.routeLink === 'home') {
       event.preventDefault();
       setRoute('home', { push: true, hash: url.hash });
       return;
@@ -50,9 +66,9 @@
 
   window.addEventListener('popstate', () => setRoute(pathRoute(), { push: false, hash: window.location.hash }));
 
-  // Direct /research loads skip the homepage ignition but keep the same shell.
+  // Direct internal-route loads skip the homepage ignition but keep the same shell.
   const initial = pathRoute();
-  if (initial === 'research') {
+  if (initial !== 'home') {
     document.body.classList.remove('prelaunch');
     document.body.classList.add('site-launched');
     document.getElementById('stellar-intro')?.remove();
