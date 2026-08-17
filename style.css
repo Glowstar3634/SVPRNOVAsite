@@ -2391,3 +2391,102 @@ body.route-chapters .site-header.scrolled { background:rgba(6,2,15,.84); }
 @media (prefers-reduced-motion: reduce) {
   .about-question-pill { animation:none; }
 }
+
+
+/* ==========================================================================\n   V4.2 — hero typography + origin thought field\n   ========================================================================== */
+/* /research and /about use the same editorial hero language as /chapters. */
+.research-hero-copy .eyebrow,
+.about-hero-copy .eyebrow {
+  margin:0 0 1.25rem;
+  color:var(--svpr-accent);
+  font-family:var(--font-mono);
+  font-size:.68rem;
+  line-height:1.2;
+  font-weight:700;
+  letter-spacing:.2em;
+}
+.research-hero-copy .route-hero-title,
+.about-hero-copy .route-hero-title {
+  margin:.4rem 0 1.7rem;
+  font-family:var(--font-display);
+  font-size:clamp(4.8rem,8.2vw,9rem);
+  line-height:.82;
+  letter-spacing:-.052em;
+  font-weight:500;
+}
+.research-hero-copy .route-hero-title span,
+.research-hero-copy .route-hero-title em,
+.about-hero-copy .route-hero-title span,
+.about-hero-copy .route-hero-title em { display:block; }
+.research-hero-copy .route-hero-title span,
+.about-hero-copy .route-hero-title span { color:var(--star-000) !important; font-weight:500; opacity:1; }
+.research-hero-copy .route-hero-title em,
+.about-hero-copy .route-hero-title em { color:var(--svpr-accent) !important; font-style:normal; font-weight:300; opacity:1; }
+.research-hero-copy > p,
+.about-hero-copy .about-lead {
+  max-width:680px;
+  color:rgba(255,255,255,.57);
+  line-height:1.78;
+  font-size:1rem;
+}
+/* Keep the About composition intact while giving the title enough line length. */
+.about-hero-grid { grid-template-columns:minmax(0,1.28fr) minmax(330px,.72fr); }
+.about-hero-copy .route-hero-title { max-width:900px; font-size:clamp(4.2rem,6.7vw,7.35rem); }
+
+/* Origin headline: exact two-line construction. */
+.about-origin-copy h2 span,
+.about-origin-copy h2 em { display:block; }
+.about-origin-copy h2 span { color:var(--star-000); font-weight:500; }
+.about-origin-copy h2 em { color:var(--svpr-accent); font-style:normal; font-weight:300; }
+
+/* Questions are no longer fixed pills around the perimeter. Every thought is
+   centered in the same coordinate system and JS sends it around a distinct
+   ellipse while this independent opacity cycle makes it drift in and out. */
+.about-question-cloud { min-height:570px; }
+.about-possibility-statement { z-index:5; }
+.about-possibility-statement h3 { text-shadow:0 0 36px rgba(82,103,232,.12); }
+.about-question-pill {
+  --thought-x:0px;
+  --thought-y:0px;
+  left:50% !important;
+  top:50% !important;
+  right:auto !important;
+  bottom:auto !important;
+  z-index:3;
+  opacity:0;
+  transform:translate(-50%,-50%) translate3d(var(--thought-x),var(--thought-y),0) !important;
+  animation-name:thoughtFade !important;
+  animation-timing-function:ease-in-out !important;
+  animation-iteration-count:infinite !important;
+  will-change:transform,opacity;
+}
+.about-question-pill.pill-a { animation-duration:8.8s !important; animation-delay:-1.1s !important; }
+.about-question-pill.pill-b { animation-duration:11.7s !important; animation-delay:-6.3s !important; }
+.about-question-pill.pill-c { animation-duration:7.4s !important; animation-delay:-2.6s !important; }
+.about-question-pill.pill-d { animation-duration:13.2s !important; animation-delay:-8.7s !important; }
+.about-question-pill.pill-e { animation-duration:9.9s !important; animation-delay:-4.4s !important; }
+@keyframes thoughtFade {
+  0%,10% { opacity:0; filter:blur(2px); }
+  24%,56% { opacity:.88; filter:blur(0); }
+  72%,100% { opacity:0; filter:blur(2px); }
+}
+.founder-meta a { color:inherit; text-decoration:none; }
+.founder-meta a:hover,.founder-meta a:focus-visible { color:var(--svpr-accent); }
+
+@media (max-width:1080px) {
+  .research-hero-copy .route-hero-title,
+  .about-hero-copy .route-hero-title { font-size:clamp(4.5rem,10vw,7.6rem); }
+  .about-hero-grid { grid-template-columns:1fr; }
+}
+@media (max-width:760px) {
+  .research-hero-copy .route-hero-title,
+  .about-hero-copy .route-hero-title { font-size:clamp(4rem,19vw,6rem); }
+  .research-hero-copy > p,
+  .about-hero-copy .about-lead { font-size:.9rem; }
+  .about-question-cloud { min-height:620px; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .about-question-pill { animation:none !important; opacity:.68; }
+}
+.route-about .desktop-nav a[href="/about"] { color:var(--star-000); }
+.route-about .desktop-nav a[href="/about"]::after { transform:scaleX(1); }
