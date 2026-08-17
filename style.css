@@ -2490,3 +2490,84 @@ body.route-chapters .site-header.scrolled { background:rgba(6,2,15,.84); }
 }
 .route-about .desktop-nav a[href="/about"] { color:var(--star-000); }
 .route-about .desktop-nav a[href="/about"]::after { transform:scaleX(1); }
+
+
+/* ==========================================================================\n   V4.3 — unified route shell, hero baseline, origin thought field\n   ========================================================================== */
+:root { --interior-hero-top:clamp(8.5rem,14vh,10.5rem); --interior-hero-size:clamp(4.2rem,6.7vw,7.35rem); }
+
+/* All three interior-page intros begin at the same viewport height. */
+.research-page-hero {
+  min-height:100svh;
+  align-items:flex-start;
+  padding:var(--interior-hero-top) 0 7rem;
+}
+.chapters-v32-intro { top:var(--interior-hero-top); }
+.about-hero { padding:var(--interior-hero-top) 0 6.5rem; }
+.about-hero-grid { align-items:start; }
+
+/* Research + Chapters now share the About hero scale exactly. */
+.research-hero-copy .route-hero-title,
+.about-hero-copy .route-hero-title,
+.chapters-v32-intro h1 {
+  font-size:var(--interior-hero-size);
+}
+
+/* The origin statement stays central; the thoughts are bare text much farther out. */
+.about-question-cloud { min-height:660px; }
+.about-possibility-statement { width:min(330px,48%); }
+.about-possibility-statement h3 { font-size:clamp(1.6rem,2.2vw,2.2rem); line-height:1.09; }
+.about-question-pill {
+  padding:0 !important;
+  border:0 !important;
+  border-radius:0 !important;
+  background:transparent !important;
+  box-shadow:none !important;
+  color:rgba(255,255,255,.76);
+  font-size:.52rem;
+  letter-spacing:.09em;
+  text-shadow:0 0 14px rgba(148,177,255,.2);
+  white-space:nowrap;
+}
+
+/* Founder site link is part of the portrait column, not metadata. */
+.founder-photo-wrap { display:flex; flex-direction:column; gap:.8rem; }
+.founder-site-button {
+  position:relative;
+  z-index:2;
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  width:100%;
+  padding:.88rem 1rem;
+  border:1px solid rgba(148,177,255,.34);
+  border-radius:.82rem;
+  background:linear-gradient(105deg,rgba(82,103,232,.26),rgba(90,10,134,.16));
+  color:var(--star-000);
+  font-family:var(--font-mono);
+  font-size:.62rem;
+  font-weight:700;
+  letter-spacing:.1em;
+  text-decoration:none;
+  box-shadow:0 0 28px rgba(82,103,232,.09),inset 0 0 0 1px rgba(255,255,255,.025);
+  transition:transform .25s var(--ease-out),border-color .25s ease,background .25s ease,box-shadow .25s ease;
+}
+.founder-site-button:hover,.founder-site-button:focus-visible {
+  transform:translateY(-2px);
+  border-color:rgba(148,177,255,.72);
+  background:linear-gradient(105deg,rgba(82,103,232,.42),rgba(90,10,134,.24));
+  box-shadow:0 0 34px rgba(82,103,232,.18),inset 0 0 0 1px rgba(255,255,255,.04);
+}
+
+@media (max-width:1080px) {
+  :root { --interior-hero-top:clamp(8.2rem,13vh,9.5rem); --interior-hero-size:clamp(4.1rem,9.2vw,6.7rem); }
+  .research-page-hero { padding-bottom:6rem; }
+}
+@media (max-width:760px) {
+  :root { --interior-hero-top:7.5rem; --interior-hero-size:clamp(3.7rem,17vw,5.5rem); }
+  .research-page-hero { min-height:100svh; padding-top:var(--interior-hero-top); padding-bottom:5rem; }
+  .chapters-v32-intro { top:var(--interior-hero-top); }
+  .about-hero { padding-top:var(--interior-hero-top); }
+  .about-question-cloud { min-height:650px; }
+  .about-possibility-statement { width:58%; }
+  .about-question-pill { font-size:.46rem; white-space:normal; max-width:190px; text-align:center; }
+}

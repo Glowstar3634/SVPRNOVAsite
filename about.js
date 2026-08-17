@@ -9,18 +9,18 @@
   // Their opacity animation is separate in CSS, so they appear/disappear at
   // irregular intervals while continuing to circulate around the central idea.
   const orbits = [
-    { rx: .41, ry: .27, speed: .000105, phase: .35,  dir:  1, tilt: -.20 },
-    { rx: .35, ry: .36, speed: .000073, phase: 2.25, dir: -1, tilt:  .31 },
-    { rx: .46, ry: .20, speed: .000132, phase: 4.10, dir:  1, tilt:  .12 },
-    { rx: .31, ry: .40, speed: .000089, phase: 5.20, dir: -1, tilt: -.34 },
-    { rx: .44, ry: .31, speed: .000061, phase: 3.10, dir:  1, tilt:  .25 },
+    { rx: .91, ry: .76, speed: .000095, phase: .35,  dir:  1, tilt: -.20 },
+    { rx: .82, ry: .94, speed: .000068, phase: 2.25, dir: -1, tilt:  .31 },
+    { rx: .98, ry: .70, speed: .000118, phase: 4.10, dir:  1, tilt:  .12 },
+    { rx: .78, ry: .96, speed: .000081, phase: 5.20, dir: -1, tilt: -.34 },
+    { rx: .94, ry: .82, speed: .000058, phase: 3.10, dir:  1, tilt:  .25 },
   ];
 
   if (reduceMotion) {
     pills.forEach((pill, i) => {
       const a = orbits[i]?.phase || 0;
-      pill.style.setProperty('--thought-x', `${Math.cos(a) * 180}px`);
-      pill.style.setProperty('--thought-y', `${Math.sin(a) * 120}px`);
+      pill.style.setProperty('--thought-x', `${Math.cos(a) * 250}px`);
+      pill.style.setProperty('--thought-y', `${Math.sin(a) * 175}px`);
     });
     return;
   }
@@ -37,8 +37,8 @@
     px += (tx - px) * .045;
     py += (ty - py) * .045;
     const rect = cloud.getBoundingClientRect();
-    const usableX = Math.max(170, rect.width * .5 - 82);
-    const usableY = Math.max(130, rect.height * .5 - 50);
+    const usableX = Math.max(240, rect.width * .5 - 118);
+    const usableY = Math.max(175, rect.height * .5 - 78);
 
     pills.forEach((pill, index) => {
       const o = orbits[index] || orbits[0];

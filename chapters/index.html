@@ -4,7 +4,7 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <meta name="theme-color" content="#000000" />
-  <meta name="description" content="SVPRNOVA Chapters — local research communities connected through one global research network." />
+  <meta name="description" content="SVPRNOVA — Sparking Vision into Progress through Research." />
   <title>Chapters — SVPRNOVA</title>
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
@@ -17,19 +17,434 @@
 
   <header class="site-header" id="site-header">
     <a class="brand-lockup" href="/" data-route-link="home" aria-label="SVPRNOVA home">
-      <img src="../assets/svprnova-mark-light.svg" alt="" /><span>SVPRNOVA</span>
+      <img src="../assets/svprnova-mark-light.svg" alt="" />
+      <span>SVPRNOVA</span>
     </a>
+
     <nav class="desktop-nav" aria-label="Primary navigation">
-      <a href="/research">Research</a><a href="/chapters" class="route-active">Chapters</a><a href="/about">About</a><a href="/join">Join</a>
+      <a href="/research">Research</a>
+      <a href="/chapters">Chapters</a>
+      <a href="/about">About</a>
+      <a href="/join">Join</a>
     </nav>
+
     <div class="nav-actions">
       <a class="portal-link" href="https://svprnova.com/login">Portal <span aria-hidden="true">↗</span></a>
-      <button class="menu-toggle" id="menu-toggle" type="button" aria-label="Open navigation" aria-expanded="false"><span></span><span></span></button>
+      <button class="menu-toggle" id="menu-toggle" type="button" aria-label="Open navigation" aria-expanded="false">
+        <span></span><span></span>
+      </button>
     </div>
   </header>
+
   <div class="mobile-menu" id="mobile-menu" aria-hidden="true">
-    <a href="/research">Research</a><a href="/chapters">Chapters</a><a href="/about">About</a><a href="/join">Join</a><a href="https://svprnova.com/login">Portal ↗</a>
+    <a href="/research">Research</a>
+    <a href="/chapters">Chapters</a>
+    <a href="/about">About</a>
+    <a href="#join">Join</a>
+    <a href="https://svprnova.com/login">Portal ↗</a>
   </div>
+
+  <main id="home-view" class="route-view" data-route="home" hidden>
+    <section class="hero environment-cosmic" data-star-density="1">
+      <div class="hero-nebula" aria-hidden="true"></div>
+      <div class="hero-orbit hero-orbit-a" aria-hidden="true"></div>
+      <div class="hero-orbit hero-orbit-b" aria-hidden="true"></div>
+
+      <div class="hero-stage">
+        <div class="hero-mark-wrap" id="hero-mark-wrap" data-parallax-depth="1.2" aria-hidden="true">
+          <div class="hero-lens-flare">
+            <span class="lens-beam lens-beam-x"></span>
+            <span class="lens-beam lens-beam-y"></span>
+            <span class="lens-orb lens-orb-1"></span>
+            <span class="lens-orb lens-orb-2"></span>
+            <span class="lens-orb lens-orb-3"></span>
+          </div>
+          <div class="stellar-flare flare-a"></div>
+          <div class="stellar-flare flare-b"></div>
+          <div class="stellar-flare flare-c"></div>
+          <img class="hero-mark" src="../assets/svprnova-mark-light.svg" alt="" />
+        </div>
+
+        <div class="hero-title-lockup reveal-on-load" id="hero-title-lockup" data-parallax-depth=".82">
+          <h1>SVPRNOVA</h1>
+          <p class="hero-slogan">Sparking Vision into Progress through Research.</p>
+        </div>
+
+        <div class="hero-content reveal-on-load" id="hero-content" data-parallax-depth=".82">
+          <p class="hero-description">A student-driven research organization built for ambitious questions, interdisciplinary discovery, and ideas that move beyond the classroom.</p>
+          <div class="hero-actions">
+            <a class="button button-primary" href="/research">Explore our research <span>→</span></a>
+            <a class="button button-ghost" href="#join">Join the network <span>→</span></a>
+          </div>
+        </div>
+      </div>
+
+      <div class="scroll-cue" aria-hidden="true">
+        <span class="mono">SCROLL TO DISCOVER</span>
+        <i></i>
+      </div>
+      <div class="cosmos-to-structure" aria-hidden="true"></div>
+    </section>
+
+    <section class="mission tech-section" id="mission">
+      <div class="tech-grid" aria-hidden="true"></div>
+      <div class="technical-orbit technical-orbit-a" aria-hidden="true"></div>
+      <div class="technical-orbit technical-orbit-b" aria-hidden="true"></div>
+      <div class="comet comet-one" aria-hidden="true"></div>
+
+      <div class="section-shell mission-grid">
+        <div class="mission-copy reveal">
+          <p class="eyebrow mono">OUR MISSION</p>
+          <h2>Ambitious ideas<br /><em>shouldn't have to wait.</em></h2>
+        </div>
+        <div class="mission-detail reveal">
+          <span class="coordinate mono">41.8781° N / 87.6298° W / ORIGIN: NORTHWESTERN</span>
+          <p>Young people should not have to wait until graduate school, industry, or later stages of their careers to pursue meaningful discoveries.</p>
+          <p>SVPRNOVA brings students across disciplines together to identify important questions, develop original research, build experimental systems, and turn promising ideas into real-world impact.</p>
+          <a class="text-link" href="/about">Discover SVPRNOVA <span>→</span></a>
+        </div>
+      </div>
+
+      <div class="formula-band" aria-hidden="true">
+        <span class="mono">QUESTION</span><i></i><span class="mono">METHOD</span><i></i><span class="mono">DISCOVERY</span><i></i><span class="mono">IMPACT</span>
+      </div>
+    </section>
+
+    <section class="pillars tech-section" id="about-preview">
+      <div class="tech-grid tech-grid-soft" aria-hidden="true"></div>
+      <div class="section-shell">
+        <div class="section-intro reveal">
+          <p class="eyebrow mono">HOW WE MOVE</p>
+          <h2 class="question-consequence-heading"><span>From question</span><em>to consequence.</em></h2>
+          <p>SVPRNOVA is designed as a research ecosystem: the work moves through a connected cycle of inquiry, construction, collaboration, and expansion.</p>
+        </div>
+
+        <div class="system-map reveal" id="system-map">
+          <svg class="system-lines" viewBox="0 0 1000 620" preserveAspectRatio="none" aria-hidden="true">
+            <path d="M500 310 L235 145" />
+            <path d="M500 310 L765 145" />
+            <path d="M500 310 L235 475" />
+            <path d="M500 310 L765 475" />
+            <circle cx="500" cy="310" r="58" />
+          </svg>
+          <div class="system-core">
+            <img src="../assets/svprnova-mark-light.svg" alt="" />
+            <span class="mono">SVPR</span>
+          </div>
+          <article class="system-node system-node-1">
+            <span class="node-index mono">01</span><h3>Research</h3><p>Pursue questions worth answering.</p>
+          </article>
+          <article class="system-node system-node-2">
+            <span class="node-index mono">02</span><h3>Build</h3><p>Turn theory into evidence.</p>
+          </article>
+          <article class="system-node system-node-3">
+            <span class="node-index mono">03</span><h3>Collaborate</h3><p>Cross disciplines by design.</p>
+          </article>
+          <article class="system-node system-node-4">
+            <span class="node-index mono">04</span><h3>Expand</h3><p>Grow a research ecosystem.</p>
+          </article>
+        </div>
+      </div>
+    </section>
+
+    <section class="research tech-section" id="research">
+      <div class="tech-grid tech-grid-fade" aria-hidden="true"></div>
+      <div class="comet comet-two" aria-hidden="true"></div>
+      <div class="section-shell">
+        <header class="research-header reveal">
+          <div>
+            <p class="eyebrow mono">ACTIVE RESEARCH</p>
+            <h2>Questions worth<br /><em>pursuing.</em></h2>
+          </div>
+          <p>Our research begins with student-originated questions and grows through interdisciplinary teams, mathematical frameworks, simulations, experiments, and analysis.</p>
+        </header>
+
+        <article class="research-exhibit reveal">
+          <div class="research-visual" aria-hidden="true">
+            <canvas id="spectrum-canvas"></canvas>
+            <div class="spectrum-label mono">LIVE SYSTEM / SPECTRUM</div>
+            <div class="spectrum-axis spectrum-axis-x"></div>
+            <div class="spectrum-axis spectrum-axis-y"></div>
+          </div>
+          <div class="research-copy">
+            <div class="research-number mono">001 / FLAGSHIP INITIATIVE</div>
+            <h3>Spectrum</h3>
+            <p class="research-lede">An interdisciplinary, campus-scale experiment combining game theory, network science, behavioral science, data analysis, simulation, and strategic decision-making.</p>
+            <p>The project serves as an early proof of concept for SVPRNOVA's broader model of student-originated, collaborative research.</p>
+            <div class="tag-row">
+              <span>Game Theory</span><span>Network Science</span><span>Behavior</span><span>Simulation</span><span>Data</span>
+            </div>
+            <a class="text-link" href="/research#spectrum">Explore Spectrum <span>→</span></a>
+          </div>
+        </article>
+      </div>
+      <div class="structure-to-cosmos" aria-hidden="true">
+        <span class="morph-node morph-node-a"></span><span class="morph-node morph-node-b"></span><span class="morph-node morph-node-c"></span>
+      </div>
+    </section>
+
+    <section class="constellation environment-cosmic" id="constellation">
+      <div class="constellation-vignette" aria-hidden="true"></div>
+      <div class="section-shell constellation-shell">
+        <header class="constellation-copy reveal">
+          <p class="eyebrow mono">THE CONSTELLATION</p>
+          <h2>Research grows<br />through <em>connection.</em></h2>
+          <p>SVPRNOVA's vision extends beyond a single university: an interconnected network where chapters originate research locally and share knowledge, talent, infrastructure, and opportunity across institutions.</p>
+          <a class="text-link light-link" href="/chapters">Explore chapters <span>→</span></a>
+        </header>
+
+        <div class="constellation-map reveal" id="constellation-map" aria-label="SVPRNOVA constellation network visualization">
+          <svg class="constellation-lines" id="constellation-lines" viewBox="0 0 1000 680" preserveAspectRatio="none" aria-hidden="true"></svg>
+          <div class="constellation-core" data-x="50" data-y="48" data-depth="0.24">
+            <div class="core-glow"></div>
+            <img src="../assets/svprnova-mark-light.svg" alt="SVPRNOVA" />
+            <span class="mono">SVPRNOVA / CORE</span>
+          </div>
+          <button class="constellation-node chapter-node" style="--x:19;--y:31" data-x="19" data-y="31" data-depth="0.31" type="button">
+            <i></i><span class="mono">FOUNDING CHAPTER</span><strong>Northwestern University</strong>
+          </button>
+          <button class="constellation-node concept-node" style="--x:79;--y:24" data-x="79" data-y="24" data-depth="0.18" type="button">
+            <i></i><span class="mono">NETWORK</span><strong>Shared Knowledge</strong>
+          </button>
+          <button class="constellation-node concept-node" style="--x:83;--y:58" data-x="83" data-y="58" data-depth="0.27" type="button">
+            <i></i><span class="mono">NETWORK</span><strong>Collaboration</strong>
+          </button>
+          <button class="constellation-node concept-node" style="--x:25;--y:72" data-x="25" data-y="72" data-depth="0.15" type="button">
+            <i></i><span class="mono">NETWORK</span><strong>Talent</strong>
+          </button>
+          <button class="constellation-node concept-node" style="--x:61;--y:78" data-x="61" data-y="78" data-depth="0.22" type="button">
+            <i></i><span class="mono">NETWORK</span><strong>Infrastructure</strong>
+          </button>
+          <button class="constellation-node concept-node" style="--x:47;--y:15" data-x="47" data-y="15" data-depth="0.12" type="button">
+            <i></i><span class="mono">NETWORK</span><strong>Opportunities</strong>
+          </button>
+        </div>
+      </div>
+    </section>
+
+    <section class="join-section tech-section" id="join">
+      <div class="join-orbit join-orbit-a" aria-hidden="true"></div>
+      <div class="join-orbit join-orbit-b" aria-hidden="true"></div>
+      <div class="section-shell">
+        <header class="join-header reveal">
+          <p class="eyebrow mono">WHY SVPRNOVA</p>
+          <h2>Go further<br /><em>together.</em></h2>
+          <p>Join an environment designed around doing the work: asking the question, assembling the team, building the system, and pursuing what the answer can become.</p>
+        </header>
+
+        <div class="benefit-grid">
+          <article class="benefit reveal">
+            <span class="benefit-index mono">01 / ORIGINATE</span>
+            <h3>Lead work that begins with your questions.</h3>
+            <p>Move beyond consuming existing curriculum and help define the problems, methods, and systems your team pursues.</p>
+          </article>
+          <article class="benefit reveal">
+            <span class="benefit-index mono">02 / COLLABORATE</span>
+            <h3>Find people who sharpen the idea.</h3>
+            <p>Work across technical backgrounds and, as the network expands, across universities and research communities.</p>
+          </article>
+          <article class="benefit reveal">
+            <span class="benefit-index mono">03 / TRANSLATE</span>
+            <h3>Push discovery toward impact.</h3>
+            <p>Develop research into publications, technologies, ventures, prototypes, or other meaningful outcomes.</p>
+          </article>
+        </div>
+      </div>
+    </section>
+
+    <section class="final-cta" aria-labelledby="cta-title">
+      <div class="cta-glow" aria-hidden="true"></div>
+      <div class="section-shell cta-inner reveal">
+        <img src="../assets/svprnova-mark-light.svg" alt="" />
+        <p class="eyebrow mono">THE NEXT QUESTION STARTS HERE</p>
+        <h2 id="cta-title">Spark vision<br />into <em>progress.</em></h2>
+        <p>Find your place in the constellation—or help build the next one.</p>
+        <div class="cta-actions">
+          <a class="button button-primary" href="/join">Join SVPRNOVA <span>→</span></a>
+          <a class="button button-ghost" href="/chapters">Explore chapters <span>→</span></a>
+        </div>
+        <a class="portal-small mono" href="https://svprnova.com/login">ALREADY A MEMBER? ENTER PORTAL ↗</a>
+      </div>
+    </section>
+  </main>
+
+
+  <main id="research-view" class="route-view research-page" data-route="research" hidden>
+    <section class="research-page-hero environment-cosmic" id="research-top">
+      <div class="research-hero-nebula" aria-hidden="true"></div>
+      <div class="knowledge-field" id="knowledge-field" aria-hidden="true">
+        <div class="knowledge-question" data-depth="1.0">
+          <span class="knowledge-question-glow"></span>
+          <i></i>
+          <span class="mono">QUESTION</span>
+        </div>
+        <div class="knowledge-star ks-math" data-depth=".34"><i></i><span class="mono">MATHEMATICS</span></div>
+        <div class="knowledge-star ks-compute" data-depth=".27"><i></i><span class="mono">COMPUTATION</span></div>
+        <div class="knowledge-star ks-behavior" data-depth=".19"><i></i><span class="mono">BEHAVIOR</span></div>
+        <div class="knowledge-star ks-natural" data-depth=".23"><i></i><span class="mono">NATURAL SCIENCES</span></div>
+        <div class="knowledge-star ks-data" data-depth=".31"><i></i><span class="mono">DATA</span></div>
+        <div class="knowledge-star ks-engineering" data-depth=".16"><i></i><span class="mono">ENGINEERING</span></div>
+        <svg class="knowledge-lines" viewBox="0 0 1000 620" preserveAspectRatio="none">
+          <path d="M500 310 L178 160"/><path d="M500 310 L786 132"/><path d="M500 310 L851 385"/>
+          <path d="M500 310 L650 520"/><path d="M500 310 L262 495"/><path d="M500 310 L119 342"/>
+          <path class="secondary" d="M178 160 L786 132"/><path class="secondary" d="M119 342 L262 495"/>
+        </svg>
+      </div>
+      <div class="section-shell research-hero-copy reveal">
+        <p class="eyebrow mono">SVPRNOVA / RESEARCH</p>
+        <h1 class="route-hero-title"><span>Research begins</span><span>with a question.</span><em>Not a discipline.</em></h1>
+        <p>We begin with what we want to understand. The mathematics, computation, experiments, people, tools, and fields required to reach an answer emerge from the question itself.</p>
+        <a class="research-scroll-link mono" href="#spectrum">SEE THE MODEL IN MOTION <span>↓</span></a>
+      </div>
+      <div class="cosmos-to-structure research-cosmos-seam" aria-hidden="true"></div>
+    </section>
+
+    <section class="research-feature tech-section" id="spectrum">
+      <div class="tech-grid" aria-hidden="true"></div>
+      <div class="section-shell">
+        <header class="research-page-heading reveal">
+          <div>
+            <p class="eyebrow mono">FLAGSHIP RESEARCH / 001</p>
+            <h2>Spectrum</h2>
+          </div>
+          <p>SVPRNOVA's first flagship initiative is an interdisciplinary campus-scale experiment developed at Northwestern University. It serves as an early proof of concept for the broader research model.</p>
+        </header>
+
+        <div class="spectrum-case-grid">
+          <div class="spectrum-case-visual spectrum-case-live reveal" aria-label="Live Spectrum prism visualization">
+            <canvas id="spectrum-canvas-research" class="spectrum-canvas-shared" aria-hidden="true"></canvas>
+            <div class="spectrum-label mono">LIVE SYSTEM / SPECTRUM</div>
+            <div class="spectrum-axis spectrum-axis-x"></div>
+            <div class="spectrum-axis spectrum-axis-y"></div>
+            <div class="case-visual-caption mono">QUESTION → INTERACTION → RESPONSE → EMERGENT BEHAVIOR</div>
+          </div>
+
+          <div class="spectrum-case-copy reveal">
+            <p class="spectrum-case-kicker mono">A QUESTION THAT REFUSED ONE FIELD</p>
+            <h3>Interdisciplinary<br />by necessity.</h3>
+            <p>Spectrum did not begin with a desire to conduct “game theory research” or “behavioral science research.” It began with a strategic question whose pursuit naturally demanded ideas from several fields.</p>
+            <div class="spectrum-discipline-list">
+              <span>Game Theory</span><span>Network Science</span><span>Behavioral Science</span><span>Data Analysis</span><span>Simulation</span><span>Strategic Decision-Making</span>
+            </div>
+            <div class="case-note">
+              <span class="mono">WHY IT MATTERS</span>
+              <p>The team developed the research questions, mathematical frameworks, simulations, experimental structure, and methods of analysis—an early example of SVPRNOVA's student-originated research ecosystem.</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="research-areas tech-section" id="research-areas">
+      <div class="tech-grid tech-grid-soft" aria-hidden="true"></div>
+      <div class="section-shell">
+        <div class="discipline-orbit reveal" id="discipline-orbit">
+          <header class="areas-heading discipline-center-copy">
+            <p class="eyebrow mono">DISCIPLINES ARE TOOLS</p>
+            <h2>The question<br /><em>determines the field.</em></h2>
+            <p>SVPRNOVA does not require a research question to stay inside one academic boundary. Researchers move through whatever bodies of knowledge the problem demands.</p>
+          </header>
+          <article class="discipline-node dn-math" tabindex="0"><div class="discipline-icons" aria-hidden="true"><span class="discipline-icon di-1"><svg viewBox="0 0 24 24"><path d="M5 5h14M5 19h14M8 5l8 7-8 7"/></svg></span><span class="discipline-icon di-2"><svg viewBox="0 0 24 24"><circle cx="7" cy="16" r="2"/><circle cx="12" cy="7" r="2"/><circle cx="18" cy="15" r="2"/><path d="M8.5 14.5l2.3-5.5M13.7 8.3l3 5.2M9 16h7"/></svg></span><span class="discipline-icon di-3"><svg viewBox="0 0 24 24"><path d="M5 17c3-9 5-9 7 0s4 9 7 0"/><path d="M4 12h16"/></svg></span></div><h3>Mathematics</h3><div class="discipline-topics" aria-hidden="true"><span class="discipline-topic dt-1">Game theory</span><span class="discipline-topic dt-2">Probability</span><span class="discipline-topic dt-3">Graph theory</span><span class="discipline-topic dt-4">Optimization</span><span class="discipline-topic dt-5">Modeling</span></div></article>
+          <article class="discipline-node dn-cs" tabindex="0"><div class="discipline-icons" aria-hidden="true"><span class="discipline-icon di-1"><svg viewBox="0 0 24 24"><rect x="6" y="6" width="12" height="12" rx="2"/><path d="M9 2v4M15 2v4M9 18v4M15 18v4M2 9h4M2 15h4M18 9h4M18 15h4"/></svg></span><span class="discipline-icon di-2"><svg viewBox="0 0 24 24"><path d="M9 7l-5 5 5 5M15 7l5 5-5 5M13 4l-2 16"/></svg></span><span class="discipline-icon di-3"><svg viewBox="0 0 24 24"><circle cx="5" cy="12" r="2"/><circle cx="12" cy="6" r="2"/><circle cx="19" cy="12" r="2"/><circle cx="12" cy="18" r="2"/><path d="M7 11l3.4-3.5M13.6 7.5L17 11M17 13l-3.4 3.5M10.4 16.5L7 13"/></svg></span></div><h3>Computer Science</h3><div class="discipline-topics" aria-hidden="true"><span class="discipline-topic dt-1">Machine learning</span><span class="discipline-topic dt-2">Algorithms</span><span class="discipline-topic dt-3">Simulation</span><span class="discipline-topic dt-4">Software systems</span></div></article>
+          <article class="discipline-node dn-behavior" tabindex="0"><div class="discipline-icons" aria-hidden="true"><span class="discipline-icon di-1"><svg viewBox="0 0 24 24"><path d="M9 19c-3-1-5-4-5-8a8 8 0 0116 0c0 4-2 7-5 8"/><path d="M9 19v-4a3 3 0 016 0v4M8 10h.01M16 10h.01"/></svg></span><span class="discipline-icon di-2"><svg viewBox="0 0 24 24"><circle cx="8" cy="9" r="3"/><circle cx="17" cy="8" r="2.5"/><path d="M3 20c.7-4 2.5-6 5-6s4.3 2 5 6M14 20c.5-3 1.6-4.5 3.5-4.5S20.5 17 21 20"/></svg></span><span class="discipline-icon di-3"><svg viewBox="0 0 24 24"><path d="M2 12s4-6 10-6 10 6 10 6-4 6-10 6S2 12 2 12z"/><circle cx="12" cy="12" r="2.5"/></svg></span></div><h3>Behavioral Sciences</h3><div class="discipline-topics" aria-hidden="true"><span class="discipline-topic dt-1">Decision-making</span><span class="discipline-topic dt-2">Incentives</span><span class="discipline-topic dt-3">Cognition</span><span class="discipline-topic dt-4">Social dynamics</span></div></article>
+          <article class="discipline-node dn-engineering" tabindex="0"><div class="discipline-icons" aria-hidden="true"><span class="discipline-icon di-1"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M12 2v3M12 19v3M2 12h3M19 12h3M4.9 4.9L7 7M17 17l2.1 2.1M19.1 4.9L17 7M7 17l-2.1 2.1"/></svg></span><span class="discipline-icon di-2"><svg viewBox="0 0 24 24"><path d="M14 5a5 5 0 00-6.8 6.8L3 16l5 5 4.2-4.2A5 5 0 0019 10l-3 3-3-3 3-3z"/></svg></span><span class="discipline-icon di-3"><svg viewBox="0 0 24 24"><path d="M4 18h16M6 18V9l6-5 6 5v9M9 18v-5h6v5"/></svg></span></div><h3>Engineering</h3><div class="discipline-topics" aria-hidden="true"><span class="discipline-topic dt-1">Experimental systems</span><span class="discipline-topic dt-2">Hardware</span><span class="discipline-topic dt-3">Prototypes</span><span class="discipline-topic dt-4">Applied design</span></div></article>
+          <article class="discipline-node dn-data" tabindex="0"><div class="discipline-icons" aria-hidden="true"><span class="discipline-icon di-1"><svg viewBox="0 0 24 24"><ellipse cx="12" cy="5" rx="7" ry="3"/><path d="M5 5v6c0 1.7 3.1 3 7 3s7-1.3 7-3V5M5 11v6c0 1.7 3.1 3 7 3s7-1.3 7-3v-6"/></svg></span><span class="discipline-icon di-2"><svg viewBox="0 0 24 24"><path d="M4 19V9M10 19V5M16 19v-7M22 19V3"/></svg></span><span class="discipline-icon di-3"><svg viewBox="0 0 24 24"><path d="M3 17l5-5 4 3 8-9"/><path d="M16 6h4v4"/></svg></span></div><h3>Data Science</h3><div class="discipline-topics" aria-hidden="true"><span class="discipline-topic dt-1">Inference</span><span class="discipline-topic dt-2">Visualization</span><span class="discipline-topic dt-3">Modeling</span><span class="discipline-topic dt-4">Experimentation</span></div></article>
+          <article class="discipline-node dn-natural" tabindex="0"><div class="discipline-icons" aria-hidden="true"><span class="discipline-icon di-1"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="2"/><ellipse cx="12" cy="12" rx="9" ry="3.5"/><ellipse cx="12" cy="12" rx="9" ry="3.5" transform="rotate(60 12 12)"/><ellipse cx="12" cy="12" rx="9" ry="3.5" transform="rotate(120 12 12)"/></svg></span><span class="discipline-icon di-2"><svg viewBox="0 0 24 24"><path d="M12 21c5-4 7-9 6-17-8 1-13 5-14 11 3 2 5 3 8 1"/><path d="M7 17c3-3 6-5 10-7"/></svg></span><span class="discipline-icon di-3"><svg viewBox="0 0 24 24"><path d="M9 3h6M10 3v6l-5 9a2 2 0 002 3h10a2 2 0 002-3l-5-9V3"/><path d="M8 15h8"/></svg></span></div><h3>Natural Sciences</h3><div class="discipline-topics" aria-hidden="true"><span class="discipline-topic dt-1">Physics</span><span class="discipline-topic dt-2">Biology</span><span class="discipline-topic dt-3">Chemistry</span><span class="discipline-topic dt-4">Environmental science</span><span class="discipline-topic dt-5">Beyond</span></div></article>
+          <svg class="discipline-lines" viewBox="0 0 1200 680" preserveAspectRatio="none" aria-hidden="true">
+            <line x1="600" y1="340" x2="360" y2="205"/><line x1="600" y1="340" x2="600" y2="122"/><line x1="600" y1="340" x2="840" y2="205"/>
+            <line x1="600" y1="340" x2="840" y2="475"/><line x1="600" y1="340" x2="600" y2="558"/><line x1="600" y1="340" x2="360" y2="475"/>
+          </svg>
+        </div>
+      </div>
+    </section>
+
+    <section class="research-model" id="research-model">
+      <div class="model-starfield" aria-hidden="true"></div>
+      <div class="section-shell">
+        <header class="model-heading reveal" data-model-depth=".16">
+          <p class="eyebrow mono">THE SVPR RESEARCH MODEL</p>
+          <h2 class="question-consequence-heading"><span>From question</span><em>to consequence.</em></h2>
+          <p>Research is not a straight line. We begin with a question, trace the stars of existing human knowledge, connect what the problem requires, and follow the consequences of what we find.</p>
+        </header>
+
+        <div class="model-journey" id="model-journey">
+          <svg class="model-path" viewBox="0 0 1200 1420" preserveAspectRatio="none" aria-hidden="true">
+            <path d="M205 165 C455 205 855 290 950 405 C1035 515 300 640 270 805 C245 945 845 1000 965 1195"/>
+            <path class="branch" d="M950 405 C860 330 745 250 650 220"/><path class="branch" d="M270 805 C440 900 520 958 620 1040"/>
+            <path class="branch" d="M270 805 C182 930 150 1010 112 1100"/>
+          </svg>
+
+          <article class="model-step ms-question reveal" data-model-depth=".36">
+            <span class="model-index mono">01 / QUESTION</span><i class="model-star"></i>
+            <h3>What do we want to understand?</h3>
+            <p>Students identify questions worth pursuing—not because they were assigned, but because the answer may reveal something meaningful.</p>
+          </article>
+
+          <article class="model-step ms-trace reveal" data-model-depth=".24">
+            <span class="model-index mono">02 / TRACE</span><i class="model-star"></i>
+            <h3>Navigate what humanity already knows.</h3>
+            <p>Trace through literature, mathematical frameworks, datasets, known technologies, experiments, software, accessible resources, and people across the research network.</p>
+            <div class="trace-stars mono"><span>PAPERS</span><span>THEORY</span><span>DATA</span><span>TOOLS</span><span>PEOPLE</span></div>
+          </article>
+
+          <article class="model-step ms-connect reveal" data-model-depth=".31">
+            <span class="model-index mono">03 / CONNECT</span><i class="model-star"></i>
+            <h3>Follow the question across disciplines.</h3>
+            <p>A mathematical idea may require simulation. Simulation may reveal behavior. Behavior generates data. Data may suggest a system to build. The work becomes interdisciplinary because reality is interdisciplinary.</p>
+          </article>
+
+          <article class="model-step ms-consequence reveal" data-model-depth=".20">
+            <span class="model-index mono">04 / CONSEQUENCE</span><i class="model-star"></i>
+            <h3>An answer is not the only thing we find.</h3>
+            <p>In reaching an answer to the original question, researchers may uncover methods, insights, applications, and entirely new questions along the way.</p>
+            <div class="consequence-cluster">
+              <span>ANSWER</span><span>INSIGHT</span><span>METHOD</span><span>APPLICATION</span><span>NEW QUESTION</span>
+            </div>
+          </article>
+
+          <aside class="model-branch branch-insight mono" data-model-depth=".13">UNEXPECTED INSIGHT</aside>
+          <aside class="model-branch branch-question mono" data-model-depth=".10">NEW QUESTION</aside>
+          <aside class="model-branch branch-method mono" data-model-depth=".15">NEW METHOD</aside>
+        </div>
+      </div>
+    </section>
+
+    <section class="research-consequences tech-section" id="consequences">
+      <div class="tech-grid tech-grid-fade" aria-hidden="true"></div>
+      <div class="section-shell consequence-layout">
+        <div class="consequence-copy reveal">
+          <p class="eyebrow mono">WHERE RESEARCH CAN LEAD</p>
+          <h2>An answer is<br />rarely the <em>end.</em></h2>
+          <p>Depending on the question, future SVPRNOVA work may lead to mathematical results, publications, datasets, software, experimental systems, prototypes, technologies, ventures—or simply a better question than the one we began with.</p>
+          <p class="prospective-note mono">POSSIBILITIES, NOT CLAIMED OUTPUTS</p>
+        </div>
+        <div class="outcome-field reveal" id="outcome-field" aria-label="Potential research outcomes">
+          <span data-orbit-radius=".94" data-orbit-y=".46" data-orbit-speed=".000032" data-orbit-angle="0.18" data-orbit-tilt="-.18">DISCOVERIES</span>
+          <span data-orbit-radius=".76" data-orbit-y=".82" data-orbit-speed="-.000047" data-orbit-angle="1.12" data-orbit-tilt=".42">PUBLICATIONS</span>
+          <span data-orbit-radius=".34" data-orbit-y=".24" data-orbit-speed=".000094" data-orbit-angle="2.36" data-orbit-tilt=".72">METHODS</span>
+          <span data-orbit-radius=".58" data-orbit-y=".54" data-orbit-speed="-.000061" data-orbit-angle="3.24" data-orbit-tilt="-.58">SOFTWARE</span>
+          <span data-orbit-radius=".88" data-orbit-y=".69" data-orbit-speed=".000039" data-orbit-angle="4.12" data-orbit-tilt=".24">EXPERIMENTS</span>
+          <span data-orbit-radius=".26" data-orbit-y=".58" data-orbit-speed="-.000106" data-orbit-angle="4.96" data-orbit-tilt="-.34">PROTOTYPES</span>
+          <span data-orbit-radius=".68" data-orbit-y=".31" data-orbit-speed=".000056" data-orbit-angle="5.68" data-orbit-tilt=".88">TECHNOLOGIES</span>
+          <span data-orbit-radius=".47" data-orbit-y=".88" data-orbit-speed="-.000043" data-orbit-angle="6.30" data-orbit-tilt="-.72">NEW QUESTIONS</span>
+        </div>
+      </div>
+    </section>
+
+    <section class="research-cta environment-cosmic" id="research-cta">
+      <div class="research-cta-star" aria-hidden="true"><i></i></div>
+      <div class="section-shell research-cta-inner reveal">
+        <img class="research-cta-logo" src="../assets/svprnova-mark-light.svg" alt="" />
+        <p class="eyebrow mono">BEGIN WITH CURIOSITY</p>
+        <h2>The next project starts<br />with a <em>question.</em></h2>
+        <p>What would you pursue if you did not have to wait to begin?</p>
+        <div class="cta-actions">
+          <a class="button button-primary" href="/join">Bring a question <span>→</span></a>
+          <a class="button button-ghost" href="#spectrum">Revisit Spectrum <span>↑</span></a>
+        </div>
+      </div>
+    </section>
+  </main>
 
   <main id="chapters-view" class="route-view chapters-page chapters-v32" data-route="chapters">
     <section class="chapters-v32-scene environment-cosmic" id="chapters-top" aria-labelledby="chapters-v32-title">
@@ -129,25 +544,185 @@
   </main>
 
 
+
+  <main id="about-view" class="route-view about-page" data-route="about" hidden>
+      <section class="about-hero tech-section" id="about-hero">
+        <div class="about-gradient-halo about-gradient-halo-a" aria-hidden="true"></div>
+        <div class="about-gradient-halo about-gradient-halo-b" aria-hidden="true"></div>
+        <div class="about-technical-traces" aria-hidden="true">
+          <span class="mono">∂F/∂t = f(q, k, x)</span>
+          <span class="mono">Q → K → A → D</span>
+          <span class="mono">Σ inquiry · rigor · consequence</span>
+        </div>
+        <div class="section-shell about-hero-grid">
+          <div class="about-hero-copy reveal">
+            <p class="eyebrow mono">SVPRNOVA / ABOUT</p>
+            <h1 class="route-hero-title"><span>SVPRNOVA is an expanding</span><em>student-driven research organization.</em></h1>
+            <p class="about-lead">Built to help young researchers pursue ambitious questions, form interdisciplinary teams, and turn ideas into discovery and impact.</p>
+          </div>
+          <aside class="about-hero-panel reveal">
+            <div class="about-panel-grid" aria-hidden="true"></div>
+            <span class="mono about-panel-kicker">CURRENT FORM</span>
+            <h2>Research community.<br /><em>Project ecosystem.</em><br />Network in motion.</h2>
+            <p>SVPRNOVA exists today as a public-facing research organization and emerging constellation of researchers, projects, and local communities. It is designed to grow into a broader platform through which questions, people, and opportunities can connect.</p>
+            <ul class="about-bullets mono">
+              <li>QUESTION-FIRST</li>
+              <li>INTERDISCIPLINARY</li>
+              <li>STUDENT-DRIVEN</li>
+              <li>CONSEQUENCE-ORIENTED</li>
+            </ul>
+          </aside>
+        </div>
+      </section>
+  
+      <section class="about-mission tech-section" id="about-mission">
+        <div class="about-section-trace" aria-hidden="true"></div>
+        <div class="section-shell about-two-column">
+          <div class="about-column-major reveal">
+            <p class="eyebrow mono">MISSION</p>
+            <h2>Progress is a<br /><em>human endeavor.</em></h2>
+          </div>
+          <div class="about-column-copy reveal">
+            <p><strong>SVPRNOVA exists to unite people through the relentless pursuit of scientific and technological progress.</strong></p>
+            <p>We believe science is one of humanity's most powerful unifying languages. Across disciplines, institutions, communities, and borders, the pursuit of understanding gives us something shared: questions worth answering and a future worth building.</p>
+            <p>SVPRNOVA creates an environment where imagination is paired with rigorous execution — where emerging researchers can pursue ambitious questions, develop ideas, build systems, and contribute to discoveries with real consequence.</p>
+            <p>From mathematics and computation to energy, materials, engineering, the natural sciences, and fields not yet imagined, we seek progress wherever meaningful questions lead.</p>
+          </div>
+        </div>
+        <div class="section-shell about-vision-band reveal">
+          <div class="about-vision-card">
+            <span class="mono">OUR VISION</span>
+            <p>To help define a new generation of global scientific progress — one that inspires future innovators, accelerates world-changing discovery, and leaves an enduring legacy of human advancement.</p>
+          </div>
+        </div>
+      </section>
+  
+      <section class="about-origin tech-section" id="about-origin">
+        <div class="about-origin-grid" aria-hidden="true"></div>
+        <div class="section-shell about-origin-layout">
+          <div class="about-origin-copy reveal">
+            <p class="eyebrow mono">ORIGIN</p>
+            <h2><span>A question</span><em>about questions.</em></h2>
+            <p>The idea behind SVPRNOVA began years before the organization itself. In high school, founder Nova Travis developed a deep fascination with mathematics — not simply with learning what was already known, but with following ideas, asking why, and discovering where a question might lead.</p>
+            <p>At the same time, he noticed how many students encountered research: as monotonous busy work, predetermined procedures, or writing whose conclusion already seemed decided. But research, at its most fundamental level, is something far more expansive.</p>
+            <p>The opportunity for meaningful research exists in almost every serious question — if students are given the environment, tools, people, and freedom necessary to pursue that opportunity well.</p>
+          </div>
+          <div class="about-question-cloud reveal">
+            <div class="about-possibility-statement">
+              <h3>Almost every meaningful question contains the possibility of research.</h3>
+            </div>
+            <div class="about-question-pill pill-a mono">Why does this happen?</div>
+            <div class="about-question-pill pill-b mono">Could this work differently?</div>
+            <div class="about-question-pill pill-c mono">What pattern is hiding here?</div>
+            <div class="about-question-pill pill-d mono">Can this be built?</div>
+            <div class="about-question-pill pill-e mono">What happens if we change this assumption?</div>
+          </div>
+        </div>
+        <div class="section-shell about-learning-band reveal">
+          <div class="about-learning-card">
+            <p>The same realization led to a broader belief about education: knowledge becomes most powerful when it can be used. Traditional curricula often move from <span class="mono">Curriculum → Knowledge → Application</span>. SVPRNOVA experiments with the reverse: <span class="mono">Question → Necessary Knowledge → Application → Discovery → New Questions</span>.</p>
+          </div>
+        </div>
+      </section>
+  
+      <section class="about-principles tech-section" id="about-principles">
+        <div class="about-gradient-halo about-gradient-halo-c" aria-hidden="true"></div>
+        <div class="section-shell about-principles-intro reveal">
+          <p class="eyebrow mono">PRINCIPLES / PHILOSOPHY</p>
+          <h2>Research should shape<br /><em>how learning lives.</em></h2>
+          <p>SVPRNOVA is guided by a set of principles derived from its origin: questions first, learning in service of discovery, and serious inquiry accessible before the traditional gates of research are supposed to open.</p>
+        </div>
+        <div class="section-shell principles-manifesto">
+          <article class="principle-item reveal">
+            <span class="mono">01</span>
+            <div><h3>Questions before disciplines.</h3><p>Start with what is worth understanding. Let the question determine which fields, methods, and people become necessary.</p></div>
+          </article>
+          <article class="principle-item reveal">
+            <span class="mono">02</span>
+            <div><h3>Learning should lead somewhere.</h3><p>Knowledge is not merely something to accumulate. Learning becomes powerful when it expands what we are capable of investigating, creating, and discovering.</p></div>
+          </article>
+          <article class="principle-item reveal">
+            <span class="mono">03</span>
+            <div><h3>Research is not reserved for later.</h3><p>Serious inquiry should not begin only after the right degree, title, institution, or career milestone. Capability grows through participation.</p></div>
+          </article>
+          <article class="principle-item reveal">
+            <span class="mono">04</span>
+            <div><h3>Imagination demands execution.</h3><p>Ambitious ideas matter, but ideas alone do not produce progress. Curiosity must meet rigor, experimentation, mathematics, engineering, evidence, iteration, and persistence.</p></div>
+          </article>
+          <article class="principle-item reveal">
+            <span class="mono">05</span>
+            <div><h3>Progress is collaborative.</h3><p>No person, field, university, or community contains every tool required to solve meaningful problems. Discovery accelerates when knowledge and people connect.</p></div>
+          </article>
+          <article class="principle-item reveal">
+            <span class="mono">06</span>
+            <div><h3>Every answer should create possibility.</h3><p>Research does not end when a question is answered. An answer can reveal a method, an application, a technology, another field, or a better question.</p></div>
+          </article>
+        </div>
+      </section>
+  
+      <section class="about-people tech-section" id="about-people">
+        <div class="section-shell about-people-grid">
+          <div class="about-people-copy reveal">
+            <p class="eyebrow mono">PEOPLE / 001</p>
+            <h2>The people behind<br /><em>the constellation.</em></h2>
+            <p>SVPRNOVA is still in its early stages. Its public-facing leadership begins with the founder who first articulated the questions, principles, and long-term vision from which the organization is growing.</p>
+          </div>
+          <article class="founder-card reveal">
+            <div class="founder-photo-wrap">
+              <div class="founder-photo-backdrop" aria-hidden="true"></div>
+              <img src="../assets/nova-founder.png" alt="Portrait of Nova Travis" class="founder-photo" />
+              <a class="founder-site-button" href="https://novatravis.com" target="_blank" rel="noopener noreferrer"><span>novatravis.com</span><span aria-hidden="true">↗</span></a>
+            </div>
+            <div class="founder-copy">
+              <span class="mono founder-role">FOUNDER</span>
+              <h3>Nova Travis</h3>
+              <p>Nova Travis founded SVPRNOVA after years of thinking about how research opportunity might be opened earlier, made more meaningful, and organized around the kinds of questions that naturally pull students across disciplines. His work on SVPRNOVA seeks to create an environment where curiosity, mathematics, execution, and community can combine into real discovery.</p>
+              <ul class="founder-meta mono">
+                <li>Northwestern University</li>
+                <li>Founder, SVPRNOVA</li>
+                <li>Question-first research philosophy</li>
+              </ul>
+            </div>
+          </article>
+        </div>
+      </section>
+    </main>
+
   <footer class="site-footer">
     <div class="footer-line" aria-hidden="true"><i></i><i></i><i></i><i></i></div>
     <div class="section-shell footer-inner">
-      <div class="footer-brand"><img src="../assets/svprnova-mark-light.svg" alt="" /><div><strong>SVPRNOVA</strong><span>Sparking Vision into Progress through Research.</span></div></div>
-      <div class="footer-links"><a href="/research">Research</a><a href="/chapters">Chapters</a><a href="/about">About</a><a href="/join">Join</a><a href="https://svprnova.com/login">Portal ↗</a></div>
+      <div class="footer-brand">
+        <img src="../assets/svprnova-mark-light.svg" alt="" />
+        <div><strong>SVPRNOVA</strong><span>Sparking Vision into Progress through Research.</span></div>
+      </div>
+      <div class="footer-links">
+        <a href="/research">Research</a><a href="/chapters">Chapters</a><a href="/about">About</a><a href="#join">Join</a><a href="https://svprnova.com/login">Portal ↗</a>
+      </div>
       <p class="footer-copy mono">© <span id="year"></span> SVPRNOVA</p>
     </div>
   </footer>
 
-  <button class="sound-control" id="sound-control" type="button" aria-label="Play SVPRNOVA score" aria-pressed="false"><span class="sound-bars" aria-hidden="true"><i></i><i></i><i></i><i></i></span><span class="sound-label mono">PLAY SCORE</span></button>
+  <button class="sound-control" id="sound-control" type="button" aria-label="Play SVPRNOVA score" aria-pressed="false">
+    <span class="sound-bars" aria-hidden="true"><i></i><i></i><i></i><i></i></span>
+    <span class="sound-label mono">PLAY SCORE</span>
+  </button>
   <a class="sound-credit" id="sound-credit" href="https://open.spotify.com/artist/3JKtS3OZf6Wrio2MFBe2H6" target="_blank" rel="noopener noreferrer" aria-label="Music by Runox on Spotify">
-    <img class="sound-credit-photo" src="../assets/runox-photo.png" alt="Runox artist photo" /><span class="sound-credit-copy"><span class="sound-credit-kicker mono">MUSIC BY</span><strong>Runox</strong><span class="sound-credit-link mono">OPEN SPOTIFY ↗</span></span>
+    <img class="sound-credit-photo" src="../assets/runox-photo.png" alt="Runox artist photo" />
+    <span class="sound-credit-copy">
+      <span class="sound-credit-kicker mono">MUSIC BY</span>
+      <strong>Runox</strong>
+      <span class="sound-credit-link mono">OPEN SPOTIFY ↗</span>
+    </span>
   </a>
-  <audio id="site-score" preload="auto" loop playsinline><source src="../assets/svprnova-score.mp3" type="audio/mpeg" /></audio>
+  <audio id="site-score" preload="auto" loop playsinline>
+    <source src="../assets/svprnova-score.mp3" type="audio/mpeg" />
+  </audio>
 
   <script src="../siteData.js"></script>
   <script src="../spectrum.js"></script>
   <script src="../script.js"></script>
   <script src="../research.js"></script>
   <script src="../chapters.js"></script>
+  <script src="../about.js"></script>
 </body>
 </html>

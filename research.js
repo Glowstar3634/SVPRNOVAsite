@@ -3,12 +3,15 @@
   const homeView = document.getElementById('home-view');
   const researchView = document.getElementById('research-view');
   const chaptersView = document.getElementById('chapters-view');
+  const aboutView = document.getElementById('about-view');
   const header = document.getElementById('site-header');
   const navResearch = header?.querySelector('a[href="/research"]');
   const navChapters = header?.querySelector('a[href="/chapters"]');
-  const routeViews = { home: homeView, research: researchView, chapters: chaptersView };
+  const navAbout = header?.querySelector('a[href="/about"]');
+  const routeViews = { home: homeView, research: researchView, chapters: chaptersView, about: aboutView };
 
   const pathRoute = () => {
+    if (/\/about(?:\/|$)/.test(window.location.pathname)) return 'about';
     if (/\/chapters(?:\/|$)/.test(window.location.pathname)) return 'chapters';
     if (/\/research(?:\/|$)/.test(window.location.pathname)) return 'research';
     return 'home';
@@ -23,10 +26,12 @@
     });
     document.body.classList.toggle('route-research', route === 'research');
     document.body.classList.toggle('route-chapters', route === 'chapters');
+    document.body.classList.toggle('route-about', route === 'about');
     navResearch?.classList.toggle('route-active', route === 'research');
     navChapters?.classList.toggle('route-active', route === 'chapters');
+    navAbout?.classList.toggle('route-active', route === 'about');
     if (push && window.location.protocol !== 'file:') {
-      const path = route === 'research' ? '/research' : route === 'chapters' ? '/chapters' : '/';
+      const path = route === 'research' ? '/research' : route === 'chapters' ? '/chapters' : route === 'about' ? '/about' : '/';
       history.pushState({ route }, '', `${path}${hash || ''}`);
     }
     requestAnimationFrame(() => {
@@ -55,6 +60,11 @@
     if (chaptersView && /\/chapters\/?$/.test(url.pathname)) {
       event.preventDefault();
       setRoute('chapters', { push: true, hash: url.hash });
+      return;
+    }
+    if (aboutView && /\/about\/?$/.test(url.pathname)) {
+      event.preventDefault();
+      setRoute('about', { push: true, hash: url.hash });
       return;
     }
     if (homeView && (url.pathname === '/' || url.pathname.endsWith('/index.html')) && link.dataset.routeLink === 'home') {
