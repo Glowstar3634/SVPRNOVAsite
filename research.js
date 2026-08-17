@@ -4,13 +4,16 @@
   const researchView = document.getElementById('research-view');
   const chaptersView = document.getElementById('chapters-view');
   const aboutView = document.getElementById('about-view');
+  const joinView = document.getElementById('join-view');
   const header = document.getElementById('site-header');
   const navResearch = header?.querySelector('a[href="/research"]');
   const navChapters = header?.querySelector('a[href="/chapters"]');
   const navAbout = header?.querySelector('a[href="/about"]');
-  const routeViews = { home: homeView, research: researchView, chapters: chaptersView, about: aboutView };
+  const navJoin = header?.querySelector('a[href="/join"]');
+  const routeViews = { home: homeView, research: researchView, chapters: chaptersView, about: aboutView, join: joinView };
 
   const pathRoute = () => {
+    if (/\/join(?:\/|$)/.test(window.location.pathname)) return 'join';
     if (/\/about(?:\/|$)/.test(window.location.pathname)) return 'about';
     if (/\/chapters(?:\/|$)/.test(window.location.pathname)) return 'chapters';
     if (/\/research(?:\/|$)/.test(window.location.pathname)) return 'research';
@@ -27,11 +30,13 @@
     document.body.classList.toggle('route-research', route === 'research');
     document.body.classList.toggle('route-chapters', route === 'chapters');
     document.body.classList.toggle('route-about', route === 'about');
+    document.body.classList.toggle('route-join', route === 'join');
     navResearch?.classList.toggle('route-active', route === 'research');
     navChapters?.classList.toggle('route-active', route === 'chapters');
     navAbout?.classList.toggle('route-active', route === 'about');
+    navJoin?.classList.toggle('route-active', route === 'join');
     if (push && window.location.protocol !== 'file:') {
-      const path = route === 'research' ? '/research' : route === 'chapters' ? '/chapters' : route === 'about' ? '/about' : '/';
+      const path = route === 'research' ? '/research' : route === 'chapters' ? '/chapters' : route === 'about' ? '/about' : route === 'join' ? '/join' : '/';
       history.pushState({ route }, '', `${path}${hash || ''}`);
     }
     requestAnimationFrame(() => {
@@ -65,6 +70,11 @@
     if (aboutView && /\/about\/?$/.test(url.pathname)) {
       event.preventDefault();
       setRoute('about', { push: true, hash: url.hash });
+      return;
+    }
+    if (joinView && /\/join\/?$/.test(url.pathname)) {
+      event.preventDefault();
+      setRoute('join', { push: true, hash: url.hash });
       return;
     }
     if (homeView && (url.pathname === '/' || url.pathname.endsWith('/index.html')) && link.dataset.routeLink === 'home') {
