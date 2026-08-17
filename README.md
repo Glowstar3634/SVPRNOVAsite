@@ -1,4 +1,4 @@
-# SVPRNOVA Public Website — V3.1
+# SVPRNOVA Public Website — V3.2
 
 Static front-end package for `svprnova.org`.
 
@@ -20,3 +20,7 @@ The homepage, Research route, and Chapters route share a lightweight client-side
 - `spectrum.js` — reusable Spectrum prism visualization
 - `siteData.js` — public content data
 - `assets/` — logo, score, and Runox credit image
+
+
+## V3.2 Chapters direction
+The `/chapters/` route is one continuous constellation scene rather than a stack of independent page sections. The graph moves from the SVPRNOVA network/platform ecosystem into the University Chapters cluster and then the Research Hubs cluster, with both local structures connected directly to the same Constellation core. Northwestern is shown as the founding/flagship university node; unnamed future chapter nodes remain intentionally dormant.
