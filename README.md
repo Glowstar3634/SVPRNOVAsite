@@ -1,26 +1,32 @@
-# SVPRNOVA Public Website — V5
+# SVPRNOVA Public Website — V5.2
 
 Static front-end package for `svprnova.org`.
 
 ## Routes
 - `/` — Homepage
-- `/research/` — Research page
-- `/chapters/` — Chapters & Research Hubs page
+- `/research/` — Research
+- `/chapters/` — Chapters & Research Hubs
+- `/about/` — About, mission, origin, philosophy, and people
+- `/join/` — Membership, Premium concept, Chapters/Hubs, Institutional Access, and competitions
 
-The homepage, Research route, and Chapters route share a lightweight client-side route shell when entered through the root site. Internal navigation uses the History API, so the persistent `<audio>` element stays mounted and the Runox score can continue playing without restarting. Physical `research/index.html` and `chapters/index.html` fallbacks are included for ordinary static hosting and direct route loads.
+All five public routes share the same lightweight client-side route shell. Internal navigation uses the History API so the persistent starfield, navigation shell, and `<audio>` element remain mounted; the Runox score can continue playing without restarting. Physical route `index.html` fallbacks are included for static hosting and direct loads.
 
-## Files
-- `index.html` — shared homepage/research/chapters shell
-- `research/index.html` — direct-load fallback for `/research/`
-- `chapters/index.html` — direct-load fallback for `/chapters/`
-- `style.css` — global, Research, and Chapters styles
-- `script.js` — homepage environment, audio, intro, shared interactions
-- `research.js` — client routing and Research-page interactions
-- `chapters.js` — Chapters constellation/parallax interactions
+## Core files
+- `index.html` — shared public-site shell
+- `research/index.html`, `chapters/index.html`, `about/index.html`, `join/index.html` — direct-load route fallbacks using the same shell
+- `style.css` — global and route-specific styles
+- `script.js` — homepage environment, audio, ignition, and shared interactions
+- `research.js` — shared History API routing + Research interactions
+- `chapters.js` — Chapters constellation interactions
+- `about.js` — About origin thought field
+- `join.js` — Join route console, personalized pathway animation, and Institutional Access flow
 - `spectrum.js` — reusable Spectrum prism visualization
 - `siteData.js` — public content data
-- `assets/` — logo, score, and Runox credit image
+- `assets/` — brand, score, founder, and artist assets
 
-
-## V4.3 Chapters direction
-The `/chapters/` route is one continuous constellation scene rather than a stack of independent page sections. The graph moves from the SVPRNOVA network/platform ecosystem into the University Chapters cluster and then the Research Hubs cluster, with both local structures connected directly to the same Constellation core. Northwestern is shown as the founding/flagship university node; unnamed future chapter nodes remain intentionally dormant.
+## V5.2 notes
+- About and Join use gradient seams between consecutive sections.
+- The Join hero guide star orbits the central prompt and migrates to orbit hovered/focused routes.
+- The Premium concept map has eight surrounding knowledge/resource nodes and continuously spawns question traces that visit three distinct nodes before returning to the center.
+- The center question cycles through a nine-question interdisciplinary bank every six seconds.
+- Institutional Access connector paths are calculated from live DOM centers and carry animated research/math/science/opportunity/event/network icons into member nodes.

@@ -2735,3 +2735,146 @@ body.route-join { background:#090312; }
 @media (prefers-reduced-motion:reduce) {
   .join-route-lines path,.premium-scan,.join-pathway-lines path,.pathway-signal { animation:none!important; }
 }
+
+/* ==========================================================================\n   V5.2 — continuous seams + living Join systems\n   ========================================================================== */
+/* About and Join now read as continuous technical environments rather than
+   stacked panels. Every section dissolves into the next through a soft seam. */
+.about-page > section,
+.join-page > section { position:relative; }
+.about-page > section:not(:last-child)::after,
+.join-page > section:not(:last-child)::after {
+  content:'';
+  position:absolute;
+  z-index:1;
+  left:0;
+  right:0;
+  bottom:-1px;
+  height:170px;
+  pointer-events:none;
+  background:linear-gradient(to bottom, transparent 0%, rgba(10,4,23,.42) 48%, rgba(10,4,23,.97) 100%);
+}
+.about-page > section:nth-child(even)::after,
+.join-page > section:nth-child(even)::after {
+  background:linear-gradient(to bottom, transparent 0%, rgba(15,5,32,.36) 48%, rgba(15,5,32,.97) 100%);
+}
+.about-page .section-shell { z-index:3; }
+
+/* Hero routing star */
+.join-console-core { overflow:visible; }
+.join-guide-star {
+  position:absolute;
+  z-index:7;
+  left:0;
+  top:0;
+  width:8px;
+  height:8px;
+  border-radius:50%;
+  background:var(--star-100);
+  box-shadow:0 0 10px rgba(255,255,255,.95),0 0 22px rgba(148,177,255,.9),0 0 44px rgba(82,103,232,.66);
+  pointer-events:none;
+  will-change:transform;
+}
+.join-guide-star::before,
+.join-guide-star::after {
+  content:'';
+  position:absolute;
+  left:50%;
+  top:50%;
+  background:linear-gradient(90deg,transparent,rgba(255,255,255,.7),transparent);
+  transform:translate(-50%,-50%);
+  opacity:.72;
+}
+.join-guide-star::before { width:28px;height:1px; }
+.join-guide-star::after { width:1px;height:28px;background:linear-gradient(180deg,transparent,rgba(255,255,255,.58),transparent); }
+
+/* Eight-discipline pathway */
+.pn-a { left:13%;top:13%; }
+.pn-b { left:46%;top:7%; }
+.pn-c { right:6%;top:14%; }
+.pn-d { right:4%;top:46%; }
+.pn-e { right:10%;bottom:11%; }
+.pn-f { left:44%;bottom:6%; }
+.pn-g { left:7%;bottom:12%; }
+.pn-h { left:3%;top:45%; }
+.pathway-core { min-height:165px; }
+.pathway-core strong { transition:opacity .32s ease, transform .32s var(--ease-out), filter .32s ease; }
+.pathway-core.question-changing strong { opacity:0; transform:translateY(8px); filter:blur(3px); }
+.pathway-signal-layer {
+  position:absolute;
+  inset:0;
+  z-index:3;
+  overflow:hidden;
+  pointer-events:none;
+}
+.pathway-trace-star {
+  position:absolute;
+  left:0;
+  top:0;
+  width:7px;
+  height:7px;
+  border-radius:50%;
+  background:#fff;
+  opacity:0;
+  will-change:transform,opacity,filter;
+}
+
+/* Institutional diagram: line endpoints are generated from live DOM centers. */
+.institution-lines-svg {
+  position:absolute;
+  inset:0;
+  z-index:1;
+  width:100%;
+  height:100%;
+  pointer-events:none;
+  overflow:visible;
+}
+.institution-connector-path {
+  fill:none;
+  stroke:rgba(148,177,255,.3);
+  stroke-width:1.2;
+  stroke-dasharray:5 8;
+  vector-effect:non-scaling-stroke;
+  animation:joinDash 11s linear infinite;
+}
+.institution-flow-layer {
+  position:absolute;
+  inset:0;
+  z-index:4;
+  pointer-events:none;
+  overflow:hidden;
+}
+.institution-flow-icon {
+  position:absolute;
+  left:0;
+  top:0;
+  width:18px;
+  height:18px;
+  color:#fff;
+  filter:drop-shadow(0 0 6px rgba(255,255,255,.72)) drop-shadow(0 0 12px rgba(148,177,255,.45));
+  will-change:transform,opacity;
+}
+.institution-flow-icon svg {
+  display:block;
+  width:100%;
+  height:100%;
+  fill:none;
+  stroke:currentColor;
+  stroke-width:1.7;
+  stroke-linecap:round;
+  stroke-linejoin:round;
+}
+.institution-node,
+.institution-person { z-index:5; }
+
+@media (max-width:760px) {
+  .about-page > section:not(:last-child)::after,
+  .join-page > section:not(:last-child)::after { height:120px; }
+  .join-guide-star { width:7px;height:7px; }
+  .pathway-core { width:215px;min-height:175px; }
+  .pathway-node { font-size:.56rem;max-width:155px; }
+  .pn-a{left:3%;top:12%}.pn-b{left:42%;top:6%}.pn-c{right:1%;top:15%}.pn-d{right:1%;top:46%}
+  .pn-e{right:3%;bottom:12%}.pn-f{left:42%;bottom:5%}.pn-g{left:2%;bottom:13%}.pn-h{left:1%;top:44%}
+}
+@media (prefers-reduced-motion:reduce) {
+  .institution-connector-path { animation:none; }
+}

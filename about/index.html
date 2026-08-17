@@ -704,10 +704,10 @@
 
         <div class="join-route-console reveal" id="join-route-console" aria-label="Choose a path into SVPRNOVA">
           <div class="join-console-grid" aria-hidden="true"></div>
-          <div class="join-console-core">
+          <div class="join-console-core" id="join-console-core">
             <span class="mono">I WANT TO...</span>
-            <i></i>
           </div>
+          <i class="join-guide-star" id="join-guide-star" aria-hidden="true"></i>
           <a class="join-route-node jrn-individual" href="#join-individual" data-join-route="INDIVIDUAL">
             <span class="mono">01</span><strong>Pursue research</strong><small>Join individually</small>
           </a>
@@ -795,9 +795,10 @@
         <div class="join-pathway-map reveal" id="join-pathway-map" aria-label="Example personalized research pathway">
           <svg class="join-pathway-lines" viewBox="0 0 760 610" preserveAspectRatio="none" aria-hidden="true">
             <path d="M380 305 L188 118"/><path d="M380 305 L388 82"/><path d="M380 305 L590 128"/>
-            <path d="M380 305 L640 315"/><path d="M380 305 L570 508"/><path d="M380 305 L370 548"/><path d="M380 305 L160 498"/>
+            <path d="M380 305 L640 315"/><path d="M380 305 L570 508"/><path d="M380 305 L370 548"/><path d="M380 305 L160 498"/><path d="M380 305 L72 310"/>
             <path class="secondary" d="M188 118 L388 82"/><path class="secondary" d="M388 82 L590 128"/><path class="secondary" d="M590 128 L640 315"/>
             <path class="secondary" d="M160 498 L370 548"/><path class="secondary" d="M370 548 L570 508"/>
+            <path class="secondary" d="M72 310 L188 118"/><path class="secondary" d="M72 310 L160 498"/>
           </svg>
           <div class="pathway-core" data-path-depth=".24">
             <span class="mono">QUESTION</span>
@@ -810,7 +811,8 @@
           <div class="pathway-node pn-e" data-path-depth=".2"><i></i><span>Researchers</span></div>
           <div class="pathway-node pn-f" data-path-depth=".12"><i></i><span>Projects</span></div>
           <div class="pathway-node pn-g" data-path-depth=".19"><i></i><span>Mathematical Experimentation</span></div>
-          <span class="pathway-signal ps-1" aria-hidden="true"></span><span class="pathway-signal ps-2" aria-hidden="true"></span><span class="pathway-signal ps-3" aria-hidden="true"></span>
+          <div class="pathway-node pn-h" data-path-depth=".16"><i></i><span>Philosophy</span></div>
+          <div class="pathway-signal-layer" id="pathway-signal-layer" aria-hidden="true"></div>
         </div>
       </div>
     </section>
@@ -857,7 +859,8 @@
         </div>
         <div class="institutional-map reveal" aria-hidden="true">
           <div class="institution-node institution-root"><span class="mono">INSTITUTION</span><strong>Institutional Access</strong></div>
-          <div class="institution-line il-a"></div><div class="institution-line il-b"></div><div class="institution-line il-c"></div><div class="institution-line il-d"></div>
+          <svg class="institution-lines-svg" id="institution-lines-svg" aria-hidden="true"></svg>
+          <div class="institution-flow-layer" id="institution-flow-layer" aria-hidden="true"></div>
           <div class="institution-person ip-a"><i></i><span>Student</span></div>
           <div class="institution-person ip-b"><i></i><span>Student</span></div>
           <div class="institution-person ip-c"><i></i><span>Educator</span></div>
@@ -871,7 +874,7 @@
       <div class="section-shell join-competition-layout">
         <div class="join-competition-copy reveal">
           <p class="eyebrow mono">COMPETE / COLLABORATE / DISCOVER</p>
-          <h2>Research can have<br /><em>a starting line.</em></h2>
+          <h2>Turn a challenge into<br /><em>a discovery.</em></h2>
           <p>SVPRNOVA plans to host research challenges and competitions built around meaningful, open-ended problems rather than predetermined classroom exercises. Participants will develop approaches, test ideas, collaborate, and present what they discover.</p>
           <p>Some competitions can remain open to the entire network, while specialized programs may be available through Premium or Institutional Access.</p>
           <a class="text-link" href="https://svprnova.com/competitions">Explore competitions <span>↗</span></a>
