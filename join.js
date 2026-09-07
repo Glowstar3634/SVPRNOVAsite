@@ -3,6 +3,10 @@
   if (!view) return;
 
   const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  const constrainedDevice = window.matchMedia('(pointer: coarse)').matches
+    || window.matchMedia('(max-width: 760px)').matches
+    || (Number(navigator.deviceMemory || 8) <= 4);
+  const frameInterval = constrainedDevice ? (1000 / 45) : 0;
   const clamp = (value, min, max) => Math.min(max, Math.max(min, value));
   const lerp = (a, b, t) => a + (b - a) * t;
 
@@ -266,51 +270,81 @@
   };
 
   // -------------------------------------------------------------------------
-  // Shared animation loop.
+  // Shared animation loop. Hidden route shells stay fully asleep; each static
+  // fallback contains all routes, so this avoids paying for invisible pages.
   // -------------------------------------------------------------------------
-  const tick = (time = 0) => {
-    if (!view.hidden) {
-      // Hero guide star
-      if (guideStar && consoleEl && consoleCore) {
-        const desired = targetGeometry(guideTarget || consoleCore);
-        if (desired) {
-          if (!guide.initialized || reduceMotion) {
-            Object.assign(guide, desired, { initialized:true });
-          } else {
-            guide.x = lerp(guide.x, desired.x, .075);
-            guide.y = lerp(guide.y, desired.y, .075);
-            guide.rx = lerp(guide.rx, desired.rx, .075);
-            guide.ry = lerp(guide.ry, desired.ry, .075);
-          }
-          const dt = guide.lastTime ? Math.min(40, time - guide.lastTime) : 16;
-          guide.lastTime = time;
-          if (!reduceMotion) guide.angle += dt * .00135;
-          const x = guide.x + Math.cos(guide.angle) * guide.rx;
-          const y = guide.y + Math.sin(guide.angle) * guide.ry;
-          guideStar.style.transform = `translate3d(${x - 4}px,${y - 4}px,0)`;
-        }
-      }
+  let joinFrame = 0;
+  let lastPresented = -Infinity;
+  const joinActive = () => !view.hidden && !document.hidden;
 
-      // Pathway parallax
-      if (map && !reduceMotion) {
-        pathPx += (pathTx - pathPx) * .055;
-        pathPy += (pathTy - pathPy) * .055;
-        depthNodes.forEach((node) => {
-          const depth = Number(node.dataset.pathDepth || .12);
-          node.style.setProperty('--path-px', `${-pathPx * 40 * depth}px`);
-          node.style.setProperty('--path-py', `${-pathPy * 30 * depth}px`);
-        });
-      }
-
-      if (!institutionEdges.length) updateInstitutionGeometry();
-    }
-
-    updatePathwayParticles(time);
-    updateInstitutionParticles(time);
-    requestAnimationFrame(tick);
+  const scheduleJoinFrame = () => {
+    if (!joinActive() || joinFrame) return;
+    joinFrame = requestAnimationFrame(tick);
   };
 
-  requestAnimationFrame(tick);
-  window.addEventListener('resize', () => { institutionEdges = []; requestAnimationFrame(updateInstitutionGeometry); }, { passive:true });
-  document.fonts?.ready?.then(() => { institutionEdges = []; requestAnimationFrame(updateInstitutionGeometry); });
+  const tick = (time = 0) => {
+    joinFrame = 0;
+    if (!joinActive()) return;
+    if (frameInterval && time - lastPresented < frameInterval) {
+      scheduleJoinFrame();
+      return;
+    }
+    lastPresented = time;
+
+    // Hero guide star
+    if (guideStar && consoleEl && consoleCore) {
+      const desired = targetGeometry(guideTarget || consoleCore);
+      if (desired) {
+        if (!guide.initialized || reduceMotion) {
+          Object.assign(guide, desired, { initialized:true });
+        } else {
+          guide.x = lerp(guide.x, desired.x, .075);
+          guide.y = lerp(guide.y, desired.y, .075);
+          guide.rx = lerp(guide.rx, desired.rx, .075);
+          guide.ry = lerp(guide.ry, desired.ry, .075);
+        }
+        const dt = guide.lastTime ? Math.min(40, time - guide.lastTime) : 16;
+        guide.lastTime = time;
+        if (!reduceMotion) guide.angle += dt * .00135;
+        const x = guide.x + Math.cos(guide.angle) * guide.rx;
+        const y = guide.y + Math.sin(guide.angle) * guide.ry;
+        guideStar.style.transform = `translate3d(${x - 4}px,${y - 4}px,0)`;
+      }
+    }
+
+    // Pathway parallax
+    if (map && !reduceMotion) {
+      pathPx += (pathTx - pathPx) * .055;
+      pathPy += (pathTy - pathPy) * .055;
+      depthNodes.forEach((node) => {
+        const depth = Number(node.dataset.pathDepth || .12);
+        node.style.setProperty('--path-px', `${-pathPx * 40 * depth}px`);
+        node.style.setProperty('--path-py', `${-pathPy * 30 * depth}px`);
+      });
+    }
+
+    if (!institutionEdges.length) updateInstitutionGeometry();
+    updatePathwayParticles(time);
+    updateInstitutionParticles(time);
+    scheduleJoinFrame();
+  };
+
+  window.addEventListener('resize', () => {
+    institutionEdges = [];
+    if (joinActive()) requestAnimationFrame(updateInstitutionGeometry);
+  }, { passive:true });
+  window.addEventListener('svpr:routechange', scheduleJoinFrame);
+  document.addEventListener('visibilitychange', () => {
+    if (document.hidden) {
+      if (joinFrame) cancelAnimationFrame(joinFrame);
+      joinFrame = 0;
+    } else {
+      scheduleJoinFrame();
+    }
+  });
+  document.fonts?.ready?.then(() => {
+    institutionEdges = [];
+    if (joinActive()) requestAnimationFrame(updateInstitutionGeometry);
+  });
+  scheduleJoinFrame();
 })();

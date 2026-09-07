@@ -57,15 +57,25 @@
 
   const mount = (canvas) => {
     if (!canvas || canvas.dataset.spectrumMounted === 'true') return;
-    const ctx = canvas.getContext('2d');
+    const ctx = canvas.getContext('2d', { alpha: true, desynchronized: true });
     if (!ctx) return;
     canvas.dataset.spectrumMounted = 'true';
 
+    const routeView = canvas.closest('.route-view');
+    const constrainedDevice = window.matchMedia('(pointer: coarse)').matches
+      || window.matchMedia('(max-width: 760px)').matches
+      || (Number(navigator.deviceMemory || 8) <= 4);
+    const maxCanvasDpr = constrainedDevice ? 1.5 : 2;
+    const frameInterval = constrainedDevice ? (1000 / 45) : 0;
     let nodes = [];
     let width = 1;
     let height = 1;
     let dpr = 1;
     let lastTime = 0;
+    let lastPresented = -Infinity;
+    let rafId = 0;
+    let resizeFrame = 0;
+    let inViewport = false;
     const pointer = { x: 0, y: 0, active: false };
 
     const makeNode = (index) => {
@@ -105,15 +115,41 @@
       rays: [],
     };
 
+    const isRenderable = () => inViewport
+      && !document.hidden
+      && (!routeView || !routeView.hidden)
+      && canvas.offsetParent !== null;
+
     const resize = () => {
+      if (!isRenderable()) return;
       const rect = canvas.getBoundingClientRect();
-      width = Math.max(1, rect.width);
-      height = Math.max(1, rect.height);
-      dpr = Math.min(window.devicePixelRatio || 1, 2);
-      canvas.width = Math.round(width * dpr);
-      canvas.height = Math.round(height * dpr);
+      const nextWidth = Math.max(1, rect.width);
+      const nextHeight = Math.max(1, rect.height);
+      const nextDpr = Math.min(window.devicePixelRatio || 1, maxCanvasDpr);
+      const pixelWidth = Math.round(nextWidth * nextDpr);
+      const pixelHeight = Math.round(nextHeight * nextDpr);
+      if (canvas.width !== pixelWidth || canvas.height !== pixelHeight) {
+        canvas.width = pixelWidth;
+        canvas.height = pixelHeight;
+      }
+      width = nextWidth;
+      height = nextHeight;
+      dpr = nextDpr;
       ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
       if (!nodes.length) nodes = Array.from({ length: 58 }, (_, i) => makeNode(i));
+    };
+
+    const scheduleFrame = () => {
+      if (reduceMotion || !isRenderable() || rafId) return;
+      rafId = requestAnimationFrame(draw);
+    };
+
+    const wake = () => {
+      if (!isRenderable()) return;
+      resize();
+      lastTime = performance.now();
+      if (reduceMotion) draw(lastTime);
+      else scheduleFrame();
     };
 
     const randomEdgePoint = () => {
@@ -140,6 +176,13 @@
     const scheduleBurst = (now) => { prism.nextBurst = now + 4000; };
 
     const draw = (time = 0) => {
+      rafId = 0;
+      if (!isRenderable()) return;
+      if (frameInterval && time - lastPresented < frameInterval) {
+        scheduleFrame();
+        return;
+      }
+      lastPresented = time;
       const dt = clamp(time - lastTime || 16.67, 8, 34);
       lastTime = time;
       ctx.clearRect(0, 0, width, height);
@@ -394,12 +437,44 @@
       });
       ctx.shadowBlur = 0;
 
-      if (!reduceMotion) requestAnimationFrame(draw);
+      scheduleFrame();
     };
 
-    resize();
-    prism.nextBurst = 1800;
-    window.addEventListener('resize', resize, { passive: true });
+    prism.nextBurst = performance.now() + 1800;
+
+    if ('IntersectionObserver' in window) {
+      const observer = new IntersectionObserver((entries) => {
+        inViewport = Boolean(entries[0]?.isIntersecting);
+        if (!inViewport) {
+          if (rafId) cancelAnimationFrame(rafId);
+          rafId = 0;
+          return;
+        }
+        wake();
+      }, { rootMargin: '220px 0px', threshold: 0 });
+      observer.observe(canvas);
+    } else {
+      inViewport = true;
+      wake();
+    }
+
+    window.addEventListener('resize', () => {
+      if (!isRenderable() || resizeFrame) return;
+      resizeFrame = requestAnimationFrame(() => {
+        resizeFrame = 0;
+        resize();
+        if (reduceMotion) draw(performance.now());
+      });
+    }, { passive: true });
+    window.addEventListener('svpr:routechange', wake);
+    document.addEventListener('visibilitychange', () => {
+      if (document.hidden) {
+        if (rafId) cancelAnimationFrame(rafId);
+        rafId = 0;
+      } else {
+        wake();
+      }
+    });
     canvas.addEventListener('pointermove', (event) => {
       const rect = canvas.getBoundingClientRect();
       pointer.x = event.clientX - rect.left;
@@ -407,7 +482,6 @@
       pointer.active = true;
     }, { passive: true });
     canvas.addEventListener('pointerleave', () => { pointer.active = false; });
-    if (reduceMotion) draw(0); else requestAnimationFrame(draw);
   };
 
   window.SVPRSpectrum = { mount };

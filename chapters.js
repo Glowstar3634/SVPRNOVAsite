@@ -10,14 +10,24 @@
     [...scene.querySelectorAll('[data-node-id]')].map((el) => [el.dataset.nodeId, el])
   );
 
+  const constrainedDevice = window.matchMedia('(pointer: coarse)').matches
+    || window.matchMedia('(max-width: 760px)').matches
+    || (Number(navigator.deviceMemory || 8) <= 4);
+  const frameInterval = constrainedDevice ? (1000 / 45) : 0;
+  let chapterFrame = 0;
+  let lastPresented = -Infinity;
+  let lineDirty = true;
+  let lineAnimationUntil = 0;
   let px = 0;
   let py = 0;
   let tx = 0;
   let ty = 0;
 
   window.addEventListener('pointermove', (event) => {
+    if (view.hidden) return;
     tx = (event.clientX / Math.max(1, window.innerWidth) - .5) * 2;
     ty = (event.clientY / Math.max(1, window.innerHeight) - .5) * 2;
+    scheduleChapterFrame();
   }, { passive: true });
 
   const edges = [
@@ -64,6 +74,7 @@
   };
 
   const updateLines = () => {
+    lineDirty = false;
     if (view.hidden || scene.offsetParent === null) return;
     const sceneRect = scene.getBoundingClientRect();
     if (!sceneRect.width || !sceneRect.height) return;
@@ -94,6 +105,8 @@
       entries.forEach((entry) => {
         if (!entry.isIntersecting) return;
         entry.target.classList.add('is-visible');
+        lineAnimationUntil = Math.max(lineAnimationUntil, performance.now() + 1050);
+        scheduleChapterFrame();
         observer.unobserve(entry.target);
       });
     }, { threshold: .08, rootMargin: '0px 0px -5% 0px' });
@@ -102,13 +115,34 @@
     revealTargets.forEach((el) => el.classList.add('is-visible'));
   }
 
-  const tick = () => {
-    if (!reduceMotion) {
-      px += (tx - px) * .052;
-      py += (ty - py) * .052;
+  const chapterActive = () => !view.hidden && !document.hidden;
+
+  const scheduleChapterFrame = () => {
+    if (!chapterActive() || chapterFrame) return;
+    chapterFrame = requestAnimationFrame(tick);
+  };
+
+  const tick = (time = 0) => {
+    chapterFrame = 0;
+    if (!chapterActive()) return;
+    if (frameInterval && time - lastPresented < frameInterval) {
+      scheduleChapterFrame();
+      return;
+    }
+    lastPresented = time;
+
+    const dx = tx - px;
+    const dy = ty - py;
+    const moving = !reduceMotion && (Math.abs(dx) > .00035 || Math.abs(dy) > .00035);
+    if (moving) {
+      px += dx * .052;
+      py += dy * .052;
+    } else if (!reduceMotion) {
+      px = tx;
+      py = ty;
     }
 
-    if (!view.hidden) {
+    if (moving || lineDirty || time < lineAnimationUntil) {
       depthNodes.forEach((node) => {
         const depth = Number(node.dataset.chapterDepth || .12);
         const scale = node.matches('.chapters-v32-copy,.chapter-v32-annotation,.chapters-v32-intro,.chapters-v32-whisper') ? .62 : 1;
@@ -117,10 +151,33 @@
       });
       updateLines();
     }
-    requestAnimationFrame(tick);
+
+    if (moving || time < lineAnimationUntil) scheduleChapterFrame();
   };
 
-  requestAnimationFrame(tick);
-  window.addEventListener('resize', () => requestAnimationFrame(updateLines), { passive: true });
-  window.addEventListener('scroll', () => requestAnimationFrame(updateLines), { passive: true });
+  window.addEventListener('resize', () => {
+    lineDirty = true;
+    lineAnimationUntil = Math.max(lineAnimationUntil, performance.now() + 120);
+    scheduleChapterFrame();
+  }, { passive: true });
+  window.addEventListener('scroll', () => {
+    lineDirty = true;
+    scheduleChapterFrame();
+  }, { passive: true });
+  window.addEventListener('svpr:routechange', () => {
+    lineDirty = true;
+    lineAnimationUntil = Math.max(lineAnimationUntil, performance.now() + 120);
+    scheduleChapterFrame();
+  });
+  document.addEventListener('visibilitychange', () => {
+    if (document.hidden) {
+      if (chapterFrame) cancelAnimationFrame(chapterFrame);
+      chapterFrame = 0;
+    } else {
+      lineDirty = true;
+      scheduleChapterFrame();
+    }
+  });
+
+  scheduleChapterFrame();
 })();

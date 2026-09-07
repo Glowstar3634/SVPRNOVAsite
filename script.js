@@ -55,11 +55,21 @@
   // sections simply cover it, so cosmic sections feel like one continuous space.
   // ---------------------------------------------------------------------------
   const spaceCanvas = document.getElementById('space-canvas');
-  const spaceCtx = spaceCanvas?.getContext('2d');
+  const spaceCtx = spaceCanvas?.getContext('2d', { alpha: false });
+  const homeRouteView = document.getElementById('home-view');
+  const coarsePointer = window.matchMedia('(pointer: coarse)').matches;
+  const constrainedDevice = coarsePointer
+    || window.matchMedia('(max-width: 760px)').matches
+    || (Number(navigator.deviceMemory || 8) <= 4);
+  const maxCanvasDpr = constrainedDevice ? 1.5 : 2;
+  const starFrameInterval = constrainedDevice ? (1000 / 45) : 0;
   let stars = [];
   let spaceWidth = 0;
   let spaceHeight = 0;
   let dpr = 1;
+  let spaceFrame = 0;
+  let resizeTimer = 0;
+  let lastStarFrame = -Infinity;
   const pointer = { x: 0, y: 0, tx: 0, ty: 0 };
   let starTime = 0;
   const intro = document.getElementById('stellar-intro');
@@ -68,24 +78,40 @@
   const heroTitle = document.getElementById('hero-title-lockup');
   const heroContent = document.getElementById('hero-content');
   let constellationMotion = null;
+  let constellationActive = false;
 
-  const randomStar = () => ({
-    x: Math.random(),
-    y: Math.random(),
-    depth: 0.12 + Math.random() * 0.88,
-    radius: 0.18 + Math.random() * 0.72,
-    alpha: 0.22 + Math.random() * 0.78,
-    phase: Math.random() * Math.PI * 2,
-    warmth: Math.random() < 0.045,
-  });
+  const randomStar = () => {
+    const warmth = Math.random() < 0.045;
+    return {
+      x: Math.random(),
+      y: Math.random(),
+      depth: 0.12 + Math.random() * 0.88,
+      radius: 0.18 + Math.random() * 0.72,
+      alpha: 0.22 + Math.random() * 0.78,
+      phase: Math.random() * Math.PI * 2,
+      warmth,
+      fill: warmth ? '#ffeb7c' : '#fff',
+      shadow: warmth ? 'rgba(255,201,1,.45)' : 'rgba(148,177,255,.55)',
+    };
+  };
 
   const resizeSpace = () => {
     if (!spaceCanvas || !spaceCtx) return;
-    dpr = Math.min(window.devicePixelRatio || 1, 2);
-    spaceWidth = window.innerWidth;
-    spaceHeight = window.innerHeight;
-    spaceCanvas.width = Math.round(spaceWidth * dpr);
-    spaceCanvas.height = Math.round(spaceHeight * dpr);
+    const nextWidth = Math.max(1, window.innerWidth);
+    const nextHeight = Math.max(1, window.innerHeight);
+    const nextDpr = Math.min(window.devicePixelRatio || 1, maxCanvasDpr);
+    const pixelWidth = Math.round(nextWidth * nextDpr);
+    const pixelHeight = Math.round(nextHeight * nextDpr);
+
+    // Avoid repeatedly reallocating the canvas backing store while mobile browser
+    // chrome is animating in/out. That pattern can briefly double GPU memory.
+    if (spaceCanvas.width !== pixelWidth || spaceCanvas.height !== pixelHeight) {
+      spaceCanvas.width = pixelWidth;
+      spaceCanvas.height = pixelHeight;
+    }
+    dpr = nextDpr;
+    spaceWidth = nextWidth;
+    spaceHeight = nextHeight;
     spaceCanvas.style.width = `${spaceWidth}px`;
     spaceCanvas.style.height = `${spaceHeight}px`;
     spaceCtx.setTransform(dpr, 0, 0, dpr, 0, 0);
@@ -93,14 +119,35 @@
     stars = Array.from({ length: count }, randomStar);
   };
 
+  const scheduleResizeSpace = () => {
+    window.clearTimeout(resizeTimer);
+    resizeTimer = window.setTimeout(() => {
+      resizeSpace();
+      if (reduceMotion) drawSpace(performance.now());
+    }, constrainedDevice ? 140 : 60);
+  };
+
+  const requestSpaceFrame = () => {
+    if (reduceMotion || document.hidden || spaceFrame) return;
+    spaceFrame = requestAnimationFrame(drawSpace);
+  };
+
   const drawSpace = (time = 0) => {
-    if (!spaceCtx) return;
+    spaceFrame = 0;
+    if (!spaceCtx || document.hidden) return;
+    if (starFrameInterval && time - lastStarFrame < starFrameInterval) {
+      requestSpaceFrame();
+      return;
+    }
+    lastStarFrame = time;
+
     const delta = Math.min(32, time - starTime || 16);
     starTime = time;
     pointer.x += (pointer.tx - pointer.x) * (reduceMotion ? 1 : 0.052 * delta / 16);
     pointer.y += (pointer.ty - pointer.y) * (reduceMotion ? 1 : 0.052 * delta / 16);
 
-    spaceCtx.clearRect(0, 0, spaceWidth, spaceHeight);
+    spaceCtx.globalAlpha = 1;
+    spaceCtx.shadowBlur = 0;
     spaceCtx.fillStyle = '#000';
     spaceCtx.fillRect(0, 0, spaceWidth, spaceHeight);
 
@@ -116,21 +163,20 @@
       y = ((y % spaceHeight) + spaceHeight) % spaceHeight;
 
       const twinkle = reduceMotion ? 1 : 0.82 + Math.sin(time * 0.0012 + star.phase) * 0.18;
-      const alpha = star.alpha * twinkle;
       const radius = star.radius * (0.58 + star.depth * 0.62);
-      const color = star.warmth ? `rgba(255,235,124,${alpha})` : `rgba(255,255,255,${alpha})`;
-
+      spaceCtx.globalAlpha = star.alpha * twinkle;
       if (radius > 0.72) {
         spaceCtx.shadowBlur = 5 * star.depth;
-        spaceCtx.shadowColor = star.warmth ? 'rgba(255,201,1,.45)' : 'rgba(148,177,255,.55)';
+        spaceCtx.shadowColor = star.shadow;
       } else {
         spaceCtx.shadowBlur = 0;
       }
       spaceCtx.beginPath();
       spaceCtx.arc(x, y, radius, 0, Math.PI * 2);
-      spaceCtx.fillStyle = color;
+      spaceCtx.fillStyle = star.fill;
       spaceCtx.fill();
     });
+    spaceCtx.globalAlpha = 1;
     spaceCtx.shadowBlur = 0;
 
     if (!reduceMotion) {
@@ -141,8 +187,10 @@
         introStar.style.setProperty('--intro-py', `${-pointer.y * 9}px`);
       }
 
-      // The resolved hero sits closer to the viewer than the starfield itself.
-      if (document.body.classList.contains('site-launched')) {
+      // Only the active homepage needs its foreground parallax updated. The same
+      // DOM exists inside every static route fallback, but hidden routes should
+      // not consume layout/compositing work.
+      if (document.body.classList.contains('site-launched') && homeRouteView && !homeRouteView.hidden) {
         if (heroMark) {
           heroMark.style.setProperty('--parallax-x', `${-pointer.x * 66}px`);
           heroMark.style.setProperty('--parallax-y', `${-pointer.y * 46}px`);
@@ -157,30 +205,43 @@
         }
       }
 
-      // Constellation points live deeper in space. Each gets a distinct small
-      // displacement; connection endpoints follow the points precisely.
-      if (constellationMotion) constellationMotion(pointer.x, pointer.y);
+      // The constellation's live DOM/SVG geometry is only updated while that
+      // section is near the viewport. Its appearance is unchanged when visible.
+      if (constellationMotion && constellationActive && homeRouteView && !homeRouteView.hidden) {
+        constellationMotion(pointer.x, pointer.y);
+      }
     }
 
-    if (!reduceMotion) requestAnimationFrame(drawSpace);
+    requestSpaceFrame();
   };
 
   if (spaceCanvas && spaceCtx) {
     resizeSpace();
-    window.addEventListener('resize', resizeSpace, { passive: true });
+    window.addEventListener('resize', scheduleResizeSpace, { passive: true });
     window.addEventListener('pointermove', (event) => {
-      pointer.tx = (event.clientX / window.innerWidth - 0.5) * 2;
-      pointer.ty = (event.clientY / window.innerHeight - 0.5) * 2;
+      pointer.tx = (event.clientX / Math.max(1, window.innerWidth) - 0.5) * 2;
+      pointer.ty = (event.clientY / Math.max(1, window.innerHeight) - 0.5) * 2;
     }, { passive: true });
+    document.addEventListener('visibilitychange', () => {
+      if (document.hidden) {
+        if (spaceFrame) cancelAnimationFrame(spaceFrame);
+        spaceFrame = 0;
+      } else if (reduceMotion) {
+        drawSpace(performance.now());
+      } else {
+        starTime = performance.now();
+        requestSpaceFrame();
+      }
+    });
     if (reduceMotion) drawSpace(0);
-    else requestAnimationFrame(drawSpace);
+    else requestSpaceFrame();
   }
 
   // Pointer movement also modulates the resolved stellar flare.
   if (heroMark && !reduceMotion) {
     let flareTimer = null;
     window.addEventListener('pointermove', () => {
-      if (!document.body.classList.contains('site-launched')) return;
+      if (!document.body.classList.contains('site-launched') || homeRouteView?.hidden) return;
       heroMark.classList.add('pointer-active');
       window.clearTimeout(flareTimer);
       flareTimer = window.setTimeout(() => heroMark.classList.remove('pointer-active'), 95);
@@ -257,24 +318,41 @@ window.SVPRSpectrum?.mount(spectrumCanvas);
       };
     };
 
+    let constellationLineFrame = 0;
+    const constellationUsable = () => constellationActive
+      && homeRouteView
+      && !homeRouteView.hidden
+      && constellationMap.offsetParent !== null;
+
     const updateConstellationLines = () => {
+      constellationLineFrame = 0;
+      if (!constellationUsable()) return;
       const mapRect = constellationMap.getBoundingClientRect();
       if (!mapRect.width || !mapRect.height) return;
       const viewBox = constellationSvg.viewBox.baseVal;
+      if (!viewBox.width || !viewBox.height) return;
       const sx = viewBox.width / mapRect.width;
       const sy = viewBox.height / mapRect.height;
 
       links.forEach((link) => {
         const a = stellarCenter(link.fromEl, mapRect);
         const b = stellarCenter(link.toEl, mapRect);
-        link.line.setAttribute('x1', String(a.x * sx));
-        link.line.setAttribute('y1', String(a.y * sy));
-        link.line.setAttribute('x2', String(b.x * sx));
-        link.line.setAttribute('y2', String(b.y * sy));
+        const coords = [a.x * sx, a.y * sy, b.x * sx, b.y * sy];
+        if (!coords.every(Number.isFinite)) return;
+        link.line.setAttribute('x1', String(coords[0]));
+        link.line.setAttribute('y1', String(coords[1]));
+        link.line.setAttribute('x2', String(coords[2]));
+        link.line.setAttribute('y2', String(coords[3]));
       });
     };
 
+    const scheduleConstellationLines = () => {
+      if (!constellationUsable() || constellationLineFrame) return;
+      constellationLineFrame = requestAnimationFrame(updateConstellationLines);
+    };
+
     constellationMotion = (px, py) => {
+      if (!constellationUsable()) return;
       pointData.forEach((data, el) => {
         // The constellation is embedded far behind the foreground. Each point
         // has its own depth, but all travel opposite the pointer with the stars.
@@ -284,17 +362,36 @@ window.SVPRSpectrum?.mount(spectrumCanvas);
         el.style.setProperty('--node-py', `${data.oy}px`);
       });
 
-      // Measure after transforms are applied. rAF guarantees layout has the new
-      // node positions before the line endpoints are read.
-      requestAnimationFrame(updateConstellationLines);
+      // Coalesce all geometry reads into one frame after transforms land.
+      scheduleConstellationLines();
     };
 
-    constellationMotion(0, 0);
+    if ('IntersectionObserver' in window) {
+      const constellationObserver = new IntersectionObserver((entries) => {
+        const entry = entries[0];
+        constellationActive = Boolean(entry?.isIntersecting);
+        if (constellationActive) {
+          constellationMotion(pointer.x, pointer.y);
+          scheduleConstellationLines();
+        }
+      }, { rootMargin: '180px 0px', threshold: 0 });
+      constellationObserver.observe(constellationMap);
+    } else {
+      constellationActive = true;
+      constellationMotion(0, 0);
+    }
+
     window.addEventListener('resize', () => {
-      constellationMotion?.(pointer.x, pointer.y);
-      requestAnimationFrame(updateConstellationLines);
+      if (!constellationUsable()) return;
+      constellationMotion(pointer.x, pointer.y);
+      scheduleConstellationLines();
     }, { passive: true });
-    window.addEventListener('scroll', updateConstellationLines, { passive: true });
+    window.addEventListener('svpr:routechange', () => {
+      if (!homeRouteView?.hidden && constellationActive) {
+        constellationMotion(pointer.x, pointer.y);
+        scheduleConstellationLines();
+      }
+    });
   }
 
   // ---------------------------------------------------------------------------
@@ -450,7 +547,9 @@ window.SVPRSpectrum?.mount(spectrumCanvas);
 
     deepSpaceBoom();
     userPaused = false;
-    await playScore();
+    // The score may still be fetching on a mobile connection. Do not make the
+    // visual ignition wait for media readiness; the synthesized boom is immediate.
+    void playScore();
     intro.classList.add('is-igniting');
 
     window.setTimeout(() => {

@@ -39,6 +39,7 @@
       const path = route === 'research' ? '/research' : route === 'chapters' ? '/chapters' : route === 'about' ? '/about' : route === 'join' ? '/join' : '/';
       history.pushState({ route }, '', `${path}${hash || ''}`);
     }
+    window.dispatchEvent(new CustomEvent('svpr:routechange', { detail: { route } }));
     requestAnimationFrame(() => {
       if (hash) {
         const target = document.querySelector(hash);
@@ -102,16 +103,42 @@
   // the homepage. The question constellation moves as one connected distant layer
   // so its SVG lines remain attached to its stars.
   const field = document.getElementById('knowledge-field');
-  const modelDepthNodes = [...document.querySelectorAll('[data-model-depth]')];
+  const modelDepthNodes = researchView ? [...researchView.querySelectorAll('[data-model-depth]')] : [];
   const outcomeField = document.getElementById('outcome-field');
   const outcomeNodes = outcomeField ? [...outcomeField.querySelectorAll('[data-orbit-speed]')] : [];
+  const researchReduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  const researchConstrainedDevice = window.matchMedia('(pointer: coarse)').matches
+    || window.matchMedia('(max-width: 760px)').matches
+    || (Number(navigator.deviceMemory || 8) <= 4);
+  const researchFrameInterval = researchConstrainedDevice ? (1000 / 45) : 0;
+  let researchFrame = 0;
+  let lastResearchPresented = -Infinity;
   let px = 0, py = 0, tx = 0, ty = 0;
+
+  const researchActive = () => !researchReduceMotion
+    && researchView
+    && !researchView.hidden
+    && !document.hidden;
+
   window.addEventListener('pointermove', (event) => {
-    tx = (event.clientX / innerWidth - .5) * 2;
-    ty = (event.clientY / innerHeight - .5) * 2;
+    if (!researchView || researchView.hidden) return;
+    tx = (event.clientX / Math.max(1, innerWidth) - .5) * 2;
+    ty = (event.clientY / Math.max(1, innerHeight) - .5) * 2;
   }, { passive: true });
 
+  const scheduleResearchFrame = () => {
+    if (!researchActive() || researchFrame) return;
+    researchFrame = requestAnimationFrame(moveResearchCosmos);
+  };
+
   const moveResearchCosmos = (time = 0) => {
+    researchFrame = 0;
+    if (!researchActive()) return;
+    if (researchFrameInterval && time - lastResearchPresented < researchFrameInterval) {
+      scheduleResearchFrame();
+      return;
+    }
+    lastResearchPresented = time;
     px += (tx - px) * .052;
     py += (ty - py) * .052;
 
@@ -126,28 +153,42 @@
       node.style.setProperty('--model-py', `${-py * 36 * depth}px`);
     });
 
-    if (outcomeField && outcomeNodes.length && !outcomeField.hidden) {
+    if (outcomeField && outcomeNodes.length) {
       const rect = outcomeField.getBoundingClientRect();
-      const usableX = Math.max(80, rect.width * .5 - 95);
-      const usableY = Math.max(70, rect.height * .5 - 55);
-      outcomeNodes.forEach((node) => {
-        const radiusX = usableX * Number(node.dataset.orbitRadius || .3) * 1.3;
-        const radiusY = usableY * Number(node.dataset.orbitY || .24) * 1.3;
-        const speed = Number(node.dataset.orbitSpeed || .00006) * 3.5;
-        const angle = Number(node.dataset.orbitAngle || 0) + time * speed;
-        const tilt = Number(node.dataset.orbitTilt || 0);
-        const ex = Math.cos(angle) * radiusX;
-        const ey = Math.sin(angle) * radiusY;
-        const x = ex * Math.cos(tilt) - ey * Math.sin(tilt);
-        const y = ex * Math.sin(tilt) + ey * Math.cos(tilt);
-        node.style.transform = `translate(calc(-50% + ${x}px), calc(-50% + ${y}px))`;
-      });
+      if (rect.bottom >= -120 && rect.top <= window.innerHeight + 120) {
+        const usableX = Math.max(80, rect.width * .5 - 95);
+        const usableY = Math.max(70, rect.height * .5 - 55);
+        outcomeNodes.forEach((node) => {
+          const radiusX = usableX * Number(node.dataset.orbitRadius || .3) * 1.3;
+          const radiusY = usableY * Number(node.dataset.orbitY || .24) * 1.3;
+          const speed = Number(node.dataset.orbitSpeed || .00006) * 3.5;
+          const angle = Number(node.dataset.orbitAngle || 0) + time * speed;
+          const tilt = Number(node.dataset.orbitTilt || 0);
+          const ex = Math.cos(angle) * radiusX;
+          const ey = Math.sin(angle) * radiusY;
+          const x = ex * Math.cos(tilt) - ey * Math.sin(tilt);
+          const y = ex * Math.sin(tilt) + ey * Math.cos(tilt);
+          node.style.transform = `translate(calc(-50% + ${x}px), calc(-50% + ${y}px))`;
+        });
+      }
     }
-    requestAnimationFrame(moveResearchCosmos);
+    scheduleResearchFrame();
   };
-  if (!window.matchMedia('(prefers-reduced-motion: reduce)').matches) requestAnimationFrame(moveResearchCosmos);
-  else if (field) {
+
+  window.addEventListener('svpr:routechange', scheduleResearchFrame);
+  document.addEventListener('visibilitychange', () => {
+    if (document.hidden) {
+      if (researchFrame) cancelAnimationFrame(researchFrame);
+      researchFrame = 0;
+    } else {
+      scheduleResearchFrame();
+    }
+  });
+
+  if (researchReduceMotion && field) {
     field.style.setProperty('--field-px','0px'); field.style.setProperty('--field-py','0px');
+  } else {
+    scheduleResearchFrame();
   }
 
   // Discipline knowledge fragments fan into a 216-degree outward-facing arc.
@@ -195,9 +236,11 @@
   const disciplineCenter = disciplineOrbit?.querySelector('.discipline-center-copy');
   const updateDisciplineLines = () => {
     if (!disciplineOrbit || !disciplineLines || !disciplineCenter || innerWidth <= 1080) return;
+    if (!researchView || researchView.hidden || disciplineOrbit.offsetParent === null) return;
     const orbitRect = disciplineOrbit.getBoundingClientRect();
     const centerRect = disciplineCenter.getBoundingClientRect();
     const viewBox = disciplineLines.viewBox.baseVal;
+    if (!orbitRect.width || !orbitRect.height || !viewBox.width || !viewBox.height) return;
     const sx = viewBox.width / orbitRect.width;
     const sy = viewBox.height / orbitRect.height;
     const cx = (centerRect.left + centerRect.width / 2 - orbitRect.left) * sx;
@@ -217,6 +260,7 @@
   };
   requestAnimationFrame(updateDisciplineLines);
   window.addEventListener('resize', () => requestAnimationFrame(updateDisciplineLines), { passive: true });
+  window.addEventListener('svpr:routechange', () => requestAnimationFrame(updateDisciplineLines));
   disciplineNodes.forEach((node) => {
     node.addEventListener('mouseenter', () => requestAnimationFrame(updateDisciplineLines));
     node.addEventListener('mouseleave', () => requestAnimationFrame(updateDisciplineLines));

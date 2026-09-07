@@ -3,6 +3,11 @@
   if (!cloud) return;
 
   const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  const view = cloud.closest('.route-view');
+  const constrainedDevice = window.matchMedia('(pointer: coarse)').matches
+    || window.matchMedia('(max-width: 760px)').matches
+    || (Number(navigator.deviceMemory || 8) <= 4);
+  const frameInterval = constrainedDevice ? (1000 / 45) : 0;
   const pills = [...cloud.querySelectorAll('.about-question-pill')];
 
   // Each thought gets its own elliptical trajectory, direction, phase and pace.
@@ -26,7 +31,30 @@
   }
 
   let tx = 0, ty = 0, px = 0, py = 0;
+  let usableX = 240, usableY = 175;
+  let inViewport = false;
+  let aboutFrame = 0;
+  let lastPresented = -Infinity;
+
+  const aboutActive = () => inViewport
+    && !document.hidden
+    && (!view || !view.hidden)
+    && cloud.offsetParent !== null;
+
+  const measureCloud = () => {
+    if (!aboutActive()) return;
+    const rect = cloud.getBoundingClientRect();
+    usableX = Math.max(240, rect.width * .5 - 118);
+    usableY = Math.max(175, rect.height * .5 - 78);
+  };
+
+  const scheduleAboutFrame = () => {
+    if (!aboutActive() || aboutFrame) return;
+    aboutFrame = requestAnimationFrame(tick);
+  };
+
   cloud.addEventListener('pointermove', (event) => {
+    if (!aboutActive()) return;
     const rect = cloud.getBoundingClientRect();
     tx = ((event.clientX - rect.left) / Math.max(1, rect.width) - .5) * 2;
     ty = ((event.clientY - rect.top) / Math.max(1, rect.height) - .5) * 2;
@@ -34,11 +62,15 @@
   cloud.addEventListener('pointerleave', () => { tx = 0; ty = 0; }, { passive: true });
 
   const tick = (time = 0) => {
+    aboutFrame = 0;
+    if (!aboutActive()) return;
+    if (frameInterval && time - lastPresented < frameInterval) {
+      scheduleAboutFrame();
+      return;
+    }
+    lastPresented = time;
     px += (tx - px) * .045;
     py += (ty - py) * .045;
-    const rect = cloud.getBoundingClientRect();
-    const usableX = Math.max(240, rect.width * .5 - 118);
-    const usableY = Math.max(175, rect.height * .5 - 78);
 
     pills.forEach((pill, index) => {
       const o = orbits[index] || orbits[0];
@@ -52,7 +84,39 @@
       pill.style.setProperty('--thought-y', `${y - py * 8 * depth}px`);
     });
 
-    requestAnimationFrame(tick);
+    scheduleAboutFrame();
   };
-  requestAnimationFrame(tick);
+
+  const wake = () => {
+    if (!aboutActive()) return;
+    measureCloud();
+    scheduleAboutFrame();
+  };
+
+  if ('IntersectionObserver' in window) {
+    const observer = new IntersectionObserver((entries) => {
+      inViewport = Boolean(entries[0]?.isIntersecting);
+      if (!inViewport) {
+        if (aboutFrame) cancelAnimationFrame(aboutFrame);
+        aboutFrame = 0;
+      } else {
+        wake();
+      }
+    }, { rootMargin: '180px 0px', threshold: 0 });
+    observer.observe(cloud);
+  } else {
+    inViewport = true;
+    wake();
+  }
+
+  window.addEventListener('resize', wake, { passive: true });
+  window.addEventListener('svpr:routechange', wake);
+  document.addEventListener('visibilitychange', () => {
+    if (document.hidden) {
+      if (aboutFrame) cancelAnimationFrame(aboutFrame);
+      aboutFrame = 0;
+    } else {
+      wake();
+    }
+  });
 })();
