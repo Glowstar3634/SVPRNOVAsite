@@ -1,12 +1,5 @@
 
 (() => {
-  const perf = window.SVPRPerf || {
-    reduceMotion: window.matchMedia('(prefers-reduced-motion: reduce)').matches,
-    mobile: window.matchMedia('(max-width: 760px), (pointer: coarse)').matches,
-    constrained: false,
-    parallax: !window.matchMedia('(pointer: coarse)').matches,
-    effectFps: 45,
-  };
   const homeView = document.getElementById('home-view');
   const researchView = document.getElementById('research-view');
   const chaptersView = document.getElementById('chapters-view');
@@ -42,7 +35,6 @@
     navChapters?.classList.toggle('route-active', route === 'chapters');
     navAbout?.classList.toggle('route-active', route === 'about');
     navJoin?.classList.toggle('route-active', route === 'join');
-    window.dispatchEvent(new CustomEvent('svpr:routechange', { detail: { route } }));
     if (push && window.location.protocol !== 'file:') {
       const path = route === 'research' ? '/research' : route === 'chapters' ? '/chapters' : route === 'about' ? '/about' : route === 'join' ? '/join' : '/';
       history.pushState({ route }, '', `${path}${hash || ''}`);
@@ -114,56 +106,27 @@
   const outcomeField = document.getElementById('outcome-field');
   const outcomeNodes = outcomeField ? [...outcomeField.querySelectorAll('[data-orbit-speed]')] : [];
   let px = 0, py = 0, tx = 0, ty = 0;
-  let researchRaf = null;
-  let lastResearchPaint = -Infinity;
-  let outcomeVisible = false;
-
-  if (perf.parallax) {
-    window.addEventListener('pointermove', (event) => {
-      tx = (event.clientX / Math.max(1, innerWidth) - .5) * 2;
-      ty = (event.clientY / Math.max(1, innerHeight) - .5) * 2;
-    }, { passive: true });
-  }
-
-  if (outcomeField && 'IntersectionObserver' in window) {
-    const observer = new IntersectionObserver((entries) => {
-      outcomeVisible = entries.some((entry) => entry.isIntersecting);
-      if (outcomeVisible) startResearchCosmos();
-    }, { rootMargin: '180px 0px', threshold: 0 });
-    observer.observe(outcomeField);
-  } else {
-    outcomeVisible = Boolean(outcomeField);
-  }
+  window.addEventListener('pointermove', (event) => {
+    tx = (event.clientX / innerWidth - .5) * 2;
+    ty = (event.clientY / innerHeight - .5) * 2;
+  }, { passive: true });
 
   const moveResearchCosmos = (time = 0) => {
-    researchRaf = null;
-    if (document.hidden || researchView?.hidden) return;
+    px += (tx - px) * .052;
+    py += (ty - py) * .052;
 
-    const fps = Math.max(1, perf.effectFps || 45);
-    if (time - lastResearchPaint < 1000 / fps) {
-      researchRaf = requestAnimationFrame(moveResearchCosmos);
-      return;
-    }
-    lastResearchPaint = time;
-
-    if (perf.parallax) {
-      px += (tx - px) * .052;
-      py += (ty - py) * .052;
-
-      if (field) {
-        field.style.setProperty('--field-px', `${-px * 42}px`);
-        field.style.setProperty('--field-py', `${-py * 30}px`);
-      }
-
-      modelDepthNodes.forEach((node) => {
-        const depth = Number(node.dataset.modelDepth || .2);
-        node.style.setProperty('--model-px', `${-px * 52 * depth}px`);
-        node.style.setProperty('--model-py', `${-py * 36 * depth}px`);
-      });
+    if (field) {
+      field.style.setProperty('--field-px', `${-px * 42}px`);
+      field.style.setProperty('--field-py', `${-py * 30}px`);
     }
 
-    // Orbit geometry is only calculated while this section is near the viewport.
-    if (outcomeVisible && outcomeField && outcomeNodes.length) {
+    modelDepthNodes.forEach((node) => {
+      const depth = Number(node.dataset.modelDepth || .2);
+      node.style.setProperty('--model-px', `${-px * 52 * depth}px`);
+      node.style.setProperty('--model-py', `${-py * 36 * depth}px`);
+    });
+
+    if (outcomeField && outcomeNodes.length && !outcomeField.hidden) {
       const rect = outcomeField.getBoundingClientRect();
       const usableX = Math.max(80, rect.width * .5 - 95);
       const usableY = Math.max(70, rect.height * .5 - 55);
@@ -180,33 +143,11 @@
         node.style.transform = `translate(calc(-50% + ${x}px), calc(-50% + ${y}px))`;
       });
     }
-
-    // On touch devices there is no parallax work to do while the orbit is away.
-    if (perf.parallax || outcomeVisible) researchRaf = requestAnimationFrame(moveResearchCosmos);
+    requestAnimationFrame(moveResearchCosmos);
   };
-
-  function startResearchCosmos() {
-    if (perf.reduceMotion || researchRaf !== null || document.hidden || researchView?.hidden) return;
-    if (!perf.parallax && !outcomeVisible) return;
-    lastResearchPaint = -Infinity;
-    researchRaf = requestAnimationFrame(moveResearchCosmos);
-  }
-
-  if (perf.reduceMotion) {
-    if (field) {
-      field.style.setProperty('--field-px','0px');
-      field.style.setProperty('--field-py','0px');
-    }
-  } else {
-    startResearchCosmos();
-    window.addEventListener('svpr:routechange', (event) => {
-      if (event.detail?.route === 'research') startResearchCosmos();
-      else if (researchRaf !== null) {
-        cancelAnimationFrame(researchRaf);
-        researchRaf = null;
-      }
-    });
-    document.addEventListener('visibilitychange', startResearchCosmos);
+  if (!window.matchMedia('(prefers-reduced-motion: reduce)').matches) requestAnimationFrame(moveResearchCosmos);
+  else if (field) {
+    field.style.setProperty('--field-px','0px'); field.style.setProperty('--field-py','0px');
   }
 
   // Discipline knowledge fragments fan into a 216-degree outward-facing arc.

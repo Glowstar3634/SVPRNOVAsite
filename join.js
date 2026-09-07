@@ -1,15 +1,8 @@
 (() => {
-  const perf = window.SVPRPerf || {
-    reduceMotion: window.matchMedia('(prefers-reduced-motion: reduce)').matches,
-    mobile: window.matchMedia('(max-width: 760px), (pointer: coarse)').matches,
-    constrained: false,
-    parallax: !window.matchMedia('(pointer: coarse)').matches,
-    effectFps: 45,
-  };
   const view = document.getElementById('join-view');
   if (!view) return;
 
-  const reduceMotion = perf.reduceMotion;
+  const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
   const clamp = (value, min, max) => Math.min(max, Math.max(min, value));
   const lerp = (a, b, t) => a + (b - a) * t;
 
@@ -39,22 +32,6 @@
   });
 
   const guide = { x:0, y:0, rx:76, ry:76, angle:0, initialized:false, lastTime:0 };
-  let consoleVisible = false;
-  let pathwayVisible = false;
-  let institutionVisible = false;
-
-  const observeSection = (element, setter) => {
-    if (!element) return;
-    if (!('IntersectionObserver' in window)) {
-      setter(true);
-      return;
-    }
-    const observer = new IntersectionObserver((entries) => {
-      setter(entries.some((entry) => entry.isIntersecting));
-      startLoop();
-    }, { rootMargin: '180px 0px', threshold: 0 });
-    observer.observe(element);
-  };
 
   const targetGeometry = (target) => {
     if (!consoleEl || !target) return null;
@@ -96,7 +73,7 @@
   ];
   let questionIndex = 0;
 
-  if (map && perf.parallax) {
+  if (map && !reduceMotion) {
     map.addEventListener('pointermove', (event) => {
       const rect = map.getBoundingClientRect();
       pathTx = ((event.clientX - rect.left) / Math.max(1, rect.width) - .5) * 2;
@@ -125,7 +102,7 @@
   };
 
   const spawnPathwayParticle = (time) => {
-    if (!signalLayer || !pathwayCore || pathwayNodes.length < 3 || view.hidden || !pathwayVisible) return;
+    if (!signalLayer || !pathwayCore || pathwayNodes.length < 3 || view.hidden) return;
     const star = document.createElement('span');
     star.className = 'pathway-trace-star';
     signalLayer.appendChild(star);
@@ -140,7 +117,7 @@
 
   const updatePathwayParticles = (time) => {
     if (!map) return;
-    if (!view.hidden && pathwayVisible && !reduceMotion && time - lastPathSpawn >= (perf.mobile ? 2200 : 1400)) {
+    if (!view.hidden && !reduceMotion && time - lastPathSpawn >= 1200) {
       lastPathSpawn = time;
       spawnPathwayParticle(time);
     }
@@ -148,7 +125,7 @@
     for (let i = pathwayParticles.length - 1; i >= 0; i--) {
       const particle = pathwayParticles[i];
       const elapsed = time - particle.start;
-      if (elapsed >= 4000 || view.hidden || !pathwayVisible) {
+      if (elapsed >= 4000 || view.hidden) {
         particle.el.remove();
         pathwayParticles.splice(i, 1);
         continue;
@@ -212,7 +189,7 @@
   ];
 
   const updateInstitutionGeometry = () => {
-    if (!institutionMap || !institutionRoot || !institutionSvg || !institutionPeople.length || view.hidden || !institutionVisible) return;
+    if (!institutionMap || !institutionRoot || !institutionSvg || !institutionPeople.length || view.hidden) return;
     const mapRect = institutionMap.getBoundingClientRect();
     if (!mapRect.width || !mapRect.height) return;
     institutionSvg.setAttribute('viewBox', `0 0 ${mapRect.width} ${mapRect.height}`);
@@ -253,7 +230,7 @@
   };
 
   const spawnInstitutionParticle = (time) => {
-    if (!institutionFlowLayer || !institutionEdges.length || view.hidden || !institutionVisible) return;
+    if (!institutionFlowLayer || !institutionEdges.length || view.hidden) return;
     const el = document.createElement('span');
     el.className = 'institution-flow-icon';
     el.innerHTML = iconSvgs[Math.floor(Math.random() * iconSvgs.length)];
@@ -267,14 +244,14 @@
   };
 
   const updateInstitutionParticles = (time) => {
-    if (!view.hidden && institutionVisible && !reduceMotion && time - lastInstitutionSpawn >= (perf.mobile ? 1500 : 900)) {
+    if (!view.hidden && !reduceMotion && time - lastInstitutionSpawn >= 720) {
       lastInstitutionSpawn = time;
       spawnInstitutionParticle(time);
     }
     for (let i = institutionParticles.length - 1; i >= 0; i--) {
       const particle = institutionParticles[i];
       const progress = (time - particle.start) / particle.duration;
-      if (progress >= 1 || view.hidden || !institutionVisible) {
+      if (progress >= 1 || view.hidden) {
         particle.el.remove();
         institutionParticles.splice(i, 1);
         continue;
@@ -289,101 +266,51 @@
   };
 
   // -------------------------------------------------------------------------
-  // Shared animation loop. It now runs only while the Join route and at least
-  // one animated section are visible, and is capped on mobile hardware.
+  // Shared animation loop.
   // -------------------------------------------------------------------------
-  let rafId = null;
-  let lastPaint = -Infinity;
-  let resizeTimer = null;
-
   const tick = (time = 0) => {
-    rafId = null;
-    if (document.hidden || view.hidden || reduceMotion) return;
-
-    const anythingVisible = consoleVisible || pathwayVisible || institutionVisible;
-    if (!anythingVisible) return;
-
-    const fps = Math.max(1, perf.mobile ? 24 : (perf.effectFps || 45));
-    if (time - lastPaint < 1000 / fps) {
-      rafId = requestAnimationFrame(tick);
-      return;
-    }
-    lastPaint = time;
-
-    // Hero guide star only while the hero console is near the viewport.
-    if (consoleVisible && guideStar && consoleEl && consoleCore) {
-      const desired = targetGeometry(guideTarget || consoleCore);
-      if (desired) {
-        if (!guide.initialized || reduceMotion) {
-          Object.assign(guide, desired, { initialized:true });
-        } else {
-          guide.x = lerp(guide.x, desired.x, .075);
-          guide.y = lerp(guide.y, desired.y, .075);
-          guide.rx = lerp(guide.rx, desired.rx, .075);
-          guide.ry = lerp(guide.ry, desired.ry, .075);
+    if (!view.hidden) {
+      // Hero guide star
+      if (guideStar && consoleEl && consoleCore) {
+        const desired = targetGeometry(guideTarget || consoleCore);
+        if (desired) {
+          if (!guide.initialized || reduceMotion) {
+            Object.assign(guide, desired, { initialized:true });
+          } else {
+            guide.x = lerp(guide.x, desired.x, .075);
+            guide.y = lerp(guide.y, desired.y, .075);
+            guide.rx = lerp(guide.rx, desired.rx, .075);
+            guide.ry = lerp(guide.ry, desired.ry, .075);
+          }
+          const dt = guide.lastTime ? Math.min(40, time - guide.lastTime) : 16;
+          guide.lastTime = time;
+          if (!reduceMotion) guide.angle += dt * .00135;
+          const x = guide.x + Math.cos(guide.angle) * guide.rx;
+          const y = guide.y + Math.sin(guide.angle) * guide.ry;
+          guideStar.style.transform = `translate3d(${x - 4}px,${y - 4}px,0)`;
         }
-        const dt = guide.lastTime ? Math.min(46, time - guide.lastTime) : 16;
-        guide.lastTime = time;
-        guide.angle += dt * .00135;
-        const x = guide.x + Math.cos(guide.angle) * guide.rx;
-        const y = guide.y + Math.sin(guide.angle) * guide.ry;
-        guideStar.style.transform = `translate3d(${x - 4}px,${y - 4}px,0)`;
       }
+
+      // Pathway parallax
+      if (map && !reduceMotion) {
+        pathPx += (pathTx - pathPx) * .055;
+        pathPy += (pathTy - pathPy) * .055;
+        depthNodes.forEach((node) => {
+          const depth = Number(node.dataset.pathDepth || .12);
+          node.style.setProperty('--path-px', `${-pathPx * 40 * depth}px`);
+          node.style.setProperty('--path-py', `${-pathPy * 30 * depth}px`);
+        });
+      }
+
+      if (!institutionEdges.length) updateInstitutionGeometry();
     }
 
-    if (pathwayVisible && map && perf.parallax) {
-      pathPx += (pathTx - pathPx) * .055;
-      pathPy += (pathTy - pathPy) * .055;
-      depthNodes.forEach((node) => {
-        const depth = Number(node.dataset.pathDepth || .12);
-        node.style.setProperty('--path-px', `${-pathPx * 40 * depth}px`);
-        node.style.setProperty('--path-py', `${-pathPy * 30 * depth}px`);
-      });
-    }
-
-    if (institutionVisible && !institutionEdges.length) updateInstitutionGeometry();
-    if (pathwayVisible) updatePathwayParticles(time);
-    if (institutionVisible) updateInstitutionParticles(time);
-
-    rafId = requestAnimationFrame(tick);
+    updatePathwayParticles(time);
+    updateInstitutionParticles(time);
+    requestAnimationFrame(tick);
   };
 
-  function startLoop() {
-    if (reduceMotion || rafId !== null || document.hidden || view.hidden) return;
-    if (!(consoleVisible || pathwayVisible || institutionVisible)) return;
-    lastPaint = -Infinity;
-    rafId = requestAnimationFrame(tick);
-  }
-
-  observeSection(consoleEl, (value) => { consoleVisible = value; });
-  observeSection(map, (value) => { pathwayVisible = value; });
-  observeSection(institutionMap, (value) => {
-    institutionVisible = value;
-    if (!value) institutionEdges = [];
-    else requestAnimationFrame(updateInstitutionGeometry);
-  });
-
-  window.addEventListener('svpr:routechange', (event) => {
-    if (event.detail?.route === 'join') startLoop();
-    else if (rafId !== null) {
-      cancelAnimationFrame(rafId);
-      rafId = null;
-    }
-  });
-  document.addEventListener('visibilitychange', startLoop);
-
-  window.addEventListener('resize', () => {
-    window.clearTimeout(resizeTimer);
-    resizeTimer = window.setTimeout(() => {
-      institutionEdges = [];
-      requestAnimationFrame(updateInstitutionGeometry);
-      startLoop();
-    }, 180);
-  }, { passive:true });
-  document.fonts?.ready?.then(() => {
-    institutionEdges = [];
-    requestAnimationFrame(updateInstitutionGeometry);
-  });
-
-  startLoop();
+  requestAnimationFrame(tick);
+  window.addEventListener('resize', () => { institutionEdges = []; requestAnimationFrame(updateInstitutionGeometry); }, { passive:true });
+  document.fonts?.ready?.then(() => { institutionEdges = []; requestAnimationFrame(updateInstitutionGeometry); });
 })();

@@ -6,31 +6,6 @@
   const clamp = (value, min, max) => Math.min(max, Math.max(min, value));
 
   // ---------------------------------------------------------------------------
-  // Shared performance profile
-  // Keep the visual language intact while adapting expensive effects to the
-  // device. Mobile/coarse-pointer devices get lower canvas DPR, fewer particles,
-  // and no pointer parallax. All animation loops can read this profile.
-  // ---------------------------------------------------------------------------
-  const coarsePointer = window.matchMedia('(pointer: coarse)').matches;
-  const narrowViewport = window.matchMedia('(max-width: 760px)').matches;
-  const memory = Number(navigator.deviceMemory || 0);
-  const cores = Number(navigator.hardwareConcurrency || 0);
-  const lowResourceDevice = (memory > 0 && memory <= 4) || (cores > 0 && cores <= 4);
-  const mobilePerformanceMode = narrowViewport || coarsePointer;
-  const constrainedPerformanceMode = mobilePerformanceMode || lowResourceDevice;
-
-  const perf = {
-    reduceMotion,
-    mobile: mobilePerformanceMode,
-    constrained: constrainedPerformanceMode,
-    parallax: !reduceMotion && !mobilePerformanceMode,
-    dprCap: mobilePerformanceMode ? 1 : (lowResourceDevice ? 1.25 : 1.5),
-    starFps: reduceMotion ? 0 : (mobilePerformanceMode ? 30 : (lowResourceDevice ? 40 : 60)),
-    effectFps: reduceMotion ? 0 : (mobilePerformanceMode ? 24 : (lowResourceDevice ? 30 : 45)),
-  };
-  window.SVPRPerf = perf;
-
-  // ---------------------------------------------------------------------------
   // Header + navigation
   // ---------------------------------------------------------------------------
   const header = document.getElementById('site-header');
@@ -87,10 +62,6 @@
   let dpr = 1;
   const pointer = { x: 0, y: 0, tx: 0, ty: 0 };
   let starTime = 0;
-  let lastStarPaint = -Infinity;
-  let cachedScrollY = window.scrollY || 0;
-  let starfieldPaused = false;
-  let resizeTimer = null;
   const intro = document.getElementById('stellar-intro');
   const introStar = document.getElementById('intro-star');
   const heroMark = document.getElementById('hero-mark-wrap');
@@ -110,44 +81,21 @@
 
   const resizeSpace = () => {
     if (!spaceCanvas || !spaceCtx) return;
-    dpr = Math.min(window.devicePixelRatio || 1, perf.dprCap);
-    spaceWidth = Math.max(1, window.innerWidth);
-    spaceHeight = Math.max(1, window.innerHeight);
+    dpr = Math.min(window.devicePixelRatio || 1, 2);
+    spaceWidth = window.innerWidth;
+    spaceHeight = window.innerHeight;
     spaceCanvas.width = Math.round(spaceWidth * dpr);
     spaceCanvas.height = Math.round(spaceHeight * dpr);
     spaceCanvas.style.width = `${spaceWidth}px`;
     spaceCanvas.style.height = `${spaceHeight}px`;
     spaceCtx.setTransform(dpr, 0, 0, dpr, 0, 0);
-
-    // The original density was visually rich but needlessly expensive on phones.
-    // A lower count at native CSS resolution is nearly indistinguishable because
-    // the field still spans the full viewport and retains the same depth model.
-    const divisor = perf.mobile ? 8500 : (perf.constrained ? 6500 : 5200);
-    const minStars = perf.mobile ? 78 : 125;
-    const maxStars = perf.mobile ? 145 : (perf.constrained ? 220 : 300);
-    const count = Math.round(clamp((spaceWidth * spaceHeight) / divisor, minStars, maxStars));
+    const count = Math.round(clamp((spaceWidth * spaceHeight) / 4300, 165, 390));
     stars = Array.from({ length: count }, randomStar);
   };
 
   const drawSpace = (time = 0) => {
     if (!spaceCtx) return;
-
-    // Pause expensive painting while the tab is hidden and throttle to a
-    // device-appropriate frame rate. The last canvas frame remains visible.
-    if (document.hidden || starfieldPaused) {
-      requestAnimationFrame(drawSpace);
-      return;
-    }
-    if (perf.starFps > 0) {
-      const minFrame = 1000 / perf.starFps;
-      if (time - lastStarPaint < minFrame) {
-        requestAnimationFrame(drawSpace);
-        return;
-      }
-      lastStarPaint = time;
-    }
-
-    const delta = Math.min(40, time - starTime || 16);
+    const delta = Math.min(32, time - starTime || 16);
     starTime = time;
     pointer.x += (pointer.tx - pointer.x) * (reduceMotion ? 1 : 0.052 * delta / 16);
     pointer.y += (pointer.ty - pointer.y) * (reduceMotion ? 1 : 0.052 * delta / 16);
@@ -156,7 +104,7 @@
     spaceCtx.fillStyle = '#000';
     spaceCtx.fillRect(0, 0, spaceWidth, spaceHeight);
 
-    const scrollDrift = reduceMotion ? 0 : (cachedScrollY * 0.012) % spaceHeight;
+    const scrollDrift = reduceMotion ? 0 : (window.scrollY * 0.012) % spaceHeight;
     stars.forEach((star) => {
       // Reverse parallax: the stellar field drifts opposite the pointer,
       // reinforcing the feeling of looking into a deep scene rather than dragging it.
@@ -172,8 +120,8 @@
       const radius = star.radius * (0.58 + star.depth * 0.62);
       const color = star.warmth ? `rgba(255,235,124,${alpha})` : `rgba(255,255,255,${alpha})`;
 
-      if (!perf.mobile && radius > 0.72) {
-        spaceCtx.shadowBlur = 4 * star.depth;
+      if (radius > 0.72) {
+        spaceCtx.shadowBlur = 5 * star.depth;
         spaceCtx.shadowColor = star.warmth ? 'rgba(255,201,1,.45)' : 'rgba(148,177,255,.55)';
       } else {
         spaceCtx.shadowBlur = 0;
@@ -185,7 +133,7 @@
     });
     spaceCtx.shadowBlur = 0;
 
-    if (perf.parallax) {
+    if (!reduceMotion) {
       // The intro star is deliberately distant: it participates in the field,
       // but moves much less than the foreground layers.
       if (introStar && !intro?.classList.contains('is-igniting')) {
@@ -219,32 +167,17 @@
 
   if (spaceCanvas && spaceCtx) {
     resizeSpace();
-
-    // Debounce resize/orientation churn. Mobile browser chrome can fire many
-    // resize events while scrolling, and reallocating a full-screen canvas on
-    // every one is a common source of memory spikes/crashes.
-    window.addEventListener('resize', () => {
-      window.clearTimeout(resizeTimer);
-      resizeTimer = window.setTimeout(resizeSpace, 140);
+    window.addEventListener('resize', resizeSpace, { passive: true });
+    window.addEventListener('pointermove', (event) => {
+      pointer.tx = (event.clientX / window.innerWidth - 0.5) * 2;
+      pointer.ty = (event.clientY / window.innerHeight - 0.5) * 2;
     }, { passive: true });
-    window.addEventListener('orientationchange', () => {
-      window.clearTimeout(resizeTimer);
-      resizeTimer = window.setTimeout(resizeSpace, 220);
-    }, { passive: true });
-    window.addEventListener('scroll', () => { cachedScrollY = window.scrollY || 0; }, { passive: true });
-
-    if (perf.parallax) {
-      window.addEventListener('pointermove', (event) => {
-        pointer.tx = (event.clientX / Math.max(1, window.innerWidth) - 0.5) * 2;
-        pointer.ty = (event.clientY / Math.max(1, window.innerHeight) - 0.5) * 2;
-      }, { passive: true });
-    }
     if (reduceMotion) drawSpace(0);
     else requestAnimationFrame(drawSpace);
   }
 
   // Pointer movement also modulates the resolved stellar flare.
-  if (heroMark && perf.parallax) {
+  if (heroMark && !reduceMotion) {
     let flareTimer = null;
     window.addEventListener('pointermove', () => {
       if (!document.body.classList.contains('site-launched')) return;
@@ -271,18 +204,6 @@ window.SVPRSpectrum?.mount(spectrumCanvas);
   const constellationSvg = document.getElementById('constellation-lines');
   if (constellationMap && constellationSvg) {
     const coreEl = constellationMap.querySelector('.constellation-core');
-    let constellationVisible = false;
-    let lastConstellationMeasure = -Infinity;
-
-    if ('IntersectionObserver' in window) {
-      const constellationObserver = new IntersectionObserver((entries) => {
-        constellationVisible = entries.some((entry) => entry.isIntersecting);
-        if (constellationVisible) requestAnimationFrame(updateConstellationLines);
-      }, { rootMargin: '180px 0px', threshold: 0 });
-      constellationObserver.observe(constellationMap);
-    } else {
-      constellationVisible = true;
-    }
     const nodes = [...constellationMap.querySelectorAll('.constellation-node')];
     const points = [coreEl, ...nodes].filter(Boolean);
     const pointData = new Map(points.map((el) => [el, {
@@ -354,27 +275,18 @@ window.SVPRSpectrum?.mount(spectrumCanvas);
     };
 
     constellationMotion = (px, py) => {
-      if (!constellationVisible) return;
-
-      // Touch devices do not have a meaningful hover pointer, so preserve the
-      // same composition without continuously moving/measuring every node.
-      const motionX = perf.parallax ? px : 0;
-      const motionY = perf.parallax ? py : 0;
       pointData.forEach((data, el) => {
-        data.ox = -motionX * 34 * data.depth;
-        data.oy = -motionY * 24 * data.depth;
+        // The constellation is embedded far behind the foreground. Each point
+        // has its own depth, but all travel opposite the pointer with the stars.
+        data.ox = -px * 34 * data.depth;
+        data.oy = -py * 24 * data.depth;
         el.style.setProperty('--node-px', `${data.ox}px`);
         el.style.setProperty('--node-py', `${data.oy}px`);
       });
 
-      // Geometry reads are substantially more expensive than transforms. Limit
-      // line remeasurement to the effect frame budget while the map is onscreen.
-      const now = performance.now();
-      const minFrame = 1000 / Math.max(1, perf.effectFps || 30);
-      if (now - lastConstellationMeasure >= minFrame) {
-        lastConstellationMeasure = now;
-        requestAnimationFrame(updateConstellationLines);
-      }
+      // Measure after transforms are applied. rAF guarantees layout has the new
+      // node positions before the line endpoints are read.
+      requestAnimationFrame(updateConstellationLines);
     };
 
     constellationMotion(0, 0);
@@ -382,9 +294,7 @@ window.SVPRSpectrum?.mount(spectrumCanvas);
       constellationMotion?.(pointer.x, pointer.y);
       requestAnimationFrame(updateConstellationLines);
     }, { passive: true });
-    window.addEventListener('scroll', () => {
-      if (constellationVisible && !perf.parallax) requestAnimationFrame(updateConstellationLines);
-    }, { passive: true });
+    window.addEventListener('scroll', updateConstellationLines, { passive: true });
   }
 
   // ---------------------------------------------------------------------------
@@ -497,11 +407,7 @@ window.SVPRSpectrum?.mount(spectrumCanvas);
     body.start(now);
     body.stop(now + 1.35);
 
-    // Noise adds texture to the impact, but a full 1.15s random buffer can
-    // create a noticeable synchronous hitch on older phones at the exact moment
-    // the visual ignition begins. Use a shorter buffer there.
-    const noiseSeconds = perf.mobile ? .36 : .78;
-    const length = Math.floor(ctx.sampleRate * noiseSeconds);
+    const length = Math.floor(ctx.sampleRate * 1.15);
     const buffer = ctx.createBuffer(1, length, ctx.sampleRate);
     const channel = buffer.getChannelData(0);
     for (let i = 0; i < length; i++) {
@@ -514,14 +420,14 @@ window.SVPRSpectrum?.mount(spectrumCanvas);
     noise.buffer = buffer;
     noiseFilter.type = 'lowpass';
     noiseFilter.frequency.setValueAtTime(720, now);
-    noiseFilter.frequency.exponentialRampToValueAtTime(90, now + Math.min(.8, noiseSeconds));
-    noiseGain.gain.setValueAtTime(perf.mobile ? .22 : .32, now);
-    noiseGain.gain.exponentialRampToValueAtTime(.0001, now + noiseSeconds);
+    noiseFilter.frequency.exponentialRampToValueAtTime(90, now + .8);
+    noiseGain.gain.setValueAtTime(.34, now);
+    noiseGain.gain.exponentialRampToValueAtTime(.0001, now + 1.05);
     noise.connect(noiseFilter);
     noiseFilter.connect(noiseGain);
     noiseGain.connect(master);
     noise.start(now);
-    noise.stop(now + noiseSeconds);
+    noise.stop(now + 1.1);
 
     window.setTimeout(() => ctx.close().catch(() => {}), 2800);
   };
@@ -542,31 +448,18 @@ window.SVPRSpectrum?.mount(spectrumCanvas);
       introStar.style.setProperty('--launch-scale', String(scale));
     }
 
-    // Freeze the already-painted starfield during the heaviest 1.1s of the
-    // supernova transition. The background looks identical, while the browser
-    // can dedicate its compositor budget to the launch animation.
-    starfieldPaused = !reduceMotion;
-
     deepSpaceBoom();
     userPaused = false;
-
-    // Start the visual transition immediately. Awaiting audio.play() here used
-    // to make the click feel sluggish whenever the score still needed to buffer.
-    // Calling playScore without awaiting preserves the user gesture for audio
-    // permission while letting the supernova animate on the very next frame.
+    await playScore();
     intro.classList.add('is-igniting');
-    void playScore();
 
     window.setTimeout(() => {
       document.body.classList.remove('prelaunch');
       document.body.classList.add('site-launched');
       intro.classList.add('is-complete');
-      starfieldPaused = false;
-      starTime = performance.now();
-      lastStarPaint = -Infinity;
     }, reduceMotion ? 80 : 1120);
 
-    window.setTimeout(() => intro.remove(), reduceMotion ? 180 : 1900);
+    window.setTimeout(() => intro.remove(), reduceMotion ? 180 : 2050);
   };
 
   introStar?.addEventListener('click', launchSite);

@@ -57,26 +57,15 @@
 
   const mount = (canvas) => {
     if (!canvas || canvas.dataset.spectrumMounted === 'true') return;
-    const ctx = canvas.getContext('2d', { alpha: true });
+    const ctx = canvas.getContext('2d');
     if (!ctx) return;
     canvas.dataset.spectrumMounted = 'true';
 
-    const perf = window.SVPRPerf || {
-      mobile: window.matchMedia('(max-width: 760px), (pointer: coarse)').matches,
-      constrained: false,
-      parallax: !window.matchMedia('(pointer: coarse)').matches,
-      dprCap: 1.5,
-      effectFps: 45,
-    };
     let nodes = [];
     let width = 1;
     let height = 1;
     let dpr = 1;
     let lastTime = 0;
-    let lastPaint = -Infinity;
-    let rafId = null;
-    let canvasVisible = false;
-    let resizeTimer = null;
     const pointer = { x: 0, y: 0, active: false };
 
     const makeNode = (index) => {
@@ -120,14 +109,11 @@
       const rect = canvas.getBoundingClientRect();
       width = Math.max(1, rect.width);
       height = Math.max(1, rect.height);
-      dpr = Math.min(window.devicePixelRatio || 1, perf.dprCap || 1.5);
+      dpr = Math.min(window.devicePixelRatio || 1, 2);
       canvas.width = Math.round(width * dpr);
       canvas.height = Math.round(height * dpr);
       ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
-      if (!nodes.length) {
-        const nodeCount = perf.mobile ? 32 : (perf.constrained ? 42 : 52);
-        nodes = Array.from({ length: nodeCount }, (_, i) => makeNode(i));
-      }
+      if (!nodes.length) nodes = Array.from({ length: 58 }, (_, i) => makeNode(i));
     };
 
     const randomEdgePoint = () => {
@@ -154,18 +140,7 @@
     const scheduleBurst = (now) => { prism.nextBurst = now + 4000; };
 
     const draw = (time = 0) => {
-      rafId = null;
-      if (document.hidden || !canvasVisible) return;
-
-      const fps = Math.max(1, perf.effectFps || 45);
-      const minFrame = 1000 / fps;
-      if (time - lastPaint < minFrame) {
-        rafId = requestAnimationFrame(draw);
-        return;
-      }
-      lastPaint = time;
-
-      const dt = clamp(time - lastTime || 16.67, 8, 42);
+      const dt = clamp(time - lastTime || 16.67, 8, 34);
       lastTime = time;
       ctx.clearRect(0, 0, width, height);
 
@@ -325,7 +300,7 @@
         ctx.strokeStyle = `rgba(255,255,255,${inOutgoing ? .92 : (.5 + progress * .5)})`;
         ctx.lineWidth = 6.6;
         ctx.lineCap = 'round';
-        ctx.shadowBlur = perf.mobile ? 12 : 28;
+        ctx.shadowBlur = 34;
         ctx.shadowColor = 'white';
         ctx.beginPath();
         ctx.moveTo(prism.incomingStart.x, prism.incomingStart.y);
@@ -349,7 +324,7 @@
           ctx.save();
           ctx.fillStyle = ray.color;
           ctx.globalAlpha = .92 - progress * .34;
-          ctx.shadowBlur = perf.mobile ? 10 : 32;
+          ctx.shadowBlur = 40;
           ctx.shadowColor = ray.color;
           ctx.beginPath();
           ctx.moveTo(center.x, center.y);
@@ -394,7 +369,7 @@
       ctx.save();
       ctx.strokeStyle = `rgba(255,250,236,${.72 + prismEnergy * .18})`;
       ctx.lineWidth = 1.15;
-      ctx.shadowBlur = perf.mobile ? 5 : 10 + prismEnergy * 16;
+      ctx.shadowBlur = 12 + prismEnergy * 20;
       ctx.shadowColor = 'rgba(148,177,255,.7)';
       edges.forEach(([a,b]) => {
         ctx.beginPath();
@@ -411,85 +386,28 @@
         ctx.beginPath();
         ctx.arc(node.x * width, node.y * height, node.r * pulse, 0, Math.PI * 2);
         ctx.fillStyle = color;
-        ctx.shadowBlur = perf.mobile ? 0 : (node.r > 2.6 ? 12 : 6);
+        ctx.shadowBlur = node.r > 2.6 ? 16 : 8;
         ctx.shadowColor = color;
         ctx.globalAlpha = .92;
         ctx.fill();
-
-        // Cheap mobile halo: a translucent second circle avoids dozens of
-        // per-node shadow-blur compositing passes while retaining luminosity.
-        if (perf.mobile && node.r > 2.2) {
-          ctx.beginPath();
-          ctx.arc(node.x * width, node.y * height, node.r * pulse * 2.2, 0, Math.PI * 2);
-          ctx.fillStyle = color;
-          ctx.globalAlpha = .10;
-          ctx.fill();
-        }
         ctx.globalAlpha = 1;
       });
       ctx.shadowBlur = 0;
 
-      if (!reduceMotion && canvasVisible && !document.hidden) rafId = requestAnimationFrame(draw);
-    };
-
-    const startLoop = () => {
-      if (reduceMotion || rafId !== null || document.hidden || !canvasVisible) return;
-      lastPaint = -Infinity;
-      lastTime = performance.now();
-      rafId = requestAnimationFrame(draw);
+      if (!reduceMotion) requestAnimationFrame(draw);
     };
 
     resize();
     prism.nextBurst = 1800;
-
-    if ('IntersectionObserver' in window) {
-      const observer = new IntersectionObserver((entries) => {
-        canvasVisible = entries.some((entry) => entry.isIntersecting);
-        if (canvasVisible) startLoop();
-        else if (rafId !== null) {
-          cancelAnimationFrame(rafId);
-          rafId = null;
-          pointer.active = false;
-        }
-      }, { rootMargin: '220px 0px', threshold: 0 });
-      observer.observe(canvas);
-    } else {
-      canvasVisible = true;
-    }
-
-    window.addEventListener('resize', () => {
-      window.clearTimeout(resizeTimer);
-      resizeTimer = window.setTimeout(() => {
-        resize();
-        if (canvasVisible && reduceMotion) draw(0);
-      }, 160);
+    window.addEventListener('resize', resize, { passive: true });
+    canvas.addEventListener('pointermove', (event) => {
+      const rect = canvas.getBoundingClientRect();
+      pointer.x = event.clientX - rect.left;
+      pointer.y = event.clientY - rect.top;
+      pointer.active = true;
     }, { passive: true });
-
-    document.addEventListener('visibilitychange', () => {
-      if (document.hidden && rafId !== null) {
-        cancelAnimationFrame(rafId);
-        rafId = null;
-      } else {
-        startLoop();
-      }
-    });
-
-    if (perf.parallax) {
-      canvas.addEventListener('pointermove', (event) => {
-        const rect = canvas.getBoundingClientRect();
-        pointer.x = event.clientX - rect.left;
-        pointer.y = event.clientY - rect.top;
-        pointer.active = true;
-      }, { passive: true });
-      canvas.addEventListener('pointerleave', () => { pointer.active = false; });
-    }
-
-    if (reduceMotion) {
-      canvasVisible = true;
-      draw(0);
-    } else if (!('IntersectionObserver' in window)) {
-      startLoop();
-    }
+    canvas.addEventListener('pointerleave', () => { pointer.active = false; });
+    if (reduceMotion) draw(0); else requestAnimationFrame(draw);
   };
 
   window.SVPRSpectrum = { mount };
