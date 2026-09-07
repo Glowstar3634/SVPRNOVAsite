@@ -1,4 +1,11 @@
 (() => {
+  const perf = window.SVPRPerf || {
+    reduceMotion: window.matchMedia('(prefers-reduced-motion: reduce)').matches,
+    mobile: window.matchMedia('(max-width: 760px), (pointer: coarse)').matches,
+    constrained: false,
+    parallax: !window.matchMedia('(pointer: coarse)').matches,
+    effectFps: 45,
+  };
   const view = document.getElementById('chapters-view');
   const scene = document.querySelector('.chapters-v32-scene');
   const svg = document.getElementById('chapters-v32-lines');
@@ -15,10 +22,12 @@
   let tx = 0;
   let ty = 0;
 
-  window.addEventListener('pointermove', (event) => {
-    tx = (event.clientX / Math.max(1, window.innerWidth) - .5) * 2;
-    ty = (event.clientY / Math.max(1, window.innerHeight) - .5) * 2;
-  }, { passive: true });
+  if (perf.parallax) {
+    window.addEventListener('pointermove', (event) => {
+      tx = (event.clientX / Math.max(1, window.innerWidth) - .5) * 2;
+      ty = (event.clientY / Math.max(1, window.innerHeight) - .5) * 2;
+    }, { passive: true });
+  }
 
   const edges = [
     // Network ecosystem
@@ -102,13 +111,41 @@
     revealTargets.forEach((el) => el.classList.add('is-visible'));
   }
 
-  const tick = () => {
-    if (!reduceMotion) {
+  let sceneVisible = false;
+  let rafId = null;
+  let lastPaint = -Infinity;
+  let resizeTimer = null;
+
+  if ('IntersectionObserver' in window) {
+    const observer = new IntersectionObserver((entries) => {
+      sceneVisible = entries.some((entry) => entry.isIntersecting);
+      if (sceneVisible) {
+        requestAnimationFrame(updateLines);
+        startLoop();
+      } else if (rafId !== null) {
+        cancelAnimationFrame(rafId);
+        rafId = null;
+      }
+    }, { rootMargin: '180px 0px', threshold: 0 });
+    observer.observe(scene);
+  } else {
+    sceneVisible = true;
+  }
+
+  const tick = (time = 0) => {
+    rafId = null;
+    if (document.hidden || view.hidden || !sceneVisible || reduceMotion) return;
+
+    const fps = Math.max(1, perf.effectFps || 45);
+    if (time - lastPaint < 1000 / fps) {
+      rafId = requestAnimationFrame(tick);
+      return;
+    }
+    lastPaint = time;
+
+    if (perf.parallax) {
       px += (tx - px) * .052;
       py += (ty - py) * .052;
-    }
-
-    if (!view.hidden) {
       depthNodes.forEach((node) => {
         const depth = Number(node.dataset.chapterDepth || .12);
         const scale = node.matches('.chapters-v32-copy,.chapter-v32-annotation,.chapters-v32-intro,.chapters-v32-whisper') ? .62 : 1;
@@ -116,11 +153,38 @@
         node.style.setProperty('--cp-y', `${-py * 54 * depth * scale}px`);
       });
       updateLines();
+      rafId = requestAnimationFrame(tick);
     }
-    requestAnimationFrame(tick);
   };
 
-  requestAnimationFrame(tick);
-  window.addEventListener('resize', () => requestAnimationFrame(updateLines), { passive: true });
-  window.addEventListener('scroll', () => requestAnimationFrame(updateLines), { passive: true });
+  function startLoop() {
+    if (reduceMotion || !perf.parallax || rafId !== null || document.hidden || view.hidden || !sceneVisible) return;
+    lastPaint = -Infinity;
+    rafId = requestAnimationFrame(tick);
+  }
+
+  // Touch devices keep the same graph composition but avoid dozens of
+  // getBoundingClientRect() calls every frame. Lines are measured only when
+  // layout can actually change.
+  requestAnimationFrame(updateLines);
+  window.addEventListener('resize', () => {
+    window.clearTimeout(resizeTimer);
+    resizeTimer = window.setTimeout(() => {
+      requestAnimationFrame(updateLines);
+      startLoop();
+    }, 160);
+  }, { passive: true });
+
+  window.addEventListener('svpr:routechange', (event) => {
+    if (event.detail?.route === 'chapters') {
+      requestAnimationFrame(updateLines);
+      startLoop();
+    } else if (rafId !== null) {
+      cancelAnimationFrame(rafId);
+      rafId = null;
+    }
+  });
+  document.addEventListener('visibilitychange', startLoop);
+
+  startLoop();
 })();
