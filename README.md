@@ -1,36 +1,39 @@
-# SVPRNOVA Public Website — V5.3
+# SVPRNOVA Public Website — V5.3.1
 
 Static front-end package for `svprnova.org`.
 
 ## Routes
-- `/` — Homepage
-- `/research/` — Research
-- `/chapters/` — Chapters & Research Hubs
+- `/` — Homepage + ignition sequence
+- `/research/` — Research model and Spectrum
+- `/chapters/` — Constellation/chapter network
 - `/about/` — About, mission, origin, philosophy, and people
 - `/join/` — Membership, Premium concept, Chapters/Hubs, Institutional Access, and competitions
 
-All five public routes share the same client-side route shell. Internal navigation uses the History API so the persistent starfield, navigation shell, and `<audio>` element remain mounted; the Runox score can continue playing without restarting. Physical route `index.html` fallbacks are included for static hosting and direct loads.
+Desktop retains the seamless shared client-side route shell and continuous score playback. On iOS/iPadOS WebKit, physical route fallbacks are used and hidden route DOM is discarded after initialization to stay within Safari's tighter per-tab memory/compositor budget.
 
 ## Core files
 - `index.html` — shared public-site shell
-- `research/index.html`, `chapters/index.html`, `about/index.html`, `join/index.html` — direct-load route fallbacks using the same shell
-- `style.css` — global and route-specific styles
-- `script.js` — homepage environment, audio, ignition, and shared interactions
-- `research.js` — shared History API routing + Research interactions
-- `chapters.js` — Chapters constellation interactions
-- `about.js` — About origin thought field
-- `join.js` — Join route console, personalized pathway animation, and Institutional Access flow
-- `spectrum.js` — reusable Spectrum prism visualization
+- `style.css` — global visuals and responsive/mobile-WebKit stability profile
+- `script.js` — global starfield, ignition, audio, shared visual lifecycle
+- `spectrum.js` — shared Spectrum canvas system
+- `research.js` — routing + research visuals
+- `chapters.js` — Chapters constellation motion/geometry
+- `about.js` — About question field
+- `join.js` — Join system animations
 - `siteData.js` — public content data
-- `assets/` — brand, score, founder, and artist assets
+- `assets/` — brand, score, founder, artist, and prerasterized noise assets
 
-## V5.3 performance/stability notes
-- Hidden route animations now sleep instead of continuing to render inside the shared route shell.
-- Spectrum canvases only animate while their section is near the viewport and the owning route is active.
-- The persistent starfield pauses in background tabs, uses a safer mobile backing-store resolution, and debounces mobile viewport resize reallocations.
-- Homepage constellation geometry is only recalculated while the constellation section is near the viewport.
-- Research, Chapters, About, and Join animation loops are route-aware; mobile/coarse-pointer devices use a visually equivalent 45 fps cap for expensive procedural effects.
-- Chapters SVG connector geometry no longer performs continuous layout reads after its parallax has settled.
-- Off-screen decorative homepage loops are paused during the ignition overlay, when they are not visible.
-- The score no longer blocks ignition while media buffers, and audio/image resources use lighter loading behavior.
-- No intentional visual redesigns were made in V5.3.
+## V5.3.1 mobile stability fixes
+- Added an iOS/iPadOS WebKit-specific stability profile, detected before first paint.
+- The full-screen starfield now uses a stable mobile backing surface and ignores Safari URL-bar-only viewport height changes, eliminating repeated GPU-buffer reallocations during scroll.
+- Mobile WebKit starfield and Spectrum canvases use a 1x backing buffer and 30 fps presentation cap while retaining the same geometry, motion, colors, and effects.
+- Expensive per-frame canvas `shadowBlur` work is replaced by cached prerendered glow sprites on mobile WebKit.
+- Off-screen CSS animations pause on iOS/iPadOS and resume automatically when their section approaches the viewport.
+- Hidden homepage/footer animations are paused behind the ignition overlay on every platform.
+- Persistent `will-change` compositor reservations are disabled on mobile WebKit.
+- Full-screen SVG turbulence noise was replaced with a tiny prerasterized tiled noise texture.
+- Fixed-position backdrop filters and redundant blur filters use visually equivalent lower-memory treatments on mobile WebKit.
+- The ignition preserves its pulse, supernova, shockwaves, logo resolve, and flicker, but avoids repeatedly rerasterizing filtered surfaces on mobile WebKit.
+- MP3 decoder startup is staggered slightly after the ignition blast on mobile WebKit to avoid a transient audio+GPU allocation spike.
+- On mobile WebKit, only the active route remains resident; navigation uses the existing physical route fallbacks instead of retaining all five pages and their effect graphs in one tab.
+- Desktop behavior and presentation remain unchanged except for the lower-cost prerasterized noise texture and pausing invisible prelaunch animations.

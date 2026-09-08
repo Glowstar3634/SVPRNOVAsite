@@ -1,5 +1,6 @@
 (() => {
   const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  const mobileWebKit = Boolean(window.SVPR_RUNTIME?.mobileWebKit);
   const clamp = (value, min, max) => Math.min(max, Math.max(min, value));
   const palette = ['#5267E8', '#94B1FF', '#FFFAEC', '#5A0A86'];
   const burstPalette = ['#ff4d5e', '#71ff90', '#67b6ff', '#ffd54a'];
@@ -62,11 +63,11 @@
     canvas.dataset.spectrumMounted = 'true';
 
     const routeView = canvas.closest('.route-view');
-    const constrainedDevice = window.matchMedia('(pointer: coarse)').matches
+    const constrainedDevice = mobileWebKit || window.matchMedia('(pointer: coarse)').matches
       || window.matchMedia('(max-width: 760px)').matches
       || (Number(navigator.deviceMemory || 8) <= 4);
-    const maxCanvasDpr = constrainedDevice ? 1.5 : 2;
-    const frameInterval = constrainedDevice ? (1000 / 45) : 0;
+    const maxCanvasDpr = mobileWebKit ? 1 : (constrainedDevice ? 1.5 : 2);
+    const frameInterval = mobileWebKit ? (1000 / 30) : (constrainedDevice ? (1000 / 45) : 0);
     let nodes = [];
     let width = 1;
     let height = 1;
@@ -77,6 +78,31 @@
     let resizeFrame = 0;
     let inViewport = false;
     const pointer = { x: 0, y: 0, active: false };
+
+    const nodeGlowSprites = new Map();
+    const getNodeGlow = (color) => {
+      if (!mobileWebKit) return null;
+      if (nodeGlowSprites.has(color)) return nodeGlowSprites.get(color);
+      const sprite = document.createElement('canvas');
+      sprite.width = 40; sprite.height = 40;
+      const gctx = sprite.getContext('2d');
+      if (!gctx) return null;
+      const gradient = gctx.createRadialGradient(20,20,0,20,20,20);
+      let rgb;
+      if (color.startsWith('#')) {
+        rgb = hexToRgb(color);
+      } else {
+        const parts = color.match(/\d+/g)?.map(Number) || [148,177,255];
+        rgb = { r: parts[0], g: parts[1], b: parts[2] };
+      }
+      gradient.addColorStop(0, `rgba(${rgb.r},${rgb.g},${rgb.b},1)`);
+      gradient.addColorStop(.15, `rgba(${rgb.r},${rgb.g},${rgb.b},.88)`);
+      gradient.addColorStop(.42, `rgba(${rgb.r},${rgb.g},${rgb.b},.24)`);
+      gradient.addColorStop(1, `rgba(${rgb.r},${rgb.g},${rgb.b},0)`);
+      gctx.fillStyle = gradient; gctx.fillRect(0,0,40,40);
+      nodeGlowSprites.set(color, sprite);
+      return sprite;
+    };
 
     const makeNode = (index) => {
       const angle = Math.random() * Math.PI * 2;
@@ -343,7 +369,7 @@
         ctx.strokeStyle = `rgba(255,255,255,${inOutgoing ? .92 : (.5 + progress * .5)})`;
         ctx.lineWidth = 6.6;
         ctx.lineCap = 'round';
-        ctx.shadowBlur = 34;
+        ctx.shadowBlur = mobileWebKit ? 0 : 34;
         ctx.shadowColor = 'white';
         ctx.beginPath();
         ctx.moveTo(prism.incomingStart.x, prism.incomingStart.y);
@@ -367,7 +393,7 @@
           ctx.save();
           ctx.fillStyle = ray.color;
           ctx.globalAlpha = .92 - progress * .34;
-          ctx.shadowBlur = 40;
+          ctx.shadowBlur = mobileWebKit ? 0 : 40;
           ctx.shadowColor = ray.color;
           ctx.beginPath();
           ctx.moveTo(center.x, center.y);
@@ -412,7 +438,7 @@
       ctx.save();
       ctx.strokeStyle = `rgba(255,250,236,${.72 + prismEnergy * .18})`;
       ctx.lineWidth = 1.15;
-      ctx.shadowBlur = 12 + prismEnergy * 20;
+      ctx.shadowBlur = mobileWebKit ? 0 : (12 + prismEnergy * 20);
       ctx.shadowColor = 'rgba(148,177,255,.7)';
       edges.forEach(([a,b]) => {
         ctx.beginPath();
@@ -426,13 +452,25 @@
         const pulse = reduceMotion ? 1 : .88 + Math.sin(time * .0018 + node.phase) * .12;
         const baseColor = palette[node.group];
         const color = node.tintStrength > .01 ? mixHex(baseColor, node.tintColor, node.tintStrength) : baseColor;
-        ctx.beginPath();
-        ctx.arc(node.x * width, node.y * height, node.r * pulse, 0, Math.PI * 2);
-        ctx.fillStyle = color;
-        ctx.shadowBlur = node.r > 2.6 ? 16 : 8;
-        ctx.shadowColor = color;
+        const radius = node.r * pulse;
         ctx.globalAlpha = .92;
-        ctx.fill();
+        if (mobileWebKit) {
+          const glow = getNodeGlow(color);
+          if (glow) {
+            const size = 8 + radius * 4.4;
+            ctx.drawImage(glow, node.x * width - size/2, node.y * height - size/2, size, size);
+          } else {
+            ctx.fillStyle = color;
+            ctx.fillRect(node.x * width - radius, node.y * height - radius, radius * 2, radius * 2);
+          }
+        } else {
+          ctx.beginPath();
+          ctx.arc(node.x * width, node.y * height, radius, 0, Math.PI * 2);
+          ctx.fillStyle = color;
+          ctx.shadowBlur = node.r > 2.6 ? 16 : 8;
+          ctx.shadowColor = color;
+          ctx.fill();
+        }
         ctx.globalAlpha = 1;
       });
       ctx.shadowBlur = 0;

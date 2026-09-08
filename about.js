@@ -1,13 +1,14 @@
 (() => {
+  const mobileWebKit = Boolean(window.SVPR_RUNTIME?.mobileWebKit);
   const cloud = document.querySelector('.about-question-cloud');
   if (!cloud) return;
 
   const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
   const view = cloud.closest('.route-view');
-  const constrainedDevice = window.matchMedia('(pointer: coarse)').matches
+  const constrainedDevice = mobileWebKit || window.matchMedia('(pointer: coarse)').matches
     || window.matchMedia('(max-width: 760px)').matches
     || (Number(navigator.deviceMemory || 8) <= 4);
-  const frameInterval = constrainedDevice ? (1000 / 45) : 0;
+  const frameInterval = mobileWebKit ? (1000 / 30) : (constrainedDevice ? (1000 / 45) : 0);
   const pills = [...cloud.querySelectorAll('.about-question-pill')];
 
   // Each thought gets its own elliptical trajectory, direction, phase and pace.

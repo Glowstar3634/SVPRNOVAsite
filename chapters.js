@@ -1,4 +1,5 @@
 (() => {
+  const mobileWebKit = Boolean(window.SVPR_RUNTIME?.mobileWebKit);
   const view = document.getElementById('chapters-view');
   const scene = document.querySelector('.chapters-v32-scene');
   const svg = document.getElementById('chapters-v32-lines');
@@ -10,10 +11,10 @@
     [...scene.querySelectorAll('[data-node-id]')].map((el) => [el.dataset.nodeId, el])
   );
 
-  const constrainedDevice = window.matchMedia('(pointer: coarse)').matches
+  const constrainedDevice = mobileWebKit || window.matchMedia('(pointer: coarse)').matches
     || window.matchMedia('(max-width: 760px)').matches
     || (Number(navigator.deviceMemory || 8) <= 4);
-  const frameInterval = constrainedDevice ? (1000 / 45) : 0;
+  const frameInterval = mobileWebKit ? (1000 / 30) : (constrainedDevice ? (1000 / 45) : 0);
   let chapterFrame = 0;
   let lastPresented = -Infinity;
   let lineDirty = true;

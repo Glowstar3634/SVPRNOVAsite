@@ -58,7 +58,8 @@ img { display: block; max-width: 100%; }
   z-index: 90;
   opacity: .028;
   pointer-events: none;
-  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.86' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='.55'/%3E%3C/svg%3E");
+  background-image: url("assets/noise.png");
+  background-size: 128px 128px;
   mix-blend-mode: soft-light;
 }
 main, .site-footer { position: relative; z-index: 2; }
@@ -2880,4 +2881,119 @@ body.route-join { background:#090312; }
 }
 @media (prefers-reduced-motion:reduce) {
   .institution-connector-path { animation:none; }
+}
+
+
+/* ==========================================================================
+   V5.3.1 — mobile WebKit stability profile
+   ========================================================================== */
+/* iOS/iPadOS browsers share WebKit's compositor and a comparatively strict
+   per-tab GPU-memory budget. These rules preserve the composition while
+   avoiding large persistent raster surfaces and work that is literally hidden. */
+
+/* The prelaunch overlay completely obscures page content, so CSS animations
+   behind it should not allocate layers or repaint until launch. */
+body.prelaunch main *,
+body.prelaunch main *::before,
+body.prelaunch main *::after,
+body.prelaunch .site-footer *,
+body.prelaunch .site-footer *::before,
+body.prelaunch .site-footer *::after {
+  animation-play-state: paused !important;
+}
+
+/* On mobile WebKit, section effects only run while the section is near the
+   viewport. JS toggles .svpr-live with IntersectionObserver. */
+html.svpr-mobile-webkit section:not(.svpr-live) *,
+html.svpr-mobile-webkit section:not(.svpr-live) *::before,
+html.svpr-mobile-webkit section:not(.svpr-live) *::after,
+html.svpr-mobile-webkit section:not(.svpr-live)::before,
+html.svpr-mobile-webkit section:not(.svpr-live)::after {
+  animation-play-state: paused !important;
+}
+
+/* Persistent will-change hints force Safari to reserve compositor surfaces even
+   when an element is far off-screen. Let WebKit promote layers only as needed. */
+html.svpr-mobile-webkit * { will-change: auto !important; }
+
+/* The noise texture is now pre-rasterized rather than evaluating SVG turbulence
+   in a fixed full-screen layer. Normal blending at very low opacity is visually
+   equivalent on the dark site and removes another full-screen blend pass. */
+html.svpr-mobile-webkit .page-noise {
+  mix-blend-mode: normal;
+  opacity: .016;
+}
+html.svpr-mobile-webkit body.route-about .page-noise { opacity: .035; }
+
+/* Fixed backdrop filters are particularly costly while Safari's browser chrome
+   is moving. Slightly more opaque fills preserve the same glass appearance. */
+html.svpr-mobile-webkit .site-header.scrolled {
+  -webkit-backdrop-filter: none;
+  backdrop-filter: none;
+  background: rgba(8,3,17,.92);
+}
+html.svpr-mobile-webkit .mobile-menu {
+  -webkit-backdrop-filter: none;
+  backdrop-filter: none;
+  background: rgba(6,1,14,.985);
+}
+html.svpr-mobile-webkit .sound-control {
+  -webkit-backdrop-filter: none;
+  backdrop-filter: none;
+  background: rgba(7,2,15,.94);
+}
+html.svpr-mobile-webkit .sound-credit {
+  -webkit-backdrop-filter: none;
+  backdrop-filter: none;
+  background: rgba(8,3,17,.96);
+}
+
+/* Large blurred radial-gradient layers already have feathered transparent edges;
+   the extra CSS blur creates oversized offscreen textures without materially
+   changing their appearance on a phone-sized display. */
+html.svpr-mobile-webkit .hero-nebula,
+html.svpr-mobile-webkit .research-hero-nebula,
+html.svpr-mobile-webkit .chapters-hero-nebula,
+html.svpr-mobile-webkit .chapters-v32-nebula,
+html.svpr-mobile-webkit .about-gradient-halo,
+html.svpr-mobile-webkit .join-halo {
+  filter: none !important;
+}
+
+/* Keep the ignition's pulse/explosion but avoid repeatedly re-rasterizing a
+   filtered parent surface. The existing box-shadows/radial gradients provide
+   the same glow. */
+html.svpr-mobile-webkit .intro-star { filter: none; }
+html.svpr-mobile-webkit .intro-star::before {
+  animation: introPulse 2.2s ease-in-out infinite;
+}
+html.svpr-mobile-webkit .stellar-intro.is-igniting .intro-star::after {
+  animation: supernovaFlashMobile .72s ease-out forwards;
+}
+@keyframes supernovaFlashMobile {
+  0% { opacity:.3; transform:scale(.55); }
+  18% { opacity:1; background:radial-gradient(circle,#fff 0 8%,rgba(255,235,124,.85) 10%,rgba(148,177,255,.58) 22%,rgba(82,103,232,.23) 39%,rgba(90,10,134,.1) 52%,transparent 70%); }
+  100% { opacity:0; transform:scale(7.5); }
+}
+
+/* Animate already-composited opacity instead of invalidating the expensive
+   stellar drop-shadow every 230 ms. The perceived flicker remains. */
+html.svpr-mobile-webkit .hero-mark { animation: none !important; }
+html.svpr-mobile-webkit body.site-launched #home-view:not([hidden]) .hero-mark-wrap {
+  animation: heroCompositeFlicker .23s steps(2,end) infinite alternate;
+}
+html.svpr-mobile-webkit .hero-lens-flare {
+  animation: heroLensFlickerMobile .23s steps(2,end) infinite alternate;
+}
+@keyframes heroCompositeFlicker {
+  0% { opacity:.94; }
+  34% { opacity:1; }
+  67% { opacity:.88; }
+  100% { opacity:1; }
+}
+@keyframes heroLensFlickerMobile {
+  0% { opacity:.72; }
+  34% { opacity:1; }
+  67% { opacity:.58; }
+  100% { opacity:.96; }
 }

@@ -1,5 +1,6 @@
 
 (() => {
+  const mobileWebKit = Boolean(window.SVPR_RUNTIME?.mobileWebKit);
   const homeView = document.getElementById('home-view');
   const researchView = document.getElementById('research-view');
   const chaptersView = document.getElementById('chapters-view');
@@ -52,40 +53,42 @@
     });
   };
 
-  document.addEventListener('click', (event) => {
-    const link = event.target.closest('a');
-    if (!link || event.defaultPrevented || event.button !== 0 || event.metaKey || event.ctrlKey || event.shiftKey || event.altKey) return;
-    const url = new URL(link.href, window.location.href);
-    if (url.origin !== window.location.origin) return;
+  if (!mobileWebKit) {
+    document.addEventListener('click', (event) => {
+      const link = event.target.closest('a');
+      if (!link || event.defaultPrevented || event.button !== 0 || event.metaKey || event.ctrlKey || event.shiftKey || event.altKey) return;
+      const url = new URL(link.href, window.location.href);
+      if (url.origin !== window.location.origin) return;
 
-    if (researchView && /\/research\/?$/.test(url.pathname)) {
-      event.preventDefault();
-      setRoute('research', { push: true, hash: url.hash });
-      return;
-    }
-    if (chaptersView && /\/chapters\/?$/.test(url.pathname)) {
-      event.preventDefault();
-      setRoute('chapters', { push: true, hash: url.hash });
-      return;
-    }
-    if (aboutView && /\/about\/?$/.test(url.pathname)) {
-      event.preventDefault();
-      setRoute('about', { push: true, hash: url.hash });
-      return;
-    }
-    if (joinView && /\/join\/?$/.test(url.pathname)) {
-      event.preventDefault();
-      setRoute('join', { push: true, hash: url.hash });
-      return;
-    }
-    if (homeView && (url.pathname === '/' || url.pathname.endsWith('/index.html')) && link.dataset.routeLink === 'home') {
-      event.preventDefault();
-      setRoute('home', { push: true, hash: url.hash });
-      return;
-    }
-  });
+      if (researchView && /\/research\/?$/.test(url.pathname)) {
+        event.preventDefault();
+        setRoute('research', { push: true, hash: url.hash });
+        return;
+      }
+      if (chaptersView && /\/chapters\/?$/.test(url.pathname)) {
+        event.preventDefault();
+        setRoute('chapters', { push: true, hash: url.hash });
+        return;
+      }
+      if (aboutView && /\/about\/?$/.test(url.pathname)) {
+        event.preventDefault();
+        setRoute('about', { push: true, hash: url.hash });
+        return;
+      }
+      if (joinView && /\/join\/?$/.test(url.pathname)) {
+        event.preventDefault();
+        setRoute('join', { push: true, hash: url.hash });
+        return;
+      }
+      if (homeView && (url.pathname === '/' || url.pathname.endsWith('/index.html')) && link.dataset.routeLink === 'home') {
+        event.preventDefault();
+        setRoute('home', { push: true, hash: url.hash });
+        return;
+      }
+    });
 
-  window.addEventListener('popstate', () => setRoute(pathRoute(), { push: false, hash: window.location.hash }));
+    window.addEventListener('popstate', () => setRoute(pathRoute(), { push: false, hash: window.location.hash }));
+  }
 
   // Direct internal-route loads skip the homepage ignition but keep the same shell.
   const initial = pathRoute();
@@ -95,6 +98,17 @@
     document.getElementById('stellar-intro')?.remove();
   }
   setRoute(initial, { push: false, hash: window.location.hash });
+
+  // Mobile WebKit uses the physical route fallbacks instead of keeping all five
+  // pages resident in one SPA document. This removes thousands of hidden DOM
+  // nodes/effect surfaces from Safari's per-tab memory budget. Desktop retains
+  // seamless History-API routing and uninterrupted score playback.
+  if (mobileWebKit) {
+    Object.entries(routeViews).forEach(([name, el]) => {
+      if (el && name !== initial) el.remove();
+    });
+    if (initial !== 'research') return;
+  }
 
   // Mount the same stateful Spectrum prism visualization used on the homepage.
   window.SVPRSpectrum?.mount(document.getElementById('spectrum-canvas-research'));
@@ -107,10 +121,10 @@
   const outcomeField = document.getElementById('outcome-field');
   const outcomeNodes = outcomeField ? [...outcomeField.querySelectorAll('[data-orbit-speed]')] : [];
   const researchReduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-  const researchConstrainedDevice = window.matchMedia('(pointer: coarse)').matches
+  const researchConstrainedDevice = mobileWebKit || window.matchMedia('(pointer: coarse)').matches
     || window.matchMedia('(max-width: 760px)').matches
     || (Number(navigator.deviceMemory || 8) <= 4);
-  const researchFrameInterval = researchConstrainedDevice ? (1000 / 45) : 0;
+  const researchFrameInterval = mobileWebKit ? (1000 / 30) : (researchConstrainedDevice ? (1000 / 45) : 0);
   let researchFrame = 0;
   let lastResearchPresented = -Infinity;
   let px = 0, py = 0, tx = 0, ty = 0;

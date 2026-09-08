@@ -1,12 +1,13 @@
 (() => {
+  const mobileWebKit = Boolean(window.SVPR_RUNTIME?.mobileWebKit);
   const view = document.getElementById('join-view');
   if (!view) return;
 
   const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-  const constrainedDevice = window.matchMedia('(pointer: coarse)').matches
+  const constrainedDevice = mobileWebKit || window.matchMedia('(pointer: coarse)').matches
     || window.matchMedia('(max-width: 760px)').matches
     || (Number(navigator.deviceMemory || 8) <= 4);
-  const frameInterval = constrainedDevice ? (1000 / 45) : 0;
+  const frameInterval = mobileWebKit ? (1000 / 30) : (constrainedDevice ? (1000 / 45) : 0);
   const clamp = (value, min, max) => Math.min(max, Math.max(min, value));
   const lerp = (a, b, t) => a + (b - a) * t;
 

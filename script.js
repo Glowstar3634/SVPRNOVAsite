@@ -3,6 +3,12 @@
   window.scrollTo(0, 0);
 
   const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  const mobileWebKit = Boolean(window.SVPR_RUNTIME?.mobileWebKit);
+  const runtimeRoute = /\/join(?:\/|$)/.test(location.pathname) ? 'join'
+    : /\/about(?:\/|$)/.test(location.pathname) ? 'about'
+    : /\/chapters(?:\/|$)/.test(location.pathname) ? 'chapters'
+    : /\/research(?:\/|$)/.test(location.pathname) ? 'research' : 'home';
+  const runtimeRouteRoot = mobileWebKit ? document.getElementById(`${runtimeRoute}-view`) : document;
   const clamp = (value, min, max) => Math.min(max, Math.max(min, value));
 
   // ---------------------------------------------------------------------------
@@ -33,7 +39,7 @@
   // ---------------------------------------------------------------------------
   // Scroll reveals
   // ---------------------------------------------------------------------------
-  const revealTargets = document.querySelectorAll('.reveal, .system-map, .constellation-map');
+  const revealTargets = runtimeRouteRoot?.querySelectorAll('.reveal, .system-map, .constellation-map') || [];
   if ('IntersectionObserver' in window && !reduceMotion) {
     const observer = new IntersectionObserver((entries) => {
       entries.forEach((entry) => {
@@ -47,6 +53,21 @@
     revealTargets.forEach((el) => el.classList.add('is-visible', 'in-view'));
   }
 
+  // iOS/iPadOS WebKit gets a stricter lifecycle for decorative CSS motion.
+  // Pausing animations outside the viewport prevents Safari from retaining many
+  // compositor surfaces for effects the visitor cannot currently see.
+  if (mobileWebKit) {
+    const liveSections = runtimeRouteRoot ? [...runtimeRouteRoot.querySelectorAll('section')] : [];
+    if ('IntersectionObserver' in window) {
+      const liveObserver = new IntersectionObserver((entries) => {
+        entries.forEach((entry) => entry.target.classList.toggle('svpr-live', entry.isIntersecting));
+      }, { rootMargin: '220px 0px', threshold: 0 });
+      liveSections.forEach((section) => liveObserver.observe(section));
+    } else {
+      liveSections.forEach((section) => section.classList.add('svpr-live'));
+    }
+  }
+
   document.getElementById('year').textContent = String(new Date().getFullYear());
 
   // ---------------------------------------------------------------------------
@@ -58,17 +79,19 @@
   const spaceCtx = spaceCanvas?.getContext('2d', { alpha: false });
   const homeRouteView = document.getElementById('home-view');
   const coarsePointer = window.matchMedia('(pointer: coarse)').matches;
-  const constrainedDevice = coarsePointer
+  const constrainedDevice = mobileWebKit || coarsePointer
     || window.matchMedia('(max-width: 760px)').matches
     || (Number(navigator.deviceMemory || 8) <= 4);
-  const maxCanvasDpr = constrainedDevice ? 1.5 : 2;
-  const starFrameInterval = constrainedDevice ? (1000 / 45) : 0;
+  const maxCanvasDpr = mobileWebKit ? 1 : (constrainedDevice ? 1.5 : 2);
+  const starFrameInterval = mobileWebKit ? (1000 / 30) : (constrainedDevice ? (1000 / 45) : 0);
   let stars = [];
   let spaceWidth = 0;
   let spaceHeight = 0;
   let dpr = 1;
   let spaceFrame = 0;
   let resizeTimer = 0;
+  let mobileSurfaceWidth = 0;
+  let mobileSurfaceHeight = 0;
   let lastStarFrame = -Infinity;
   const pointer = { x: 0, y: 0, tx: 0, ty: 0 };
   let starTime = 0;
@@ -95,16 +118,52 @@
     };
   };
 
-  const resizeSpace = () => {
-    if (!spaceCanvas || !spaceCtx) return;
-    const nextWidth = Math.max(1, window.innerWidth);
-    const nextHeight = Math.max(1, window.innerHeight);
-    const nextDpr = Math.min(window.devicePixelRatio || 1, maxCanvasDpr);
-    const pixelWidth = Math.round(nextWidth * nextDpr);
-    const pixelHeight = Math.round(nextHeight * nextDpr);
+  // Safari's 2D shadowBlur path is much more expensive than drawing a cached
+  // glow sprite. These tiny prerendered stars preserve the same soft halo while
+  // eliminating hundreds of blur operations per second on iOS.
+  const makeStarGlow = (warm = false) => {
+    if (!mobileWebKit) return null;
+    const sprite = document.createElement('canvas');
+    sprite.width = 32;
+    sprite.height = 32;
+    const ctx = sprite.getContext('2d');
+    if (!ctx) return null;
+    const gradient = ctx.createRadialGradient(16, 16, 0, 16, 16, 16);
+    gradient.addColorStop(0, warm ? 'rgba(255,250,224,1)' : 'rgba(255,255,255,1)');
+    gradient.addColorStop(.12, warm ? 'rgba(255,201,1,.76)' : 'rgba(210,225,255,.82)');
+    gradient.addColorStop(.38, warm ? 'rgba(255,201,1,.25)' : 'rgba(148,177,255,.3)');
+    gradient.addColorStop(1, 'rgba(82,103,232,0)');
+    ctx.fillStyle = gradient;
+    ctx.fillRect(0, 0, 32, 32);
+    return sprite;
+  };
+  const coolStarGlow = makeStarGlow(false);
+  const warmStarGlow = makeStarGlow(true);
 
-    // Avoid repeatedly reallocating the canvas backing store while mobile browser
-    // chrome is animating in/out. That pattern can briefly double GPU memory.
+  const resetMobileSurface = () => {
+    if (!mobileWebKit) return;
+    mobileSurfaceWidth = Math.max(1, window.innerWidth);
+    const screenHeight = Number(window.screen?.height || 0);
+    // Use one stable surface tall enough for both Safari chrome states. Keeping
+    // it fixed avoids allocating a fresh GPU buffer every time the URL bar moves.
+    mobileSurfaceHeight = Math.max(
+      1,
+      window.innerHeight,
+      screenHeight > 0 ? Math.min(screenHeight, window.innerHeight * 1.4) : 0
+    );
+  };
+
+  const resizeSpace = (forceSurfaceReset = false) => {
+    if (!spaceCanvas || !spaceCtx) return;
+    if (mobileWebKit && (forceSurfaceReset || !mobileSurfaceWidth || Math.abs(window.innerWidth - mobileSurfaceWidth) > 64)) {
+      resetMobileSurface();
+    }
+    const nextWidth = mobileWebKit ? mobileSurfaceWidth : Math.max(1, window.innerWidth);
+    const nextHeight = mobileWebKit ? mobileSurfaceHeight : Math.max(1, window.innerHeight);
+    const nextDpr = Math.min(window.devicePixelRatio || 1, maxCanvasDpr);
+    const pixelWidth = Math.max(1, Math.round(nextWidth * nextDpr));
+    const pixelHeight = Math.max(1, Math.round(nextHeight * nextDpr));
+
     if (spaceCanvas.width !== pixelWidth || spaceCanvas.height !== pixelHeight) {
       spaceCanvas.width = pixelWidth;
       spaceCanvas.height = pixelHeight;
@@ -115,16 +174,19 @@
     spaceCanvas.style.width = `${spaceWidth}px`;
     spaceCanvas.style.height = `${spaceHeight}px`;
     spaceCtx.setTransform(dpr, 0, 0, dpr, 0, 0);
-    const count = Math.round(clamp((spaceWidth * spaceHeight) / 4300, 165, 390));
+    const count = Math.round(clamp((spaceWidth * spaceHeight) / 4300, 165, mobileWebKit ? 310 : 390));
     stars = Array.from({ length: count }, randomStar);
   };
 
   const scheduleResizeSpace = () => {
+    // Safari fires resize repeatedly while its address bar collapses/expands. A
+    // pure height change should not rebuild the canvas backing store.
+    if (mobileWebKit && mobileSurfaceWidth && Math.abs(window.innerWidth - mobileSurfaceWidth) <= 64) return;
     window.clearTimeout(resizeTimer);
     resizeTimer = window.setTimeout(() => {
-      resizeSpace();
+      resizeSpace(mobileWebKit);
       if (reduceMotion) drawSpace(performance.now());
-    }, constrainedDevice ? 140 : 60);
+    }, constrainedDevice ? 160 : 60);
   };
 
   const requestSpaceFrame = () => {
@@ -165,16 +227,28 @@
       const twinkle = reduceMotion ? 1 : 0.82 + Math.sin(time * 0.0012 + star.phase) * 0.18;
       const radius = star.radius * (0.58 + star.depth * 0.62);
       spaceCtx.globalAlpha = star.alpha * twinkle;
-      if (radius > 0.72) {
-        spaceCtx.shadowBlur = 5 * star.depth;
-        spaceCtx.shadowColor = star.shadow;
+      if (mobileWebKit) {
+        const glow = star.warmth ? warmStarGlow : coolStarGlow;
+        if (glow && radius > .58) {
+          const size = 5.5 + star.depth * 7;
+          spaceCtx.drawImage(glow, x - size / 2, y - size / 2, size, size);
+        } else {
+          const size = Math.max(.55, radius * 1.45);
+          spaceCtx.fillStyle = star.fill;
+          spaceCtx.fillRect(x - size / 2, y - size / 2, size, size);
+        }
       } else {
-        spaceCtx.shadowBlur = 0;
+        if (radius > 0.72) {
+          spaceCtx.shadowBlur = 5 * star.depth;
+          spaceCtx.shadowColor = star.shadow;
+        } else {
+          spaceCtx.shadowBlur = 0;
+        }
+        spaceCtx.beginPath();
+        spaceCtx.arc(x, y, radius, 0, Math.PI * 2);
+        spaceCtx.fillStyle = star.fill;
+        spaceCtx.fill();
       }
-      spaceCtx.beginPath();
-      spaceCtx.arc(x, y, radius, 0, Math.PI * 2);
-      spaceCtx.fillStyle = star.fill;
-      spaceCtx.fill();
     });
     spaceCtx.globalAlpha = 1;
     spaceCtx.shadowBlur = 0;
@@ -253,7 +327,7 @@
 // Spectrum generative network visual (shared with /research)
 // ---------------------------------------------------------------------------
 const spectrumCanvas = document.getElementById('spectrum-canvas');
-window.SVPRSpectrum?.mount(spectrumCanvas);
+if (!mobileWebKit || runtimeRoute === 'home') window.SVPRSpectrum?.mount(spectrumCanvas);
 
 // ---------------------------------------------------------------------------
 // Constellation topology + distant depth parallax
@@ -263,7 +337,7 @@ window.SVPRSpectrum?.mount(spectrumCanvas);
   // ---------------------------------------------------------------------------
   const constellationMap = document.getElementById('constellation-map');
   const constellationSvg = document.getElementById('constellation-lines');
-  if (constellationMap && constellationSvg) {
+  if (constellationMap && constellationSvg && (!mobileWebKit || runtimeRoute === 'home')) {
     const coreEl = constellationMap.querySelector('.constellation-core');
     const nodes = [...constellationMap.querySelectorAll('.constellation-node')];
     const points = [coreEl, ...nodes].filter(Boolean);
@@ -547,9 +621,10 @@ window.SVPRSpectrum?.mount(spectrumCanvas);
 
     deepSpaceBoom();
     userPaused = false;
-    // The score may still be fetching on a mobile connection. Do not make the
-    // visual ignition wait for media readiness; the synthesized boom is immediate.
-    void playScore();
+    // Do not overlap Safari's largest visual allocation spike with MP3 decoder
+    // startup. The score still begins as part of ignition, just after the blast.
+    if (mobileWebKit) window.setTimeout(() => { if (!userPaused) void playScore(); }, 760);
+    else void playScore();
     intro.classList.add('is-igniting');
 
     window.setTimeout(() => {

@@ -4,6 +4,14 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <meta name="theme-color" content="#000000" />
+  <script>
+    (() => {
+      const ua = navigator.userAgent || '';
+      const mobileWebKit = /iP(?:hone|ad|od)/.test(ua) || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
+      window.SVPR_RUNTIME = Object.assign(window.SVPR_RUNTIME || {}, { mobileWebKit });
+      if (mobileWebKit) document.documentElement.classList.add('svpr-mobile-webkit');
+    })();
+  </script>
   <meta name="description" content="Explore the SVPRNOVA Constellation, University Chapters, and Research Hubs." />
   <title>Chapters — SVPRNOVA</title>
   <link rel="preconnect" href="https://fonts.googleapis.com" />
