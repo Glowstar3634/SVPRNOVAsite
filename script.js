@@ -61,7 +61,7 @@
     if ('IntersectionObserver' in window) {
       const liveObserver = new IntersectionObserver((entries) => {
         entries.forEach((entry) => entry.target.classList.toggle('svpr-live', entry.isIntersecting));
-      }, { rootMargin: '220px 0px', threshold: 0 });
+      }, { rootMargin: '32px 0px', threshold: 0 });
       liveSections.forEach((section) => liveObserver.observe(section));
     } else {
       liveSections.forEach((section) => section.classList.add('svpr-live'));

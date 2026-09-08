@@ -2997,3 +2997,31 @@ html.svpr-mobile-webkit .hero-lens-flare {
   67% { opacity:.58; }
   100% { opacity:.96; }
 }
+
+/* ==========================================================================
+   V5.3.2 — mobile launch compositor fix
+   ========================================================================== */
+/*
+   Do NOT animate opacity on the entire scrolling document on iOS/iPadOS.
+   A root opacity transition can cause WebKit to promote/rasterize the whole
+   (many-thousand-pixel-tall) <main> into compositor tiles at ignition time.
+   The ignition overlay already provides the visual crossfade, and the hero's
+   title/copy retain their own reveal animations, so removing this giant layer
+   does not change the intended presentation.
+*/
+html.svpr-mobile-webkit main,
+html.svpr-mobile-webkit .site-footer {
+  transition: none !important;
+}
+html.svpr-mobile-webkit body.prelaunch main,
+html.svpr-mobile-webkit body.prelaunch .site-footer {
+  opacity: 1 !important;
+  visibility: hidden;
+  pointer-events: none;
+}
+html.svpr-mobile-webkit body.site-launched main,
+html.svpr-mobile-webkit body.site-launched .site-footer {
+  opacity: 1 !important;
+  visibility: visible;
+}
+

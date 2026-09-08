@@ -1,4 +1,4 @@
-# SVPRNOVA Public Website — V5.3.1
+# SVPRNOVA Public Website — V5.3.2
 
 Static front-end package for `svprnova.org`.
 
@@ -22,6 +22,13 @@ Desktop retains the seamless shared client-side route shell and continuous score
 - `join.js` — Join system animations
 - `siteData.js` — public content data
 - `assets/` — brand, score, founder, artist, and prerasterized noise assets
+
+
+## V5.3.2 ignition handoff fix
+- Removed the mobile-WebKit opacity transition from the full scrolling `<main>` and footer. The homepage remains exactly the same height/layout, but Safari no longer needs to promote a roughly 7,800 CSS-pixel-tall page into compositor tiles when ignition completes.
+- The existing full-screen ignition overlay now provides the crossfade by itself; the hero title and copy retain their original post-ignition reveal animations, preserving the visible sequence.
+- Tightened the iOS/iPadOS section activation margin so only the hero's decorative motion wakes during the ignition handoff; below-the-fold effects resume as they approach the viewport.
+- Desktop launch behavior is unchanged.
 
 ## V5.3.1 mobile stability fixes
 - Added an iOS/iPadOS WebKit-specific stability profile, detected before first paint.
